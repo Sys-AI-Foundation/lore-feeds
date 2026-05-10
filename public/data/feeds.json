@@ -1,6 +1,18 @@
 {
-  "timestamp": "2026-05-10T19:17:48.388Z",
+  "timestamp": "2026-05-10T19:19:35.099Z",
   "entries": [
+    {
+      "id": "19e135440c9eaca2",
+      "msgId": "<agDaGJ5UKndFUNPY@archlinux>",
+      "title": "Re: [PATCH] staging: rtl8723bs: fix line length checks in rtw_cmd.c",
+      "updated": "Sun, 10 May 2026 22:18:48 +0300",
+      "authorName": "Nikolay Kulikov",
+      "authorEmail": "nikolayof23@gmail.com",
+      "content": "On Sat, May 09, 2026 at 11:29:36PM -0400, Noah Techoueyres wrote:\r\n> Fix both block comments and assignment statements that exceed the\r\n> 100-column limit to follow Linux guidelines for readability.\r\n> \r\n> Signed-off-by: Noah Techoueyres <noahtechoueyres@gmail.com>\r\n> ---\r\n>  drivers/staging/rtl8723bs/core/rtw_cmd.c | 23 +++++++++++++++++------\r\n>  1 file changed, 17 insertions(+), 6 deletions(-)\r\n> \r\n> diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c\r\n> index c1185c25ed36..a401c856c727 100644\r\n> --- a/drivers/staging/rtl8723bs/core/rtw_cmd.c\r\n> +++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c\r\n> @@ -1117,13 +1117,17 @@ static void collect_traffic_statistics(struct adapter *padapter)\r\n>  \tpdvobjpriv->traffic_stat.rx_drop = padapter->recvpriv.rx_drop;\r\n>  \r\n>  \t/*  Calculate throughput in last interval */\r\n> -\tpdvobjpriv->traffic_stat.cur_tx_bytes = pdvobjpriv->traffic_stat.tx_bytes - pdvobjpriv->traffic_stat.last_tx_bytes;\r\n> -\tpdvobjpriv->traffic_stat.cur_rx_bytes = pdvobjpriv->traffic_stat.rx_bytes - pdvobjpriv->traffic_stat.last_rx_bytes;\r\n> +\tpdvobjpriv->traffic_stat.cur_tx_bytes =\r\n> +\t\tpdvobjpriv->traffic_stat.tx_bytes - pdvobjpriv->traffic_stat.last_tx_bytes;\r\n> +\tpdvobjpriv->traffic_stat.cur_rx_bytes =\r\n> +\t\tpdvobjpriv->traffic_stat.rx_bytes - pdvobjpriv->traffic_stat.last_rx_bytes;\r\n>  \tpdvobjpriv->traffic_stat.last_tx_bytes = pdvobjpriv->traffic_stat.tx_bytes;\r\n>  \tpdvobjpriv->traffic_stat.last_rx_bytes = pdvobjpriv->traffic_stat.rx_bytes;\r\n>  \r\n> -\tpdvobjpriv->traffic_stat.cur_tx_tp = (u32)(pdvobjpriv->traffic_stat.cur_tx_bytes * 8 / 2 / 1024 / 1024);\r\n> -\tpdvobjpriv->traffic_stat.cur_rx_tp = (u32)(pdvobjpriv->traffic_stat.cur_rx_bytes * 8 / 2 / 1024 / 1024);\r\n> +\tpdvobjpriv->traffic_stat.cur_tx_tp =\r\n> +\t\t(u32)(pdvobjpriv->traffic_stat.cur_tx_bytes * 8 / 2 / 1024 / 1024);\r\n> +\tpdvobjpriv->traffic_stat.cur_rx_tp =\r\n> +\t\t(u32)(pdvobjpriv->traffic_stat.cur_rx_bytes * 8 / 2 / 1024 / 1024);\r\n>  }\r\n\r\nWhat about adding an intermediate pointer to traffic_stat?\r\nThis will not only reduce the length of the lines, but will also make\r\nthe code easier to read.\r\n\r\n\r\nThanks,\r\nNikolay\r\n\r\n>  \r\n>  bool traffic_status_watchdog(struct adapter *padapter, bool from_timer)\r\n> @@ -1743,7 +1747,11 @@ u8 rtw_drvextra_cmd_hdl(struct adapter *padapter, unsigned char *pbuf)\r\n>  \tpdrvextra_cmd = (struct drvextra_cmd_parm *)pbuf;\r\n>  \r\n>  \tswitch (pdrvextra_cmd->ec_id) {\r\n> -\tcase DYNAMIC_CHK_WK_CID:/* only  primary padapter go to this cmd, but execute dynamic_chk_wk_hdl() for two interfaces */\r\n> +\tcase DYNAMIC_CHK_WK_CID:\r\n> +\t\t/*\r\n> +\t\t * only primary padapter go to this cmd, but execute\r\n> +\t\t * dynamic_chk_wk_hdl() for two interfaces\r\n> +\t\t */\r\n>  \t\tdynamic_chk_wk_hdl(padapter);\r\n>  \t\tbreak;\r\n>  \tcase POWER_SAVING_CTRL_WK_CID:\r\n> @@ -1881,7 +1889,10 @@ void rtw_createbss_cmd_callback(struct adapter *padapter, struct cmd_obj *pcmd)\r\n>  \t\t_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);\r\n>  \r\n>  \t\tspin_unlock_bh(&pmlmepriv->scanned_queue.lock);\r\n> -\t\t/*  we will set _FW_LINKED when there is one more sat to join us (rtw_stassoc_event_callback) */\r\n> +\t\t/*\r\n> +\t\t * we will set _FW_LINKED when there is one more sta\r\n> +\t\t * to join us (rtw_stassoc_event_callback)\r\n> +\t\t */\r\n>  \t}\r\n>  \r\n>  createbss_cmd_fail:\r\n> -- \r\n> 2.53.0\r\n> \r\n\r\n",
+      "listType": "LKML",
+      "to": "Noah Techoueyres <noahtechoueyres@gmail.com>",
+      "cc": "gregkh@linuxfoundation.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "19e13515b366c4b7",
       "msgId": "<20260510191459.90769-4-javierm@redhat.com>",
@@ -386,6 +398,18 @@
       "cc": "Iyappan Subramanian <iyappan@os.amperecomputing.com>, Keyur Chudgar <keyur@os.amperecomputing.com>, Quan Nguyen <quan@os.amperecomputing.com>, Jakub Kicinski <kuba@kernel.org>, \"David S . Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Shitalkumar Gandhi <shitalkumar.gandhi@cambiumnetworks.com>"
     },
     {
+      "id": "19e135481f37076c",
+      "msgId": "<c758029d-186f-4a9f-b953-90121f43d8d8@al2klimov.de>",
+      "title": "[PATCH] Greybus audio protocols drivers: correct sscanf() return value check",
+      "updated": "Sun, 10 May 2026 20:41:43 +0200",
+      "authorName": "\"Alexander A. Klimov\"",
+      "authorEmail": "grandmaster@al2klimov.de",
+      "content": "manager_sysfs_add_store() passes 6 pointers to sscanf(),\r\nbut required latter to return 7 which always failed the operation.\r\nI corrected it to 6.\r\n\r\nSigned-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>\r\n---\r\n  drivers/staging/greybus/audio_manager_sysfs.c | 2 +-\r\n  1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/staging/greybus/audio_manager_sysfs.c b/drivers/staging/greybus/audio_manager_sysfs.c\r\nindex fcd518f954..ff323ca815 100644\r\n--- a/drivers/staging/greybus/audio_manager_sysfs.c\r\n+++ b/drivers/staging/greybus/audio_manager_sysfs.c\r\n@@ -23,7 +23,7 @@ static ssize_t manager_sysfs_add_store(struct kobject *kobj,\r\n  \t\t\tdesc.name, &desc.vid, &desc.pid, &desc.intf_id,\r\n  \t\t\t&desc.ip_devices, &desc.op_devices);\r\n\r\n-\tif (num != 7)\r\n+\tif (num != 6)\r\n  \t\treturn -EINVAL;\r\n\r\n  \tnum = gb_audio_manager_add(&desc);\r\n-- \r\n2.54.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Vaibhav Agarwal <vaibhav.sr@gmail.com>, Mark Greer <mgreer@animalcreek.com>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+      "cc": "greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>"
+    },
+    {
       "id": "19e1331cf722f899",
       "msgId": "<20260510184122.GV15617@horms.kernel.org>",
       "title": "Re: [PATCH net] net: xgene: fix mdio_np leak in xgene_mdiobus_register()",
@@ -660,6 +684,18 @@
       "listType": "LKML",
       "to": "Gunnar Kudrjavets <gunnarku@amazon.com>",
       "cc": "jbouron@amazon.com, jgg@ziepe.ca, linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org, mhijaz@amazon.com, noodles@meta.com, peterhuewe@gmx.de"
+    },
+    {
+      "id": "19e13545a29caabe",
+      "msgId": "<7cb7d771-5bf1-4d26-ac0f-c8968372bfba@al2klimov.de>",
+      "title": "[PATCH] Fix possible strscpy() buffer overflows",
+      "updated": "Sun, 10 May 2026 20:24:41 +0200",
+      "authorName": "\"Alexander A. Klimov\"",
+      "authorEmail": "grandmaster@al2klimov.de",
+      "content": "In the changed files, strings were copied like this:\r\n\r\n     strscpy(DST, SRC, strlen(SRC));\r\n\r\nA buffer overflow would happen if strlen(SRC) > sizeof(DST).\r\nActually, strscpy() must be used this way:\r\n\r\n     strscpy(DST, SRC, sizeof(DST));\r\n     strscpy(DST, SRC); // defaults to sizeof(DST)\r\n\r\nSigned-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>\r\n---\r\n  drivers/edac/versalnet_edac.c | 3 +--\r\n  drivers/misc/lkdtm/fortify.c  | 6 +-----\r\n  sound/soc/codecs/fs210x.c     | 2 +-\r\n  3 files changed, 3 insertions(+), 8 deletions(-)\r\n\r\ndiff --git a/drivers/edac/versalnet_edac.c b/drivers/edac/versalnet_edac.c\r\nindex ec13155824..daa140f4db 100644\r\n--- a/drivers/edac/versalnet_edac.c\r\n+++ b/drivers/edac/versalnet_edac.c\r\n@@ -728,8 +728,7 @@ static int rpmsg_probe(struct rpmsg_device *rpdev)\r\n  \tpg = (struct mc_priv *)amd_rpmsg_id_table[0].driver_data;\r\n  \tchinfo.src = RPMSG_ADDR_ANY;\r\n  \tchinfo.dst = rpdev->dst;\r\n-\tstrscpy(chinfo.name, amd_rpmsg_id_table[0].name,\r\n-\t\tstrlen(amd_rpmsg_id_table[0].name));\r\n+\tstrscpy(chinfo.name, amd_rpmsg_id_table[0].name);\r\n\r\n  \tpg->ept = rpmsg_create_ept(rpdev, rpmsg_cb, NULL, chinfo);\r\n  \tif (!pg->ept)\r\ndiff --git a/drivers/misc/lkdtm/fortify.c b/drivers/misc/lkdtm/fortify.c\r\nindex 7615a02dfc..9a9159a120 100644\r\n--- a/drivers/misc/lkdtm/fortify.c\r\n+++ b/drivers/misc/lkdtm/fortify.c\r\n@@ -174,11 +174,7 @@ static void lkdtm_FORTIFY_STRSCPY(void)\r\n  \t/* Restore src to its initial value. */\r\n  \tsrc[3] = 'b';\r\n\r\n-\t/*\r\n-\t * Use strlen here so size cannot be known at compile time and there is\r\n-\t * a runtime write overflow.\r\n-\t */\r\n-\tstrscpy(dst, src, strlen(src));\r\n+\tstrscpy(dst, src);\r\n\r\n  \tpr_err(\"FAIL: strscpy() overflow not detected!\\n\");\r\n  \tpr_expected_config(CONFIG_FORTIFY_SOURCE);\r\ndiff --git a/sound/soc/codecs/fs210x.c b/sound/soc/codecs/fs210x.c\r\nindex e6195b71ad..eda716f817 100644\r\n--- a/sound/soc/codecs/fs210x.c\r\n+++ b/sound/soc/codecs/fs210x.c\r\n@@ -968,7 +968,7 @@ static int fs210x_effect_scene_info(struct snd_kcontrol *kcontrol,\r\n  \tif (scene->name)\r\n  \t\tname = scene->name;\r\n\r\n-\tstrscpy(uinfo->value.enumerated.name, name, strlen(name) + 1);\r\n+\tstrscpy(uinfo->value.enumerated.name, name);\r\n\r\n  \treturn 0;\r\n  }\r\n-- \r\n2.54.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>, Borislav Petkov <bp@alien8.de>, Tony Luck <tony.luck@intel.com>, Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nick Li <nick.li@foursemi.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>",
+      "cc": "linux-edac@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-sound@vger.kernel.org"
     },
     {
       "id": "19e131fc20363e91",
@@ -1920,6 +1956,18 @@
       "listType": "LKML",
       "to": "Pramod Maurya <pramod.nexgen@gmail.com>",
       "cc": "robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, jacobsfeder@gmail.com, devicetree@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19e135434f667547",
+      "msgId": "<a0e8e572-397b-4e76-b743-62dce31a3ed8@al2klimov.de>",
+      "title": "[PATCH] Auxiliary display drivers: fix possible race condition",
+      "updated": "Sun, 10 May 2026 18:06:46 +0200",
+      "authorName": "\"Alexander A. Klimov\"",
+      "authorEmail": "grandmaster@al2klimov.de",
+      "content": "Before linedisp_unregister(), call disable_delayed_work_sync(),\r\nnot just cancel_delayed_work_sync().\r\n\r\nWhile cancel_delayed_work_sync() cancels queued work and\r\nawaits running work, it doesn't reject future work, such as\r\nscheduled by the timer which is set up in linedisp_register().\r\nThis timer may fire just before linedisp_unregister() stops it\r\nand cause kind of use after free.\r\n\r\nIn contrast, disable_delayed_work_sync() also prevents future work.\r\n\r\nSigned-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>\r\n---\r\n  drivers/auxdisplay/max6959.c      | 2 +-\r\n  drivers/auxdisplay/seg-led-gpio.c | 2 +-\r\n  2 files changed, 2 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/auxdisplay/max6959.c b/drivers/auxdisplay/max6959.c\r\nindex 6bbc8d48fb..a123077945 100644\r\n--- a/drivers/auxdisplay/max6959.c\r\n+++ b/drivers/auxdisplay/max6959.c\r\n@@ -148,7 +148,7 @@ static void max6959_i2c_remove(struct i2c_client *client)\r\n  {\r\n  \tstruct max6959_priv *priv = i2c_get_clientdata(client);\r\n\r\n-\tcancel_delayed_work_sync(&priv->work);\r\n+\tdisable_delayed_work_sync(&priv->work);\r\n  \tlinedisp_unregister(&priv->linedisp);\r\n  }\r\n\r\ndiff --git a/drivers/auxdisplay/seg-led-gpio.c b/drivers/auxdisplay/seg-led-gpio.c\r\nindex dfb62e9ce9..83a2b3ff13 100644\r\n--- a/drivers/auxdisplay/seg-led-gpio.c\r\n+++ b/drivers/auxdisplay/seg-led-gpio.c\r\n@@ -84,7 +84,7 @@ static void seg_led_remove(struct platform_device *pdev)\r\n  {\r\n  \tstruct seg_led_priv *priv = platform_get_drvdata(pdev);\r\n\r\n-\tcancel_delayed_work_sync(&priv->work);\r\n+\tdisable_delayed_work_sync(&priv->work);\r\n  \tlinedisp_unregister(&priv->linedisp);\r\n  }\r\n\r\n-- \r\n2.54.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Andy Shevchenko <andy@kernel.org>",
+      "cc": "Geert Uytterhoeven <geert@linux-m68k.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>"
     },
     {
       "id": "19e12a417546f6b8",
