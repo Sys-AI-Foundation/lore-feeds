@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: '*/20 * * * *' # Every 20 minutes
   workflow_dispatch: # Allow manual trigger
+    inputs:
+      rebuild:
+        description: 'Rebuild database from Gmail (true/false)'
+        required: false
+        default: 'false'
+      limit:
+        description: 'Number of messages to fetch'
+        required: false
+        default: '5000'
 
 permissions:
   contents: write
@@ -30,6 +39,8 @@ jobs:
         GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
         GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
         GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
+        REBUILD: ${{ github.event.inputs.rebuild }}
+        FETCH_LIMIT: ${{ github.event.inputs.limit }}
 
     - name: Commit and push changes
       run: |

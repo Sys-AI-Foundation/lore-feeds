@@ -29,8 +29,11 @@ async function main() {
       fs.mkdirSync(dirPath, { recursive: true });
     }
 
+    const rebuild = process.env.REBUILD === 'true';
+    const fetchLimit = parseInt(process.env.FETCH_LIMIT || '1000', 10);
+
     let existingEntries = [];
-    if (fs.existsSync(filePath)) {
+    if (!rebuild && fs.existsSync(filePath)) {
       try {
         const fileData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
         existingEntries = fileData.entries || [];
@@ -42,15 +45,27 @@ async function main() {
     
     const existingIds = new Set(existingEntries.map(e => e.id));
 
-    console.log(`Fetching Gmail messages...`);
+    console.log(`Fetching Gmail messages (rebuild=${rebuild}, limit=${fetchLimit})...`);
     
-    const res = await gmail.users.messages.list({
-      userId: 'mailinglist@sysaifoundation.org',
-      maxResults: 1000
-    });
-
-    const messages = res.data.messages || [];
-    console.log(`Found ${messages.length} messages.`);
+    let messages = [];
+    let pageToken = undefined;
+    
+    while (messages.length < fetchLimit) {
+      const maxResults = Math.min(fetchLimit - messages.length, 500);
+      const res = await gmail.users.messages.list({
+        userId: 'mailinglist@sysaifoundation.org',
+        maxResults: maxResults,
+        pageToken: pageToken
+      });
+      
+      const pageMsgs = res.data.messages || [];
+      messages.push(...pageMsgs);
+      
+      pageToken = res.data.nextPageToken;
+      if (!pageToken || pageMsgs.length === 0) break;
+    }
+    
+    console.log(`Found ${messages.length} messages total from Gmail.`);
 
     const newMessages = messages.filter(msg => !existingIds.has(msg.id));
     console.log(`Found ${newMessages.length} new messages to fetch.`);
@@ -199,7 +214,7 @@ async function main() {
       const archiveFilePath = path.join(archiveDir, `${dayKey}.json`);
       let existingArchiveEntries = [];
       
-      if (fs.existsSync(archiveFilePath)) {
+      if (!rebuild && fs.existsSync(archiveFilePath)) {
         try {
           const archiveData = JSON.parse(fs.readFileSync(archiveFilePath, 'utf-8'));
           existingArchiveEntries = archiveData.entries || [];
