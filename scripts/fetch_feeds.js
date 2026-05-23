@@ -133,10 +133,27 @@ async function main() {
       return true;
     });
 
-    // Limit total entries to keep file size reasonable and within GitHub limits (and optimize browser load times)
-    const maxEntries = 2000;
-    const finalEntries = deduplicated.slice(0, maxEntries);
-    console.log(`Total entries after merge: ${deduplicated.length}. Keeping the latest ${finalEntries.length} entries.`);
+    // Filter to keep only entries from the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const last30DaysEntries = deduplicated.filter(entry => {
+      const date = new Date(entry.updated);
+      return !isNaN(date.getTime()) && date >= thirtyDaysAgo;
+    });
+
+    // Smart Hybrid Approach: Strip content for entries past the latest 2000 to keep file size tiny
+    const maxWithContent = 2000;
+    const finalEntries = last30DaysEntries.map((entry, index) => {
+      if (index >= maxWithContent) {
+        const stripped = { ...entry };
+        delete stripped.content;
+        return stripped;
+      }
+      return entry;
+    });
+
+    console.log(`Total entries in last 30 days: ${last30DaysEntries.length}. Storing ${Math.min(last30DaysEntries.length, maxWithContent)} with full content.`);
 
     // Save active feed to file
     const outputData = {
