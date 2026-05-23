@@ -138,13 +138,73 @@ async function main() {
     const finalEntries = deduplicated.slice(0, maxEntries);
     console.log(`Total entries after merge: ${deduplicated.length}. Keeping the latest ${finalEntries.length} entries.`);
 
-    // Save to file
+    // Save active feed to file
     const outputData = {
       timestamp: new Date().toISOString(),
       entries: finalEntries
     };
     fs.writeFileSync(filePath, JSON.stringify(outputData, null, 2));
-    console.log(`Successfully saved ${finalEntries.length} entries to ${filePath}`);
+    console.log(`Successfully saved ${finalEntries.length} active entries to ${filePath}`);
+
+    // Save all entries to monthly archives to preserve full history
+    const archiveDir = path.join(dirPath, 'archive');
+    if (!fs.existsSync(archiveDir)) {
+      fs.mkdirSync(archiveDir, { recursive: true });
+    }
+
+    // Group all entries by YYYY-MM-DD (daily archives)
+    const groupedByDay = {};
+    deduplicated.forEach(entry => {
+      try {
+        const date = new Date(entry.updated);
+        if (!isNaN(date.getTime())) {
+          const year = date.getUTCFullYear();
+          const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(date.getUTCDate()).padStart(2, '0');
+          const key = `${year}-${month}-${day}`;
+          if (!groupedByDay[key]) {
+            groupedByDay[key] = [];
+          }
+          groupedByDay[key].push(entry);
+        }
+      } catch (e) {
+        // Skip invalid dates
+      }
+    });
+
+    // Write out each day's archive
+    let archivedCount = 0;
+    Object.entries(groupedByDay).forEach(([dayKey, dayEntries]) => {
+      const archiveFilePath = path.join(archiveDir, `${dayKey}.json`);
+      let existingArchiveEntries = [];
+      
+      if (fs.existsSync(archiveFilePath)) {
+        try {
+          const archiveData = JSON.parse(fs.readFileSync(archiveFilePath, 'utf-8'));
+          existingArchiveEntries = archiveData.entries || [];
+        } catch (err) {
+          // Ignore and start fresh
+        }
+      }
+      
+      // Merge, sort, and deduplicate for this specific day
+      const mergedDayEntries = [...dayEntries, ...existingArchiveEntries];
+      mergedDayEntries.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+      
+      const seenDayIds = new Set();
+      const deduplicatedDay = mergedDayEntries.filter((entry) => {
+        if (seenDayIds.has(entry.msgId)) return false;
+        seenDayIds.add(entry.msgId);
+        return true;
+      });
+      
+      fs.writeFileSync(archiveFilePath, JSON.stringify({
+        timestamp: new Date().toISOString(),
+        entries: deduplicatedDay
+      }, null, 2));
+      archivedCount += deduplicatedDay.length;
+    });
+    console.log(`Successfully updated daily archives. Total archived entries: ${archivedCount}`);
 
   } catch (error) {
     console.error('Error fetching feeds:', error);
