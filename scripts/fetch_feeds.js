@@ -133,13 +133,18 @@ async function main() {
       return true;
     });
 
+    // Limit total entries to keep file size reasonable and within GitHub limits (and optimize browser load times)
+    const maxEntries = 2000;
+    const finalEntries = deduplicated.slice(0, maxEntries);
+    console.log(`Total entries after merge: ${deduplicated.length}. Keeping the latest ${finalEntries.length} entries.`);
+
     // Save to file
     const outputData = {
       timestamp: new Date().toISOString(),
-      entries: deduplicated
+      entries: finalEntries
     };
     fs.writeFileSync(filePath, JSON.stringify(outputData, null, 2));
-    console.log(`Successfully saved ${deduplicated.length} entries to ${filePath}`);
+    console.log(`Successfully saved ${finalEntries.length} entries to ${filePath}`);
 
   } catch (error) {
     console.error('Error fetching feeds:', error);
