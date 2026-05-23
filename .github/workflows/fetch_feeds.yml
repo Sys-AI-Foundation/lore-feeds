@@ -5,6 +5,9 @@ on:
     - cron: '*/20 * * * *' # Every 20 minutes
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
