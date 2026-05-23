@@ -119,10 +119,10 @@ async function main() {
 
       const listId = headers.find(h => h.name.toLowerCase() === 'list-id')?.value || '';
       let listType = 'Inbox';
-      if (listId.includes('linux-kernel')) {
-        listType = 'LKML';
-      } else if (listId.includes('linux-f2fs-devel')) {
+      if (listId.includes('linux-f2fs-devel')) {
         listType = 'F2FS';
+      } else if (listId.includes('linux-kernel')) {
+        listType = 'LKML';
       }
 
       allEntries.push({
