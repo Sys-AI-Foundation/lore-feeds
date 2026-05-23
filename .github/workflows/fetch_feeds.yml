@@ -2,7 +2,7 @@ name: Fetch Lore Feeds
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Every 5 minutes
+    - cron: '*/20 * * * *' # Every 20 minutes
   workflow_dispatch: # Allow manual trigger
 
 jobs:
