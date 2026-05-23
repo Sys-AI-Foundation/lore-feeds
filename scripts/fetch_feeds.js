@@ -33,13 +33,33 @@ async function main() {
     const fetchLimit = parseInt(process.env.FETCH_LIMIT || '1000', 10);
 
     let existingEntries = [];
-    if (!rebuild && fs.existsSync(filePath)) {
+    const archiveDir = path.join(dirPath, 'archive');
+
+    if (!rebuild && fs.existsSync(archiveDir)) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
+      
       try {
-        const fileData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-        existingEntries = fileData.entries || [];
-        console.log(`Loaded ${existingEntries.length} existing entries from ${filePath}`);
+        const files = fs.readdirSync(archiveDir).filter(f => f.endsWith('.json'));
+        files.forEach(file => {
+          const dateStr = file.replace('.json', '');
+          const fileDate = new Date(dateStr);
+          
+          if (!isNaN(fileDate.getTime()) && fileDate >= thirtyDaysAgo) {
+            const archiveFilePath = path.join(archiveDir, file);
+            try {
+              const archiveData = JSON.parse(fs.readFileSync(archiveFilePath, 'utf-8'));
+              const archEntries = archiveData.entries || [];
+              existingEntries.push(...archEntries);
+            } catch (err) {
+              // Ignore
+            }
+          }
+        });
+        console.log(`Loaded ${existingEntries.length} historical entries from daily archives.`);
       } catch (err) {
-        console.warn(`Failed to parse existing feeds.json: ${err.message}. Starting fresh.`);
+        console.warn(`Failed to read daily archives: ${err.message}`);
       }
     }
     
