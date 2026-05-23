@@ -47,7 +47,8 @@
       "content": "On Sun, May 10, 2026 at 03:31:56PM -0500, Dinh Nguyen wrote:\r\n> \r\n> \r\n> On 5/9/26 09:38, muhammad.nazim.amirul.nazle.asmade@altera.com wrote:\r\n> > From: Nazim Amirul <muhammad.nazim.amirul.nazle.asmade@altera.com>\r\n> > \r\n> > The OCRAM ECC is always enabled either by the BootROM or by the\r\n> > Secure Device Manager (SDM) during a power-on reset on SoCFPGA.\r\n> > \r\n> > However, during a warm reset, the OCRAM content is retained to\r\n> > preserve data, while the control and status registers are reset to\r\n> > their default values. As a result, ECC must be explicitly re-enabled\r\n> > after a warm reset.\r\n> > \r\n> > Signed-off-by: Niravkumar L Rabara <nirav.rabara@altera.com>\r\n> > Signed-off-by: Nazim Amirul <muhammad.nazim.amirul.nazle.asmade@altera.com>\r\n\r\nAnd fix your SOB chain:\r\n\r\nhttps://kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin\r\n\r\nFrom the above, I have no clue what Niravkumar has done.\r\n\r\n-- \r\nRegards/Gruss,\r\n    Boris.\r\n\r\nhttps://people.kernel.org/tglx/notes-about-netiquette\r\n\r\n",
       "listType": "LKML",
       "to": "Dinh Nguyen <dinguyen@kernel.org>",
-      "cc": "muhammad.nazim.amirul.nazle.asmade@altera.com, tony.luck@intel.com, linux-edac@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org"
+      "cc": "muhammad.nazim.amirul.nazle.asmade@altera.com, tony.luck@intel.com, linux-edac@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260509143803.7500-1-muhammad.nazim.amirul.nazle.asmade@altera.com>"
     },
     {
       "id": "19e13a400534cda8",
@@ -59,7 +60,8 @@
       "content": "Am 09.05.26 um 20:51 schrieb Jarkko Sakkinen:\r\n> wait_event_interruptible_timeout() evaluates its condition after setting\r\n> the current task state to TASK_INTERRUPTIBLE.\r\n>\r\n> With CONFIG_DEBUG_ATOMIC_SLEEP this triggers a warning when the IRQ wait\r\n> path is used:\r\n>\r\n>      tpm_tis_status()\r\n>        tpm_tis_spi_read_bytes()\r\n>          tpm_tis_spi_transfer_full()\r\n>            spi_bus_lock()\r\n>              mutex_lock()\r\n>\r\n> Address this with the following measures:\r\n>\r\n> 1. Call wait_tpm_stat_cond() only while tasking is running.\r\n> 2. Use wait_woken() to wait for changes.\r\n>\r\n> Cc: stable@vger.kernel.org # v4.19+\r\n> Cc: Linus Walleij <linusw@kernel.org>\r\n> Reported-by: Stefan Wahren <wahrenst@gmx.net>\r\n> Closes: https://lore.kernel.org/linux-integrity/6964bec7-3dbb-453b-89ef-9b990217a8b9@gmx.net/\r\n> Fixes: 1a339b658d9d (\"tpm_tis_spi: Pass the SPI IRQ down to the driver\")\r\n> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>\r\n>\r\nThe issue isn't reproducible anymore. Thanks\r\n\r\nTested-by: Stefan Wahren <wahrenst@gmx.net>\r\n\r\n",
       "listType": "LKML",
       "to": "Jarkko Sakkinen <jarkko@kernel.org>, linux-integrity@vger.kernel.org",
-      "cc": "stable@vger.kernel.org, Linus Walleij <linusw@kernel.org>, Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org"
+      "cc": "stable@vger.kernel.org, Linus Walleij <linusw@kernel.org>, Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260509185108.2681198-1-jarkko@kernel.org>"
     },
     {
       "id": "19e13a0f29619be9",
@@ -71,7 +73,8 @@
       "content": "On 09.05.26 17:18, Jarkko Sakkinen wrote:\r\n> On Wed, Apr 29, 2026 at 02:33:20PM +0000, Niedermayr, BENEDIKT wrote:\r\n>> On 10/27/25 20:51, Jarkko Sakkinen wrote:\r\n>>> On Tue, Oct 21, 2025 at 02:46:15PM +0200, Jan Kiszka wrote:\r\n>>>> From: Jan Kiszka <jan.kiszka@siemens.com>\r\n>>>>\r\n>>>> As seen with optee_ftpm, which uses ms-tpm-20-ref [1], a TPM may write\r\n>>>> the current time epoch to its NV storage every 4 seconds if there are\r\n>>>> commands sent to it. The 60 seconds periodic update of the entropy pool\r\n>>>> that the hwrng kthread does triggers this, causing about 4 writes per\r\n>>>> requests. Makes 2 millions per year for a 24/7 device, and that is a lot\r\n>>>> for its backing NV storage.\r\n>>>>\r\n>>>> It is therefore better to make the user intentionally enable this,\r\n>>>> providing a chance to read the warning.\r\n>>>>\r\n>>>> [1] https://github.com/Microsoft/ms-tpm-20-ref\r\n>>>>\r\n>>>> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>\r\n>>>\r\n>>> Looking at DRBG_* from [1] I don't see anything you describe. If OPTEE\r\n>>> writes NVRAM,  then the implementation is broken.\r\n>>>\r\n>>> Also AFAIK, it is pre-seeded per power cycle. There's nothing that even\r\n>>> distantly relates on using NVRAM.\r\n>>>\r\n>>> [1] https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-4-Supporting-Routines-Code.pdf\r\n>>\r\n>> Hi all,\r\n>>\r\n>> we recently also stumbled over this issue which led me here to this \r\n>> thread and maybe adding our observations helps to clarify things here a \r\n>> bit (hopefully) or at least augments the information related to firmware \r\n>> TPM based implementation based on ms-tpm-20-ref.\r\n>>\r\n>> Based on the optee_ftpm repo, as Jan already described, which currently \r\n>> references commit 98b60a44aba7 of [1] suffers this exact issue because \r\n>> of the NV_CLOCK_UPDATE_INTERVAL [2] which is set to \"12\" and issues a \r\n>> write for each command after ~4 seconds have passed.\r\n>>\r\n>> This config has been changed to \"22\" (on current master branch [3]) \r\n>> which is the allowed maximum when following the TPM spec (chapter 36.3.2 \r\n>> in [4]) which leads to round about 70 minutes, but optee_ftpm didn't \r\n>> move ahead to this commit, yet.\r\n>> This config exists for being able to adapt the write cycles to the \r\n>> specific wear conditions of the hardware.\r\n>>\r\n>> Moreover the ms-tpm-20-ref repo seems to not be maintained anymore and \r\n>> one should rather switch to [6].\r\n>>\r\n>> So there are currently firmware TPM implementations out there that lead \r\n>> to these frequent writes.\r\n> \r\n> Really this would need a product and official bug bulletin for it to\r\n> even consider a workaround. Speculation does not count.\r\n> \r\n\r\nThe key point Benedikt tries to make here is that the TPM 2 spec forces\r\nany vendor to do something about persisting the last seen time at least\r\nevery 70 min. If they didn't do that, then they would violate the space\r\n- arguably a bug. But, correct, it does not tell us anything about how\r\nthis happens in a random firmware TPM implementation.\r\n\r\n>>\r\n>> AFAIK since the tpm-20-ref implementation basically only supports a file \r\n>> on disk or RAM backing storage, the optee_ftpm repo [5] provides it's \r\n>> own _plat_NV* implementations that replace the default ones and finally \r\n>> call OP-TEE's TEE_* secure storage API, which then routes to whatever \r\n>> backend OP-TEE is configured with (REE-FS or RPMB) – In our case the RPMB.\r\n>>\r\n>> Because there are currently implementations out there (e.g. start using \r\n>> optee_ftpm) it may make sense to add this information to the kernel \r\n>> config's help text at least?\r\n> \r\n> Your first forum to report such issues is the TPM vendor.\r\n\r\nI would still not recommend anyone relying on a firmware TPM to turn on\r\nCONFIG_HW_RANDOM_TPM if there are viable alternatives. In case of the\r\nopen source stack with optee_os + optee_ftpm, we know that at least one\r\nexists: CONFIG_HW_RANDOM_OPTEE.\r\n\r\nSo, if there is no good place to document this in the kernel, maybe it\r\nis worth to document it in optee_ftpm instead.\r\n\r\nJan\r\n\r\n-- \r\nSiemens AG, Foundational Technologies\r\nLinux Expert Center\r\n\r\n",
       "listType": "LKML",
       "to": "Jarkko Sakkinen <jarkko@kernel.org>, \"Niedermayr, BENEDIKT\" <benedikt.niedermayr@siemens.com>",
-      "cc": "Peter Huewe <peterhuewe@gmx.de>, \"linux-integrity@vger.kernel.org\" <linux-integrity@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, Jens Wiklander <jens.wiklander@linaro.org>, OP-TEE TrustedFirmware <op-tee@lists.trustedfirmware.org>, \"linux-crypto@vger.kernel.org\" <linux-crypto@vger.kernel.org>, \"Bauer, Sven\" <svenbauer@siemens.com>, \"Zeschg, Thomas\" <thomas.zeschg@siemens.com>, \"Gylstorff, Quirin\" <quirin.gylstorff@siemens.com>"
+      "cc": "Peter Huewe <peterhuewe@gmx.de>, \"linux-integrity@vger.kernel.org\" <linux-integrity@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, Jens Wiklander <jens.wiklander@linaro.org>, OP-TEE TrustedFirmware <op-tee@lists.trustedfirmware.org>, \"linux-crypto@vger.kernel.org\" <linux-crypto@vger.kernel.org>, \"Bauer, Sven\" <svenbauer@siemens.com>, \"Zeschg, Thomas\" <thomas.zeschg@siemens.com>, \"Gylstorff, Quirin\" <quirin.gylstorff@siemens.com>",
+      "inReplyTo": "<af9QQah4QN5VD-4P@kernel.org>"
     },
     {
       "id": "19e1398c96adf2db",
@@ -95,7 +98,8 @@
       "content": "\r\n\r\nOn 5/9/26 09:38, muhammad.nazim.amirul.nazle.asmade@altera.com wrote:\r\n> From: Nazim Amirul <muhammad.nazim.amirul.nazle.asmade@altera.com>\r\n> \r\n> The OCRAM ECC is always enabled either by the BootROM or by the\r\n> Secure Device Manager (SDM) during a power-on reset on SoCFPGA.\r\n> \r\n> However, during a warm reset, the OCRAM content is retained to\r\n> preserve data, while the control and status registers are reset to\r\n> their default values. As a result, ECC must be explicitly re-enabled\r\n> after a warm reset.\r\n> \r\n> Signed-off-by: Niravkumar L Rabara <nirav.rabara@altera.com>\r\n> Signed-off-by: Nazim Amirul <muhammad.nazim.amirul.nazle.asmade@altera.com>\r\n> ---\r\n>   drivers/edac/altera_edac.c | 10 ++++++++--\r\n>   1 file changed, 8 insertions(+), 2 deletions(-)\r\n> \r\n> diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c\r\n> index 103b2c2eba2a..9e6a9786a881 100644\r\n> --- a/drivers/edac/altera_edac.c\r\n> +++ b/drivers/edac/altera_edac.c\r\n> @@ -1186,8 +1186,14 @@ altr_check_ocram_deps_init(struct altr_edac_device_dev *device)\r\n>   \r\n>   \t/* Verify OCRAM has been initialized */\r\n>   \tif (!ecc_test_bits(ALTR_A10_ECC_INITCOMPLETEA,\r\n> -\t\t\t   (base + ALTR_A10_ECC_INITSTAT_OFST)))\r\n> -\t\treturn -ENODEV;\r\n> +\t\t\t   (base + ALTR_A10_ECC_INITSTAT_OFST))) {\r\n> +\t\tif (!ecc_test_bits(ALTR_A10_ECC_EN,\r\n> +\t\t\t\t   (base + ALTR_A10_ECC_CTRL_OFST)))\r\n> +\t\t\tecc_set_bits(ALTR_A10_ECC_EN,\r\n> +\t\t\t\t     (base + ALTR_A10_ECC_CTRL_OFST));\r\n> +\t\telse\r\n> +\t\t\treturn -ENODEV;\r\n> +\t}\r\n>   \r\n>   \t/* Enable IRQ on Single Bit Error */\r\n>   \twritel(ALTR_A10_ECC_SERRINTEN, (base + ALTR_A10_ECC_ERRINTENS_OFST));\r\n\r\nThis patch fails to apply to both v7.1-rc1 and linux-next. Please base \r\nyour patch to the latest and resend.\r\n\r\nThanks,\r\nDinh\r\n\r\n\r\n",
       "listType": "LKML",
       "to": "muhammad.nazim.amirul.nazle.asmade@altera.com, bp@alien8.de, tony.luck@intel.com",
-      "cc": "linux-edac@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org"
+      "cc": "linux-edac@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260509143803.7500-1-muhammad.nazim.amirul.nazle.asmade@altera.com>"
     },
     {
       "id": "19e139764197671e",
@@ -335,7 +339,8 @@
       "content": "On Sun, May 10, 2026 at 01:51:01PM -0400, Pramod Maurya wrote:\r\n> This series fixes two separate checkpatch.pl warnings in the rtl8723bs\r\n> include headers, split into one patch per logical change:\r\n> \r\n> 1. Remove superfluous consecutive blank lines from six header files.\r\n> 2. Remove the redundant extern keyword from function prototype\r\n>    declarations in cmd_osdep.h and fix extra whitespace in struct\r\n>    parameter types.\r\n> \r\n> v2: Split into one patch per logical change as requested by Nikolay\r\n>     Kulikov. Added cover letter. Previous combined patch was sent as\r\n>     \"[PATCH 2/2] staging: rtl8723bs: Fix coding style in include headers\".\r\n> \r\n> Pramod Maurya (2):\r\n>   staging: rtl8723bs: Remove multiple blank lines in include headers\r\n>   staging: rtl8723bs: Remove extern from function prototypes in\r\n>     cmd_osdep.h\r\n> \r\n>  drivers/staging/rtl8723bs/include/cmd_osdep.h      | 9 ++++-----\r\n>  drivers/staging/rtl8723bs/include/rtl8192c_recv.h  | 1 -\r\n>  drivers/staging/rtl8723bs/include/rtl8723b_dm.h    | 1 -\r\n>  drivers/staging/rtl8723bs/include/rtw_ioctl_set.h  | 1 -\r\n>  drivers/staging/rtl8723bs/include/rtw_wifi_regd.h  | 1 -\r\n>  drivers/staging/rtl8723bs/include/sdio_ops_linux.h | 1 -\r\n>  6 files changed, 4 insertions(+), 10 deletions(-)\r\n> \r\n> -- \r\n> 2.52.0\r\n> \r\n\r\nLooks good to me.\r\n\r\nReviewed-by: Nikolay Kulikov <nikolayof23@gmail.com>\r\n\r\n\r\nThanks,\r\nNikolay\r\n\r\n",
       "listType": "LKML",
       "to": "Pramod Maurya <pramod.nexgen@gmail.com>",
-      "cc": "gregkh@linuxfoundation.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org"
+      "cc": "gregkh@linuxfoundation.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260510175103.562518-1-pramod.nexgen@gmail.com>"
     },
     {
       "id": "19e137e4898325d5",
@@ -347,7 +352,8 @@
       "content": "Prepare for the SCX_TASK_INIT_BEGIN/DEAD work that follows by collapsing the\r\nscx_init_task() helper. Move the SCX_TASK_RESET_RUNNABLE_AT setting into\r\nscx_set_task_state() on the INIT transition (it was set unconditionally at\r\nevery INIT site through the scx_init_task() helper), inline scx_init_task()\r\ninto scx_fork() and scx_root_enable_workfn(), and drop the helper.\r\n\r\nAs a side effect, scx_sub_disable() migration sequence now also sets\r\nRESET_RUNNABLE_AT (it previously wrote INIT directly without going through\r\nscx_init_task()). The flag triggers a runnable_at reset on the next\r\nset_task_runnable(), which is harmless on a task that has just been moved\r\nbetween scheds.\r\n\r\nOn root-enable, p->scx.flags is written without the task's rq lock. The task\r\nisn't visible to scx yet, and a follow-up patch restores the lock-held\r\nwrite.\r\n\r\nv2: Note p->scx.flags rq-lock relaxation on root-enable path. (Andrea)\r\n\r\nSigned-off-by: Tejun Heo <tj@kernel.org>\r\n---\r\n kernel/sched/ext.c | 31 +++++++++----------------------\r\n 1 file changed, 9 insertions(+), 22 deletions(-)\r\n\r\ndiff --git a/kernel/sched/ext.c b/kernel/sched/ext.c\r\nindex 10c6e0261f11..81841277a54f 100644\r\n--- a/kernel/sched/ext.c\r\n+++ b/kernel/sched/ext.c\r\n@@ -726,6 +726,7 @@ static void scx_set_task_state(struct task_struct *p, u32 state)\r\n \t\tbreak;\r\n \tcase SCX_TASK_INIT:\r\n \t\twarn = prev_state != SCX_TASK_NONE;\r\n+\t\tp->scx.flags |= SCX_TASK_RESET_RUNNABLE_AT;\r\n \t\tbreak;\r\n \tcase SCX_TASK_READY:\r\n \t\twarn = prev_state == SCX_TASK_NONE;\r\n@@ -3585,22 +3586,6 @@ static int __scx_init_task(struct scx_sched *sch, struct task_struct *p, bool fo\r\n \treturn 0;\r\n }\r\n \r\n-static int scx_init_task(struct scx_sched *sch, struct task_struct *p, bool fork)\r\n-{\r\n-\tint ret;\r\n-\r\n-\tret = __scx_init_task(sch, p, fork);\r\n-\tif (!ret) {\r\n-\t\t/*\r\n-\t\t * While @p's rq is not locked. @p is not visible to the rest of\r\n-\t\t * SCX yet and it's safe to update the flags and state.\r\n-\t\t */\r\n-\t\tp->scx.flags |= SCX_TASK_RESET_RUNNABLE_AT;\r\n-\t\tscx_set_task_state(p, SCX_TASK_INIT);\r\n-\t}\r\n-\treturn ret;\r\n-}\r\n-\r\n static void __scx_enable_task(struct scx_sched *sch, struct task_struct *p)\r\n {\r\n \tstruct rq *rq = task_rq(p);\r\n@@ -3763,10 +3748,11 @@ int scx_fork(struct task_struct *p, struct kernel_clone_args *kargs)\r\n #else\r\n \t\tstruct scx_sched *sch = scx_root;\r\n #endif\r\n-\t\tret = scx_init_task(sch, p, true);\r\n-\t\tif (!ret)\r\n-\t\t\tscx_set_task_sched(p, sch);\r\n-\t\treturn ret;\r\n+\t\tret = __scx_init_task(sch, p, true);\r\n+\t\tif (unlikely(ret))\r\n+\t\t\treturn ret;\r\n+\t\tscx_set_task_state(p, SCX_TASK_INIT);\r\n+\t\tscx_set_task_sched(p, sch);\r\n \t}\r\n \r\n \treturn 0;\r\n@@ -6897,8 +6883,8 @@ static void scx_root_enable_workfn(struct kthread_work *work)\r\n \r\n \t\tscx_task_iter_unlock(&sti);\r\n \r\n-\t\tret = scx_init_task(sch, p, false);\r\n-\t\tif (ret) {\r\n+\t\tret = __scx_init_task(sch, p, false);\r\n+\t\tif (unlikely(ret)) {\r\n \t\t\tput_task_struct(p);\r\n \t\t\tscx_task_iter_stop(&sti);\r\n \t\t\tscx_error(sch, \"ops.init_task() failed (%d) for %s[%d]\",\r\n@@ -6906,6 +6892,7 @@ static void scx_root_enable_workfn(struct kthread_work *work)\r\n \t\t\tgoto err_disable_unlock_all;\r\n \t\t}\r\n \r\n+\t\tscx_set_task_state(p, SCX_TASK_INIT);\r\n \t\tscx_set_task_sched(p, sch);\r\n \t\tscx_set_task_state(p, SCX_TASK_READY);\r\n \r\n-- \r\n2.54.0\r\n\r\n\r\n",
       "listType": "LKML",
       "to": "void@manifault.com, arighi@nvidia.com, changwoo@igalia.com",
-      "cc": "emil@etsalapatis.com, suzhidao@xiaomi.com, sched-ext@lists.linux.dev, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>"
+      "cc": "emil@etsalapatis.com, suzhidao@xiaomi.com, sched-ext@lists.linux.dev, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>",
+      "inReplyTo": "<20260510074113.2049514-3-tj@kernel.org>"
     },
     {
       "id": "19e137de45d90687",
@@ -359,7 +365,8 @@
       "content": "The pull request you sent on Sun, 10 May 2026 21:05:05 +0200:\r\n\r\n> ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/ras/ras.git tags/edac_urgent_for_v7.1_rc3\r\n\r\nhas been merged into torvalds/linux.git:\r\nhttps://git.kernel.org/torvalds/c/afaa0a477099cb7256e26fe11289c753a225ac97\r\n\r\nThank you!\r\n\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/prtracker.html\r\n\r\n",
       "listType": "LKML",
       "to": "Borislav Petkov <bp@alien8.de>",
-      "cc": "Linus Torvalds <torvalds@linux-foundation.org>, linux-edac <linux-edac@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>"
+      "cc": "Linus Torvalds <torvalds@linux-foundation.org>, linux-edac <linux-edac@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>",
+      "inReplyTo": "<20260510190505.GAagDW4XaK0a9H2Iur@fat_crate.local>"
     },
     {
       "id": "19e137ac00105269",
@@ -395,7 +402,8 @@
       "content": "On Sun, May 10, 2026 at 01:52:07PM -0400, Pramod Maurya wrote:\r\n> Wrap the macro expansion in outer parentheses to prevent operator\r\n> precedence issues when the macro is used in expressions.\r\n> \r\n> Signed-off-by: Pramod Maurya <pramod.nexgen@gmail.com>\r\n> ---\r\n>  drivers/staging/rtl8723bs/include/ieee80211.h | 4 ++--\r\n>  1 file changed, 2 insertions(+), 2 deletions(-)\r\n> \r\n> diff --git a/drivers/staging/rtl8723bs/include/ieee80211.h b/drivers/staging/rtl8723bs/include/ieee80211.h\r\n> index beee37041eeb..d1167d9ea846 100644\r\n> --- a/drivers/staging/rtl8723bs/include/ieee80211.h\r\n> +++ b/drivers/staging/rtl8723bs/include/ieee80211.h\r\n> @@ -639,7 +639,7 @@ struct rtw_ieee80211_channel {\r\n>  \t/*\"orig_mpwr:%d\\n\"*/\r\n>  \r\n>  #define CHAN_ARG(channel) \\\r\n> -\t/*(channel)->band*/ \\\r\n> +\t(/*(channel)->band*/ \\\r\n>  \t/*, (channel)->center_freq*/ \\\r\n>  \t(channel)->hw_value \\\r\n>  \t, (channel)->flags \\\r\n> @@ -649,7 +649,7 @@ struct rtw_ieee80211_channel {\r\n>  \t/*, (channel)->beacon_found*/ \\\r\n>  \t/*, (channel)->orig_flags*/ \\\r\n>  \t/*, (channel)->orig_mag*/ \\\r\n> -\t/*, (channel)->orig_mpwr*/ \\\r\n> +\t/*, (channel)->orig_mpwr*/)\r\n>  \r\n>  /* Parsed Information Elements */\r\n>  struct rtw_ieee802_11_elems {\r\n> -- \r\n> 2.52.0\r\n> \r\n\r\nThis macro is never used in the driver, why not just remove it?\r\n\r\n\r\nThanks,\r\nNikolay\r\n\r\n",
       "listType": "LKML",
       "to": "Pramod Maurya <pramod.nexgen@gmail.com>",
-      "cc": "gregkh@linuxfoundation.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org"
+      "cc": "gregkh@linuxfoundation.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260510175207.563378-5-pramod.nexgen@gmail.com>"
     },
     {
       "id": "19e1375f597b8326",
@@ -419,7 +427,8 @@
       "content": "On Sat, May 09, 2026 at 05:12:14PM +0800, Kunwu Chan wrote:\r\n> From: Kunwu Chan <kunwu.chan@gmail.com>\r\n> \r\n> Commit ab875b3e179f (\"rcu: Add BOOTPARAM_RCU_STALL_PANIC\r\n> Kconfig option\") made the default value of\r\n> kernel.panic_on_rcu_stall depend on\r\n> CONFIG_BOOTPARAM_RCU_STALL_PANIC.\r\n> \r\n> Document this in kernel.rst\r\n> \r\n> Signed-off-by: Kunwu Chan <kunwu.chan@gmail.com>\r\n\r\nThis commit depends on the commit you call out above, which, given Linus\r\nTorvalds's reaction, is unlikely to make it into mainline.  :-(\r\n\r\nA likely workaround is to use the existing sysctl kernel boot parameter,\r\nas in: \"sysctl.kernel.panic_on_rcu_stall=1\".\r\n\r\nThis can also be embedded into the kernel image using the bootconfig\r\nfacility.  To do this, build your kernel with the following Kconfig\r\noptions:\r\n\r\n\tCONFIG_BOOT_CONFIG=y\r\n\tCONFIG_BOOT_CONFIG_FORCE=y\r\n\tCONFIG_BOOT_CONFIG_EMBED=y\r\n\tCONFIG_BOOT_CONFIG_EMBED_FILE=\".bootconfig\"\r\n\r\nThen create your \".bootconfig\" file in the top-level directory of your\r\nLinux-kernel source tree:\r\n\r\n\tkernel {\r\n\t\tsysctl.kernel.panic_on_rcu_stall=1\r\n\t}\r\n\r\nYou can also pass parameters to the \"init\" process by adding an \"init\"\r\nstanza to your .bootconfig file.  See the Linux-kernel bootconfig\r\ndocumentation for more information:\r\n\r\n\tDocumentation/admin-guide/bootconfig.rst\r\n\r\n\t\t\t\t\t\t\tThanx, Paul\r\n\r\n> ---\r\n>  Documentation/admin-guide/sysctl/kernel.rst | 4 ++++\r\n>  1 file changed, 4 insertions(+)\r\n> \r\n> diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst\r\n> index c6994e55d141..99598a83f830 100644\r\n> --- a/Documentation/admin-guide/sysctl/kernel.rst\r\n> +++ b/Documentation/admin-guide/sysctl/kernel.rst\r\n> @@ -948,6 +948,10 @@ panic_on_rcu_stall\r\n>  When set to 1, calls panic() after RCU stall detection messages. This\r\n>  is useful to define the root cause of RCU stalls using a vmcore.\r\n>  \r\n> +The default value can be configured at build time via\r\n> +``CONFIG_BOOTPARAM_RCU_STALL_PANIC``. Runtime updates to this sysctl\r\n> +always override the built-in default.\r\n> +\r\n>  = ============================================================\r\n>  0 Do not panic() when RCU stall takes place, default behavior.\r\n>  1 panic() after printing RCU stall messages.\r\n> -- \r\n> 2.43.0\r\n> \r\n\r\n",
       "listType": "LKML",
       "to": "Kunwu Chan <kunwu.chan@linux.dev>",
-      "cc": "corbet@lwn.net, skhan@linuxfoundation.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, gustavold@gmail.com, Kunwu Chan <kunwu.chan@gmail.com>"
+      "cc": "corbet@lwn.net, skhan@linuxfoundation.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, gustavold@gmail.com, Kunwu Chan <kunwu.chan@gmail.com>",
+      "inReplyTo": "<20260509091214.1679194-1-kunwu.chan@linux.dev>"
     },
     {
       "id": "19e13762dfe5fe11",
@@ -431,7 +440,8 @@
       "content": "Add description to bool to do so.\r\n\r\nRemove ARM_GIC_V3 as the driver does not need it to compile.\r\n\r\nAdd GENERIC_MSI_IRQ since it's now needed as the ARM stuff went away.\r\n\r\nAssisted-by: Codex-GPT-5.5\r\nSigned-off-by: Rosen Penev <rosenp@gmail.com>\r\n---\r\n v2: add GENERIC_MSI_IRQ\r\n drivers/irqchip/Kconfig | 6 +++---\r\n 1 file changed, 3 insertions(+), 3 deletions(-)\r\n\r\ndiff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig\r\nindex eb8428d9fa61..e7d559472790 100644\r\n--- a/drivers/irqchip/Kconfig\r\n+++ b/drivers/irqchip/Kconfig\r\n@@ -208,9 +208,9 @@ config FARADAY_FTINTC010\r\n \tselect SPARSE_IRQ\r\n \r\n config HISILICON_IRQ_MBIGEN\r\n-\tbool\r\n-\tselect ARM_GIC_V3\r\n-\tselect ARM_GIC_V3_ITS\r\n+\tbool \"HiSilicon MBIGEN interrupt controller\"\r\n+\tdepends on ARCH_HISI || COMPILE_TEST\r\n+\tselect GENERIC_MSI_IRQ\r\n \r\n config IMGPDC_IRQ\r\n \tbool\r\n-- \r\n2.54.0\r\n\r\n\r\n",
       "listType": "LKML",
       "to": "linux-kernel@vger.kernel.org",
-      "cc": "Thomas Gleixner <tglx@kernel.org>"
+      "cc": "Thomas Gleixner <tglx@kernel.org>",
+      "inReplyTo": "<202605100403.PpIGk90i-lkp@intel.com>"
     },
     {
       "id": "19e13718d1c3f817",
@@ -611,7 +621,8 @@
       "content": "\r\nOn Mon, 11 May 2026 01:32:10 +0700, Alexandre Hamamdjian wrote:\r\n> Add the device-tree binding documentation for the Rohm BM92TXX family\r\n> of USB Type-C and Power Delivery controllers. The device is controlled\r\n> over I2C and signals state changes through a dedicated interrupt line.\r\n> \r\n> Document the rohm,* properties consumed by the driver: the optional\r\n> VCONN-enable GPIO, the DisplayPort alternate-mode toggles\r\n> (rohm,dp-disable, rohm,dp-alerts-enable, rohm,dp-signal-toggle-on-resume,\r\n> rohm,dp-lanes), the suspend/dock tunables (rohm,led-static-on-suspend,\r\n> rohm,dock-power-limit-disable) and the four\r\n> rohm,pd-{5,9,12,15}v-current-limit-ma per-PDO charging current limits.\r\n> A graph port is required to link the controller to a USB role switch\r\n> consumer.\r\n> \r\n> Signed-off-by: Alexandre Hamamdjian <azkali.limited@gmail.com>\r\n> ---\r\n>  .../devicetree/bindings/usb/rohm,bm92t.yaml        | 128 +++++++++++++++++++++\r\n>  MAINTAINERS                                        |   1 +\r\n>  2 files changed, 129 insertions(+)\r\n> \r\n\r\nMy bot found errors running 'make dt_binding_check' on your patch:\r\n\r\nyamllint warnings/errors:\r\n\r\ndtschema/dtc warnings/errors:\r\n/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/usb/rohm,bm92t.yaml: rohm,pd-5v-current-limit-ma: missing type definition\r\n/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/usb/rohm,bm92t.yaml: rohm,pd-9v-current-limit-ma: missing type definition\r\n/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/usb/rohm,bm92t.yaml: rohm,pd-12v-current-limit-ma: missing type definition\r\n/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/usb/rohm,bm92t.yaml: rohm,pd-15v-current-limit-ma: missing type definition\r\n\r\ndoc reference errors (make refcheckdocs):\r\n\r\nSee https://patchwork.kernel.org/project/devicetree/patch/20260511-bm92t-v2-2-2145e4f4386b@gmail.com\r\n\r\nThe base for the series is generally the latest rc1. A different dependency\r\nshould be noted in *this* patch.\r\n\r\nIf you already ran 'make dt_binding_check' and didn't see the above\r\nerror(s), then make sure 'yamllint' is installed and dt-schema is up to\r\ndate:\r\n\r\npip3 install dtschema --upgrade\r\n\r\nPlease check and re-submit after running the above command yourself. Note\r\nthat DT_SCHEMA_FILES can be set to your schema file to speed up checking\r\nyour schema. However, it must be unset to test all examples with your schema.\r\n\r\n\r\n",
       "listType": "LKML",
       "to": "Alexandre Hamamdjian <azkali.limited@gmail.com>",
-      "cc": "Krzysztof Kozlowski <krzk+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, linux-usb@vger.kernel.org, Bartosz Golaszewski <brgl@kernel.org>, Conor Dooley <conor+dt@kernel.org>, CTCaer <ctcaer@gmail.com>, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>"
+      "cc": "Krzysztof Kozlowski <krzk+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, linux-usb@vger.kernel.org, Bartosz Golaszewski <brgl@kernel.org>, Conor Dooley <conor+dt@kernel.org>, CTCaer <ctcaer@gmail.com>, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+      "inReplyTo": "<20260510-bm92t-v1-2-dff3c9d22426@gmail.com>"
     },
     {
       "id": "19e13690504e5c9e",
@@ -623,7 +634,8 @@
       "content": "Hello,\r\n\r\nI'll think more on enabling proxy execution as-is for sched_ext. Reponse on\r\nscx_bpf_dsq_move():\r\n\r\nOn Sun, May 10, 2026 at 05:06:41PM +0200, Andrea Righi wrote:\r\n...\r\n> Let's say we expose blocked_on (and a kfunc returning the mutex owner) via\r\n> tagged ops.quiescent/runnable(). The BPF scheduler now wants to boost the owner.\r\n> What's the actual way to do so? Some mechanisms that we have right now:\r\n>  - slice extension: scx_bpf_task_set_slice() works in place, but it affects\r\n>    only a running owner,\r\n>  - dsq_vtime: scx_bpf_task_set_dsq_vtime() updates the value, but for a task\r\n>    already enqueued in a PRIQ DSQ the position in the rbtree doesn't move, so\r\n>    this doesn't actually boost an already-queued owner.\r\n>  - DSQ move: scx_bpf_dsq_move() requires an iterator and the task to have been\r\n>    queued before iteration started. We don't have a kfunc today that takes a\r\n>    task pointer and atomically yanks it from wherever it is to a higher-priority\r\n>    DSQ. We also have no API exposing which DSQ a task is currently sitting in.\r\n\r\nAssuming ->blocked_on() is triggered without rq lock held (if not, we just\r\nneed to tell scx_bpf_dsq_move() that it can do lock dancing in this context\r\ntoo), we should already be able to move the task directly:\r\n\r\np->scx.dsq->id should already be accessible through BPF_CORE_READ(). Maybe\r\nwe can make it a bit nicer.\r\n\r\nscx_bpf_dsq_move() doesn't actually need the task to come from iteration.\r\nIt's a bit odd but we're overloading the iterator for two purposes -\r\niteration and transaction scope definition. If a task is dequeued and\r\nreenqueued after iteration is opened, scx_bpf_dsq_move() ignores the move as\r\nthe visit is considered stale. scx_bpf_dsq_move() only depends on this part.\r\nThe following is an excerpt from the function comment:\r\n\r\n * For the transfer to be successful, @p must still be on the DSQ and have been\r\n * queued before the DSQ iteration started. This function doesn't care whether\r\n * @p was obtained from the DSQ iteration. @p just has to be on the DSQ and have\r\n * been queued before the iteration started.\r\n\r\nSo, for an example, ->blocked_on() can do:\r\n\r\n  void my_sched_blocked_on(struct task_struct *p, struct task_struct *blocker)\r\n  {\r\n          u64 dsq_id = BPF_CORE_READ(p, scx.dsq, id);\r\n          struct bpf_iter_scx_dsq it;\r\n\r\n          if (!bpf_iter_scx_dsq_new(&it, dsq_id, 0)) {\r\n                  scx_bpf_dsq_move(&it, p, SCX_DSQ_LOCAL_ON | WHATEVER_CPU_WE_PICK,\r\n                                   SCX_ENQ_PREEMPT);\r\n                  bpf_iter_scx_dsq_destroy(&it);\r\n          }\r\n  }\r\n\r\nThis is not the prettiest but the above should do all that's needed and\r\nnothing else. It just looks up the dsq and remembers the insert sequence. No\r\nactual iteration happens. Again, it'd be trivial to add BPF helpers or extra\r\nkfuncs to make this nicer.\r\n\r\nThanks.\r\n\r\n-- \r\ntejun\r\n\r\n",
       "listType": "LKML",
       "to": "Andrea Righi <arighi@nvidia.com>",
-      "cc": "void@manifault.com, changwoo@igalia.com, jstultz@google.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, christian.loehle@arm.com, kobak@nvidia.com, joelagnelf@nvidia.com, emil@etsalapatis.com, sched-ext@lists.linux.dev, linux-kernel@vger.kernel.org"
+      "cc": "void@manifault.com, changwoo@igalia.com, jstultz@google.com, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, christian.loehle@arm.com, kobak@nvidia.com, joelagnelf@nvidia.com, emil@etsalapatis.com, sched-ext@lists.linux.dev, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<agCfAY9zqrQiKAJ4@gpd4>"
     },
     {
       "id": "19e1366946d89c69",
@@ -659,7 +671,8 @@
       "content": "On 2026-05-09 17:20, Ethan Nelson-Moore wrote:\r\n> On Sat, May 9, 2026 at 2:53 PM Ethan Nelson-Moore\r\n> <enelsonmoore@gmail.com> wrote:\r\n>> These lines do not even contain =.\r\n>> Could someone look into why this happened?\r\n> \r\n> The lines *after* the affected patch hunks do have an assignment in\r\n> the if condition.\r\n\r\ncheckpatch is fundamentally stupid and an incomplete parser.   Rely on \r\nyour brain to ignore its incorrect bleats when it's wrong.\r\n\r\nFYI it's looking for a single equal sign in the statement\r\n\r\n",
       "listType": "LKML",
       "to": "Ethan Nelson-Moore <enelsonmoore@gmail.com>",
-      "cc": "linux-kernel@vger.kernel.org, Andy Whitcroft <apw@canonical.com>, Lukas Bulwahn <lukas.bulwahn@gmail.com>, Dwaipayan Ray <dwaipayanray1@gmail.com>"
+      "cc": "linux-kernel@vger.kernel.org, Andy Whitcroft <apw@canonical.com>, Lukas Bulwahn <lukas.bulwahn@gmail.com>, Dwaipayan Ray <dwaipayanray1@gmail.com>",
+      "inReplyTo": "<CADkSEUje9tk-Ec1ZhTkaeRH2PO7W6gha_T0qGefV2CviUUhzKw@mail.gmail.com>"
     },
     {
       "id": "19e13592b7d9ffa3",
@@ -671,7 +684,8 @@
       "content": "On Sat, May 09, 2026 at 06:58:00PM +0100, Marc Zyngier wrote:\r\n> On Sat, 09 May 2026 13:19:56 +0100,\r\n> Sudeep Holla <sudeep.holla@kernel.org> wrote:\r\n> > \r\n> > On Fri, May 08, 2026 at 03:48:14PM -0400, Jack Matthews wrote:\r\n> > > Hello,\r\n> > >\r\n> > > I am working on mainlining an old chip, Qualcomm's MDM9625 modem.\r\n> > > I had previously booted 6.17-rc3 before putting this project to the side,\r\n> > > but when I restarted work on 7.0 I was unable to boot. \r\n> > > I have bisected this to commit 0f67b56d84b4c49adfd61f19f81f84ec613ab51a\r\n> > > (https://lore.kernel.org/all/20250814154622.10193-4-maz@kernel.org/) and\r\n> > > reverting this commit makes the device boot successfully. Unfortunately I do\r\n> > > not have access to low level debugging such as UART so I have not been able\r\n> > > to pinpoint exactly what is missing.\r\n> > > My changes for this chip are all available here in case it is an issue of my\r\n> > > own doing: https://github.com/jackmthws/linux/commits/mdm9625-latest/.\r\n> > \r\n> > Looking briefly into the DTS file, I couldn't find the sysreg based\r\n> > arch timer node in the DT. It could be just an overlook unless there\r\n> > is some issue with it that it's not added. After the above mentioned\r\n> > commit, the MMIO timer gets initialised bit late in the boot and\r\n> > could be the reason for boot failure. Unless you have intentionally\r\n> > not added it, I would suggest to add it and try.\r\n> \r\n> Ah, that's a good point. Not having per-CPU timers is not going to\r\n> fly, I'm afraid. The MMIO timer will kick in very late, and we\r\n> probably need to schedule threads way before that.\r\n> \r\n> This looks to be a single Cortex-A5 however, not an A5MP, meaning it\r\n> does not have the TWD, and relies on a global timer, which is a\r\n> terrible thing to have. Not to mention that MMIO accesses on the\r\n> counter is going to be even worse.\r\n> \r\n\r\nAh, my bad I misread it as Cortex-A15 and not Cortex-A5, so assumed\r\nmissing sysreg based per-cpu arch timers.\r\n\r\n-- \r\nRegards,\r\nSudeep\r\n\r\n",
       "listType": "LKML",
       "to": "Marc Zyngier <maz@kernel.org>",
-      "cc": "Jack Matthews <jack@jackmatthe.ws>, Mark Rutland <mark.rutland@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>, linux-arm-kernel@lists.infradead.org, regressions@lists.linux.dev, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org"
+      "cc": "Jack Matthews <jack@jackmatthe.ws>, Mark Rutland <mark.rutland@arm.com>, Sudeep Holla <sudeep.holla@kernel.org>, linux-arm-kernel@lists.infradead.org, regressions@lists.linux.dev, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org",
+      "inReplyTo": "<87y0ht9dke.wl-maz@kernel.org>"
     },
     {
       "id": "19e135845c1eb6c5",
@@ -683,7 +697,8 @@
       "content": "Hi,\r\n\r\nOn Sat, 2026-05-09 at 19:13 +0100, Conor Dooley wrote:\r\n> On Sat, May 09, 2026 at 09:31:00PM +0500, Rustam Adilov wrote:\r\n> > Add the realtek,rtl9607-wdt compatible to the Realtek Otto watchdog\r\n> > binding.\r\n> > \r\n> > Signed-off-by: Rustam Adilov <adilov@disroot.org>\r\n> > ---\r\n> >  Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml | 1 +\r\n> >  1 file changed, 1 insertion(+)\r\n> > \r\n> > diff --git a/Documentation/devicetree/bindings/watchdog/realtek,otto-\r\n> > wdt.yaml b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml\r\n> > index 1f5390a67cdb..ac9db40b12dc 100644\r\n> > --- a/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml\r\n> > +++ b/Documentation/devicetree/bindings/watchdog/realtek,otto-wdt.yaml\r\n> > @@ -30,6 +30,7 @@ properties:\r\n> >        - realtek,rtl8390-wdt\r\n> >        - realtek,rtl9300-wdt\r\n> >        - realtek,rtl9310-wdt\r\n> > +      - realtek,rtl9607-wdt\r\n> \r\n> Please explain in your commit message why this new device is not\r\n> compatible with the existing ones, particularly given the driver patch\r\n> implies that it would be.\r\n> pw-bot: changes-requested\r\n\r\nBack when I originally wrote this driver, device-specific compatibles were\r\nencouraged \"just in case\" the hardware would turn out to behave differently.\r\nHas this changed to minimizing the number of compatibles?\r\n\r\nFWIW this platform's GPIO driver does have both SoC-specific compatibles and a\r\nfallback, but for reasons lost to time this binding has no fallback. I'll submit\r\na patch to add a fallback for this binding too.\r\n\r\n\r\nBest,\r\nSander\r\n\r\n",
       "listType": "LKML",
       "to": "Conor Dooley <conor@kernel.org>, Rustam Adilov <adilov@disroot.org>",
-      "cc": "Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org"
+      "cc": "Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org",
+      "inReplyTo": "<20260509163101.722793-3-adilov@disroot.org>"
     },
     {
       "id": "19e135440c9eaca2",
@@ -1254,7 +1269,7 @@
       "listType": "LKML",
       "to": "Heikki Krogerus <heikki.krogerus@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, CTCaer <ctcaer@gmail.com>, Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>",
       "cc": "linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Alexandre Hamamdjian <azkali.limited@gmail.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510-bm92t-v1-0-dff3c9d22426@gmail.com>"
     },
     {
       "id": "19e1329b2dbc774f",
@@ -1774,7 +1789,7 @@
       "listType": "LKML",
       "to": "gregkh@linuxfoundation.org",
       "cc": "linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, nikolayof23@gmail.com, Pramod Maurya <pramod.nexgen@gmail.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510110228.96612-1-pramod.nexgen@gmail.com>"
     },
     {
       "id": "19e13046c8669696",
@@ -1865,7 +1880,7 @@
       "listType": "LKML",
       "to": "gregkh@linuxfoundation.org",
       "cc": "linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev, Hanu-man12shaw <harshit116@gmail.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510090454.3474-1-harshit116@gmail.com>"
     },
     {
       "id": "19e12fb439ccc5c6",
@@ -2593,7 +2608,7 @@
       "listType": "LKML",
       "to": "alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com",
       "cc": "mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nicolo.coccia@leonardo.com, \"Nicolò Coccia\" <n.coccia96@gmail.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<CALSA8UZaE8FR2K-60fPYE6uSUvUNuLnH=8pPq0Hak2ADQpp1Qw@mail.gmail.com>"
     },
     {
       "id": "19e12bbe5742c5c6",
@@ -3243,7 +3258,7 @@
       "listType": "LKML",
       "to": "Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>",
       "cc": "linux-btrfs@vger.kernel.org, linux-kernel@vger.kernel.org, Qu Wenruo <wqu@suse.com>, zerocling0077@gmail.com, 2045gemini@gmail.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510074943.2644334-1-rollkingzzc@gmail.com>"
     },
     {
       "id": "19e127fa2a957cfa",
@@ -4348,7 +4363,7 @@
       "listType": "LKML",
       "to": "Miguel Ojeda <ojeda@kernel.org>",
       "cc": "Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, \"Michael S. Tsirkin\" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, \"Björn Roy Baron\" <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, \"Eugenio Pérez\" <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Manos Pitsidianakis <manos@pitsidianak.is>",
-      "inReplyTo": ""
+      "inReplyTo": "<20260509-rust-virtio-v2-0-c1e30ec2bd21@pitsidianak.is>"
     },
     {
       "id": "19e122143801cb1d",
@@ -5466,7 +5481,7 @@
       "listType": "LKML",
       "to": "jic23@kernel.org",
       "cc": "lars@metafoo.de, Michael.Hennerich@analog.com, alisa.roman@analog.com, dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, sozdayvek@gmail.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510052401.31057-1-sozdayvek@gmail.com>"
     },
     {
       "id": "19e133e52cc12231",
@@ -5479,7 +5494,7 @@
       "listType": "LKML",
       "to": "jic23@kernel.org",
       "cc": "lars@metafoo.de, Michael.Hennerich@analog.com, puranjay@kernel.org, dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, sozdayvek@gmail.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510050820.27748-1-sozdayvek@gmail.com>"
     },
     {
       "id": "19e11a382997a086",
@@ -6194,7 +6209,7 @@
       "listType": "LKML",
       "to": "Guenter Roeck <linux@roeck-us.net>",
       "cc": "Flaviu Nistor <flaviu.nistor@gmail.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org",
-      "inReplyTo": ""
+      "inReplyTo": "<20260509121511.60601-1-flaviu.nistor@gmail.com>"
     },
     {
       "id": "19e11342a7a48192",
@@ -6349,7 +6364,8 @@
       "content": "https://bugzilla.kernel.org/show_bug.cgi?id=203861\r\n\r\nAttila (cs.attila@zerodaybugs.com) changed:\r\n\r\n           What    |Removed                     |Added\r\n----------------------------------------------------------------------------\r\n Attachment #310083|1                           |0\r\n           is patch|                            |\r\n\r\n-- \r\nYou may reply to this email to add a comment.\r\n\r\nYou are receiving this mail because:\r\nYou are watching the assignee of the bug.\r\n\r\n_______________________________________________\r\nLinux-f2fs-devel mailing list\r\nLinux-f2fs-devel@lists.sourceforge.net\r\nhttps://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel\r\n",
       "listType": "F2FS",
       "to": "linux-f2fs-devel@lists.sourceforge.net",
-      "cc": ""
+      "cc": "",
+      "inReplyTo": "<bug-203861-202145-CFUJ3Ank6N@https.bugzilla.kernel.org/>"
     },
     {
       "id": "19e111a3f7c83ca5",
@@ -6401,7 +6417,7 @@
       "listType": "LKML",
       "to": "Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-fpga@vger.kernel.org, linux-kernel@vger.kernel.org",
       "cc": "Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>, Tom Rix <trix@redhat.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<202605091959.PZIPUKud-lkp@intel.com>"
     },
     {
       "id": "19e1115d88345d8d",
@@ -6439,7 +6455,8 @@
       "content": "https://bugzilla.kernel.org/show_bug.cgi?id=203861\r\n\r\n--- Comment #5 from Attila (cs.attila@zerodaybugs.com) ---\r\nCreated attachment 310083\r\n  --> https://bugzilla.kernel.org/attachment.cgi?id=310083&action=edit\r\nCurrent-master fsck.f2fs reproducer package for Bug 203861: ASAN/UBSAN log,\r\nevidence card, concept fix, mount.c context, and minimized crash artifacts\r\nshowing SIGFPE in sanity_check_raw_super() with s\r\n\r\nI can reproduce a related fsck.f2fs divide-by-zero on current f2fs-tools\r\nmaster, so this looks like either an incomplete fix for Bug 203861 or a\r\nregression in a different validation path.\r\n\r\nThis is not the same top frame as the original 2019 report. The original report\r\nshows the crash later through build_curseg() / GET_ZONE_FROM_SEGNO() when\r\nsbi->secs_per_zone is 0. My current reproducer reaches an earlier path in\r\nsanity_check_raw_super():\r\n\r\n- component: f2fs-tools userspace fsck.f2fs\r\n- function: sanity_check_raw_super()\r\n- file/line: fsck/mount.c:1130:49 in my current-master build\r\n- corrupted fields: segs_per_sec = 1, secs_per_zone = 0\r\n- derived value: segs_per_zone = segs_per_sec * secs_per_zone = 0\r\n- observed result: UBSan division-by-zero followed by ASan SIGFPE\r\n\r\nObserved sanitizer evidence:\r\n\r\nmount.c:1130:33: runtime error: division by zero\r\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior mount.c:1130:33\r\nAddressSanitizer:DEADLYSIGNAL\r\nERROR: AddressSanitizer: FPE\r\n    #0 in sanity_check_raw_super fsck/mount.c:1130:49\r\n    #1 in validate_super_block fsck/mount.c:1195:7\r\n    #2 in f2fs_do_mount fsck/mount.c:4088:8\r\n    #3 in main fsck/main.c:1326:8\r\n\r\nThe root cause appears to be that secs_per_zone == 0 is still rejected too late\r\non this path. segs_per_zone is derived from untrusted superblock fields and can\r\nbe used as a divisor before secs_per_zone / derived segs_per_zone are\r\nvalidated.\r\n\r\nI am attaching a current repro package with:\r\n- ASAN/UBSAN log\r\n- evidence card\r\n- concept fix\r\n- mount.c context\r\n- minimized crash artifacts\r\n\r\nSecurity impact claimed: local/tooling denial-of-service only. I am not\r\nclaiming RCE, privilege escalation, kernel compromise, or production Android\r\nreachability.\r\n\r\nIf maintainers prefer a new bug instead of reopening/commenting on this\r\nresolved one, I can file a new Bugzilla issue explicitly referencing Bug 203861\r\nas the related/incomplete-fix ancestor.\r\n\r\n-- \r\nYou may reply to this email to add a comment.\r\n\r\nYou are receiving this mail because:\r\nYou are watching the assignee of the bug.\r\n\r\n_______________________________________________\r\nLinux-f2fs-devel mailing list\r\nLinux-f2fs-devel@lists.sourceforge.net\r\nhttps://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel\r\n",
       "listType": "F2FS",
       "to": "linux-f2fs-devel@lists.sourceforge.net",
-      "cc": ""
+      "cc": "",
+      "inReplyTo": "<bug-203861-202145-CFUJ3Ank6N@https.bugzilla.kernel.org/>"
     },
     {
       "id": "19e11120dec6efdc",
@@ -6477,7 +6494,7 @@
       "listType": "LKML",
       "to": "robh@kernel.org",
       "cc": "krzk+dt@kernel.org, conor+dt@kernel.org, jacobsfeder@gmail.com, gregkh@linuxfoundation.org, devicetree@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, pramod.nexgen@gmail.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260509171648.46933-1-pramod.nexgen@gmail.com>"
     },
     {
       "id": "19e110f9cce0dc3d",
@@ -6659,7 +6676,7 @@
       "listType": "LKML",
       "to": "jic23@kernel.org",
       "cc": "pramod.nexgen@gmail.com, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Michal Simek <michal.simek@amd.com>, Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org",
-      "inReplyTo": ""
+      "inReplyTo": "<177835469457.847221.7871315784536498346.robh@kernel.org>"
     },
     {
       "id": "19e10feed6540ac1",
@@ -6802,7 +6819,7 @@
       "listType": "LKML",
       "to": "jic23@kernel.org, lars@metafoo.de, Michael.Hennerich@analog.com, gregkh@linuxfoundation.org",
       "cc": "dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, linux-iio@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, Hungyu Lin <dennylin0707@gmail.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510072918.85734-1-dennylin0707@gmail.com>"
     },
     {
       "id": "19e1281439280009",
@@ -7114,7 +7131,7 @@
       "listType": "LKML",
       "to": "dennis@kernel.org, tj@kernel.org, cl@gentwo.org",
       "cc": "akpm@linux-foundation.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, dodam@google.com, joonwonkang@google.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510065033.1252463-1-joonwonkang@google.com>"
     },
     {
       "id": "19e1250bd12cbb47",
@@ -7192,7 +7209,7 @@
       "listType": "LKML",
       "to": "Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org",
       "cc": "David Lechner <david@lechnology.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>",
-      "inReplyTo": ""
+      "inReplyTo": "<af9ommD7xYIu-JzG@ashevche-desk.local>"
     },
     {
       "id": "19e10b3d21fce806",
@@ -7478,7 +7495,7 @@
       "listType": "LKML",
       "to": "sashal@kernel.org, stable@vger.kernel.org, jassisinghbrar@gmail.com",
       "cc": "thierry.reding@gmail.com, jonathanh@nvidia.com, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, joonwonkang@google.com, dianders@chromium.org",
-      "inReplyTo": ""
+      "inReplyTo": "<20260509122858.39c0b4433cc7.re-mailbox-null-msg-6.12@kernel.org>"
     },
     {
       "id": "19e1099fbd099f18",
@@ -7569,7 +7586,7 @@
       "listType": "LKML",
       "to": "sashal@kernel.org, stable@vger.kernel.org, jassisinghbrar@gmail.com",
       "cc": "sudeep.holla@arm.com, thierry.reding@gmail.com, jonathanh@nvidia.com, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-tegra@vger.kernel.org, joonwonkang@google.com, dianders@chromium.org",
-      "inReplyTo": ""
+      "inReplyTo": "<20260509122858.39c0b4433cc7.re-mailbox-null-msg-6.12@kernel.org>"
     },
     {
       "id": "19e107980afb9344",
@@ -7660,7 +7677,7 @@
       "listType": "LKML",
       "to": "jassisinghbrar@gmail.com, sudeep.holla@kernel.org",
       "cc": "dianders@chromium.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, joonwonkang@google.com",
-      "inReplyTo": ""
+      "inReplyTo": "<20260510053756.781317-1-joonwonkang@google.com>"
     },
     {
       "id": "19e1067ea0760ef7",
@@ -8284,7 +8301,7 @@
       "listType": "Inbox",
       "to": "jaegeuk@kernel.org, chao@kernel.org",
       "cc": "linux-f2fs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Deepanshu Kartikey <kartikey406@gmail.com>, stable@kernel.org, syzbot+eec8f2693d71386bd600@syzkaller.appspotmail.com",
-      "inReplyTo": ""
+      "inReplyTo": "<adbb350c-ae39-430d-8a2f-84c31150c3a2@kernel.org>"
     },
     {
       "id": "19e100f5bd7c40c5",

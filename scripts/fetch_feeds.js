@@ -72,6 +72,8 @@ async function main() {
       const msgId = headers.find(h => h.name.toLowerCase() === 'message-id')?.value || msgRef.id;
       const to = headers.find(h => h.name.toLowerCase() === 'to')?.value || '';
       const cc = headers.find(h => h.name.toLowerCase() === 'cc')?.value || '';
+      const inReplyTo = headers.find(h => h.name.toLowerCase() === 'in-reply-to')?.value || '';
+      const references = headers.find(h => h.name.toLowerCase() === 'references')?.value || '';
 
       let body = '';
       if (msgData.payload.body && msgData.payload.body.data) {
@@ -111,6 +113,8 @@ async function main() {
       allEntries.push({
         id: msgRef.id,
         msgId,
+        inReplyTo,
+        references,
         title: subject,
         updated: date,
         authorName,
