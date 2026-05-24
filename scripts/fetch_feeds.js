@@ -203,7 +203,6 @@ async function main() {
     console.log(`Successfully saved ${finalEntries.length} active entries to ${filePath}`);
 
     // Save all entries to monthly archives to preserve full history
-    const archiveDir = path.join(dirPath, 'archive');
     if (!fs.existsSync(archiveDir)) {
       fs.mkdirSync(archiveDir, { recursive: true });
     }
