@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-07-04T18:40:29.233Z",
+  "timestamp": "2026-07-04T19:08:01.884Z",
   "entries": [
+    {
+      "id": "19f2e85724acb150",
+      "msgId": "<aklZQdKb2NxkzrYe@kekkonen.localdomain>",
+      "inReplyTo": "<20260704171855.1462214-1-arun.t@intel.com>",
+      "references": "<20260704171855.1462214-1-arun.t@intel.com>",
+      "title": "Re: [PATCH v2 0/4] Add NVL CVS/IPU8 camera support",
+      "updated": "Sat, 4 Jul 2026 22:04:33 +0300",
+      "authorName": "Sakari Ailus",
+      "authorEmail": "sakari.ailus@linux.intel.com",
+      "content": "Hi Arun,\r\n\r\nOn Sat, Jul 04, 2026 at 10:48:51PM +0530, Arun T wrote:\r\n> This series adds NVL CVS support to the ACPI dependency handling,\r\n> the IPU bridge, and the CVS driver. It also adds the IPU8 PCI device\r\n> ID needed for the CVS driver to bind on NVL camera hardware.\r\n> \r\n> Changes in v2:\r\n> - Add a cover letter for the multi-patch series.\r\n> - Add Reviewed-by from Sakari Ailus to patch 1.\r\n\r\nThere's no need to send further versions of these patches; patches 2--4 are\r\nalready in my tree.\r\n\r\n-- \r\nRegards,\r\n\r\nSakari Ailus\r\n\r\n",
+      "listType": "LKML",
+      "to": "Arun T <arun.t@intel.com>",
+      "cc": "\"Rafael J. Wysocki\" <rafael@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Miguel Vadillo <miguel.vadillo@intel.com>, Len Brown <lenb@kernel.org>, Mehdi Djait <mehdi.djait@intel.com>, linux-acpi@vger.kernel.org, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19f2e7eef5e4b843",
+      "msgId": "<CAHp75VcV81NJMmhujABVMcS5FYLCcrL-C4ZnHCZsc+wnF_eJxg@mail.gmail.com>",
+      "inReplyTo": "<DJPYQ4ZG88L4.2LP2ZAMYER2UF@gmail.com>",
+      "references": "<20260620174708.111470-1-prashantrahul23@gmail.com> <20260620174708.111470-5-prashantrahul23@gmail.com> <20260623203636.69a7429a@jic23-huawei> <DJH77MBX1U37.1JJ1Z6UGLF0LT@gmail.com> <aju-_HSz6jNkR_NM@ashevche-desk.local> <20260625120952.471ec21a@jic23-huawei> <aj01H48IHTyhn4ZR@ashevche-desk.local> <20260703013907.57b0f114@jic23-huawei> <DJPWN45EI416.1GR6QTDHBU6SC@gmail.com> <akk8QD1iQHk1Cvvv@ashevche-desk.local> <DJPYQ4ZG88L4.2LP2ZAMYER2UF@gmail.com>",
+      "title": "Re: [PATCH v2 4/5] iio: adc: ti-adc161s626: log buffer setup failure in probe",
+      "updated": "Sat, 4 Jul 2026 21:57:22 +0300",
+      "authorName": "Andy Shevchenko",
+      "authorEmail": "andy.shevchenko@gmail.com",
+      "content": "On Sat, Jul 4, 2026 at 8:28 PM Prashant Rahul <prashantrahul23@gmail.com> wrote:\r\n>\r\n> On Sat Jul 4, 2026 at 10:30 PM IST, Andy Shevchenko wrote:\r\n> > On Sat, Jul 04, 2026 at 09:20:46PM +0530, Prashant Rahul wrote:\r\n> >> On Fri Jul 3, 2026 at 6:09 AM IST, Jonathan Cameron wrote:\r\n> >> > For now I've picked up the two straight conversions to dev_err_probe()\r\n> >> > because I'm keen to (slowly) stop using dev_err() in probe functions.\r\n> >>\r\n> >> I can look for places where dev_err() is used and can be replaced with\r\n> >> dev_err_probe() in other probe functions, then create a new patch\r\n> >> series for it. Without adding new logs or removing any existing ones, of course.\r\n> >> Shouldn't take a lot of time, what do you think?\r\n> >\r\n> > In some cases it would make an additional churn. Each driver may require\r\n> > a unique set of the cleanups and refactoring patches. Better to do something\r\n> > that you have HW to test on.\r\n>\r\n> Makes sense.\r\n>\r\n> > I also removed some people from the Cc list. Why did you add them?\r\n>\r\n> I am a little confused here. I only added people to the CC list who were\r\n> already present in the CC list of the original email. Am I missing\r\n> something?\r\n\r\nWhich original email? You sent the original patch with unrelated\r\npeople in the Cc list. get_maintainer.pl doesn't mention them in\r\nrelation to the patched driver.\r\n\r\n\r\n-- \r\nWith Best Regards,\r\nAndy Shevchenko\r\n\r\n",
+      "listType": "LKML",
+      "to": "Prashant Rahul <prashantrahul23@gmail.com>",
+      "cc": "Andy Shevchenko <andriy.shevchenko@intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19f2e7a745a1ec64",
+      "msgId": "<CAHp75Ve_98MSB-RrSWV7J5yH39c6gus4eUBjXondo1=hue9pyg@mail.gmail.com>",
+      "inReplyTo": "<f7aba67831fbee343c105bba4bb531ce6f1c1c50@linux.dev>",
+      "references": "<20260703102941.1141341-1-stefan.popa@analog.com> <20260703102941.1141341-3-stefan.popa@analog.com> <9878f042f424bfbd7fab24175298224b58e87779.camel@linux.dev> <akj3Ay8mwemRj-9U@ashevche-desk.local> <akkwWxCf10rfThMk@fedora> <akk9d-Zrx52C674x@ashevche-desk.local> <f7aba67831fbee343c105bba4bb531ce6f1c1c50@linux.dev>",
+      "title": "Re: [PATCH v1 2/2] iio: adc: add MAX40080 current-sense amplifier driver",
+      "updated": "Sat, 4 Jul 2026 21:52:25 +0300",
+      "authorName": "Andy Shevchenko",
+      "authorEmail": "andy.shevchenko@gmail.com",
+      "content": "On Sat, Jul 4, 2026 at 8:30 PM Siratul Islam <siratul.islam@linux.dev> wrote:\r\n> July 4, 2026 at 11:05 PM, \"Andy Shevchenko\" <andriy.shevchenko@intel.com mailto:andriy.shevchenko@intel.com?to=%22Andy%20Shevchenko%22%20%3Candriy.shevchenko%40intel.com%3E > wrote:\r\n> > On Sat, Jul 04, 2026 at 10:32:32PM +0600, Siratul Islam wrote:\r\n> > > On 26/07/04 03:05PM, Andy Shevchenko wrote:\r\n> > >  On Sat, Jul 04, 2026 at 01:42:39AM +0600, Siratul Islam wrote:\r\n> > >  > On Fri, 2026-07-03 at 13:29 +0300, Stefan Popa wrote:\r\n\r\n...\r\n\r\n> > > > > +static int max40080_get_range(struct max40080_state *st, unsigned int *range)\r\n> > >  > > +{\r\n> > >  > > + int tmp;\r\n> > >  > > +\r\n> > >  > > + tmp = i2c_smbus_read_word_data(st->client, MAX40080_REG_CFG);\r\n> > >  > I think tmp can be initialized, since it is only assigned once.\r\n> > >\r\n> > >  I don't get this comment. You mean switching to ret?\r\n> > >\r\n> > >  I meant tmp is assigned only once so the indirection here, i.e.\r\n> > >  declaring and assigning in two steps doesn't buy us anything. Instead,\r\n> > >  it could be initialized like \"int tmp = i2c_smbus_read_word_data().\"\r\n> > >\r\n> > Ah, definitely no to this suggestion. It makes code harder to maintain\r\n> > and the pattern you proposed is actually discouraged. You can search in\r\n> > mail archive and find like ~1-2 year old message from me with the detailed\r\n> > explanation why.\r\n> >\r\n> Thanks! I'll look into it. Learning a lot of stuff. But I'm trying to understand where to draw the line though.\r\n> Like \"struct xxx* data = iio_priv(indio_dev);\" and \"s64 ts = iio_get_time_ns(indio_dev);\" are pretty common.\r\n> Do these calls make a special case for it?\r\n\r\nWhen the assigned value is coupled with a (validation) check,\r\ndefinitely do not assign and define simultaneously. When it's used as\r\na counter, it's better to assign it closer to the user (meaning the\r\ncounters that can't be folded into a for-loop). This is the rough rule\r\nof thumb. Plus use common sense.\r\n\r\n> > > > > + if (tmp < 0)\r\n> > >  > > + return tmp;\r\n> > >  > > +\r\n> > >  > > + *range = FIELD_GET(MAX40080_RANGE_MSK, tmp);\r\n> > >  > > +\r\n> > >  > > + return 0;\r\n> > >  > > +}\r\n\r\n-- \r\nWith Best Regards,\r\nAndy Shevchenko\r\n\r\n",
+      "listType": "LKML",
+      "to": "Siratul Islam <siratul.islam@linux.dev>",
+      "cc": "Andy Shevchenko <andriy.shevchenko@intel.com>, Stefan Popa <stefan.popa@analog.com>, Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Ciprian Hegbeli <ciprian.hegbeli@analog.com>, linux-iio@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "19f2e6937c3a67f0",
       "msgId": "<20260705-drm-simple-kms-removal-v1-9-b4e1ca053623@oss.qualcomm.com>",
@@ -13848,34 +13890,6 @@
       "cc": "dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, amd-gfx@lists.freedesktop.org"
     },
     {
-      "id": "19f28d682392beee",
-      "msgId": "<20260703-ttm_2_drm_exec-v1-4-43685ac1286b@gmx.de>",
-      "inReplyTo": "<20260703-ttm_2_drm_exec-v1-0-43685ac1286b@gmx.de>",
-      "references": "<20260703-ttm_2_drm_exec-v1-0-43685ac1286b@gmx.de>",
-      "title": "[PATCH 04/10] drm/ttm: grab BO reference before locking it",
-      "updated": "Fri, 03 Jul 2026 18:31:24 +0200",
-      "authorName": "Natalie Vock",
-      "authorEmail": "natalie.vock@gmx.de",
-      "content": "From: Christian König <christian.koenig@amd.com>\r\n\r\nPreviously we always grabbed the BO reference after taking the lock, but\r\nthat isn't necessary any more.\r\n\r\nSo avoid doing that and cleanup the handling here.\r\n\r\nSigned-off-by: Christian König <christian.koenig@amd.com>\r\nSigned-off-by: Natalie Vock <natalie.vock@gmx.de>\r\n---\r\n drivers/gpu/drm/ttm/ttm_bo_util.c | 15 +++++++++------\r\n 1 file changed, 9 insertions(+), 6 deletions(-)\r\n\r\ndiff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c\r\nindex 29f068944a972..a53b25e8c2967 100644\r\n--- a/drivers/gpu/drm/ttm/ttm_bo_util.c\r\n+++ b/drivers/gpu/drm/ttm/ttm_bo_util.c\r\n@@ -1010,14 +1010,17 @@ __ttm_bo_lru_cursor_next(struct ttm_bo_lru_cursor *curs)\r\n \t\t\tbreak;\r\n \r\n \t\tbo = res->bo;\r\n-\t\tif (ttm_lru_walk_trylock(curs, bo))\r\n-\t\t\tbo_locked = true;\r\n-\t\telse if (!arg->ticket || arg->ctx->no_wait_gpu || arg->trylock_only)\r\n+\t\tif (!ttm_bo_get_unless_zero(bo))\r\n \t\t\tcontinue;\r\n \r\n-\t\tif (!ttm_bo_get_unless_zero(bo)) {\r\n-\t\t\tif (curs->needs_unlock)\r\n-\t\t\t\tdma_resv_unlock(bo->base.resv);\r\n+\t\tif (ttm_lru_walk_trylock(curs, bo)) {\r\n+\t\t\tbo_locked = true;\r\n+\r\n+\t\t} else if (!arg->ticket || arg->ctx->no_wait_gpu ||\r\n+\t\t\t   arg->trylock_only) {\r\n+\t\t\tspin_unlock(lru_lock);\r\n+\t\t\tttm_bo_put(bo);\r\n+\t\t\tspin_lock(lru_lock);\r\n \t\t\tcontinue;\r\n \t\t}\r\n \r\n\r\n-- \r\n2.55.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, Christian Koenig <christian.koenig@amd.com>, Huang Rui <ray.huang@amd.com>, Matthew Auld <matthew.auld@intel.com>, Matthew Brost <matthew.brost@intel.com>, \"Thomas Hellström\" <thomas.hellstrom@linux.intel.com>, Alex Deucher <alexander.deucher@amd.com>",
-      "cc": "dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, amd-gfx@lists.freedesktop.org"
-    },
-    {
-      "id": "19f28d685c58b610",
-      "msgId": "<20260703-ttm_2_drm_exec-v1-0-43685ac1286b@gmx.de>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH 00/10] Use drm_exec to lock TTM buffers, respin",
-      "updated": "Fri, 03 Jul 2026 18:31:20 +0200",
-      "authorName": "Natalie Vock",
-      "authorEmail": "natalie.vock@gmx.de",
-      "content": "Hi all,\r\n\r\nthis is a respin of Christian's patchset to make TTM use drm_exec for\r\nevicting buffers.\r\n\r\nI've been investigating VRAM management for amdgpu quite a bit in recent\r\ntimes, and under really strong VRAM contention I observed frequent\r\ninstabilities/random crashes that I traced back to TTM being unable to\r\nevict buffers properly. The typical failure case was one game squatting\r\nmore or less all of VRAM while also being rather spammy with submits.\r\nIn that case, trylocking fails because concurrent submits from the game\r\nalready hold buffer locks, and since there isn't much else to evict,\r\nallocation just fails.\r\n\r\nThe original patchset ended up fizzling out in previous attempts to\r\nupstream it, but I think it's worth retrying to upstream this, so I took\r\nover and rebased it on top of current drm-misc-next. Aside from\r\nthat, while testing the patchset I found two bugs causing rather random\r\nissues ranging from kernel crashes to random GPU hangs in it, which I fixed\r\nfor this respin. The two bugs were:\r\n1. The ttm_buffer_object duplication in ttm_buffer_object_transfer did\r\n   not alter the GEM object's driver function pointers, so the\r\n   transferred object erroneously inherited the free() function of the\r\n   source buffer. When the transferred object was freed, the driver's\r\n   free function was invoked and treated the transferred TTM bo as if it\r\n   was a driver BO. Hilarity ensued.\r\n2. drm_exec LRU walks were missing handling for already-locked objects.\r\n   If the incoming exec object was created without\r\n   DRM_EXEC_IGNORE_DUPLICATES, drm_exec_lock_obj would return -EALREADY\r\n   and the buffer would be skipped even if ctx->allow_res_evict was set\r\n   (funkiness level: moderate).\r\n   If the exec did have DRM_EXEC_IGNORE_DUPLICATES\r\n   set, the buffer would be processed, and then unlocked, silently\r\n   dropping the lock of some random object that the caller expected to\r\n   stay locked (funkiness level: off the charts).\r\n\r\nWith those two bugs fixed, VRAM overcommit works considerably more\r\nstable - there are no random eviction failures and related fallouts at\r\nall anymore.\r\n\r\nSigned-off-by: Natalie Vock <natalie.vock@gmx.de>\r\n---\r\nChristian König (9):\r\n      drm/ttm: replace TTMs refcount with the DRM refcount v4\r\n      drm/ttm: remove ttm_lru_walk_ops\r\n      drm/ttm: grab BO reference before locking it\r\n      drm/ttm: switch to ttm_bo_lru_for_each_reserved_guarded for swapout\r\n      drm/ttm: move zombie handling into ttm_bo_evict\r\n      drm/ttm: use ttm_bo_lru_for_each_reserved_guarded in evict_all\r\n      drm/xe: remove workaround for TTM internals\r\n      drm/ttm: support using drm_exec during eviction v4\r\n      drm/amdgpu: use drm_exec during BO validation\r\n\r\nNatalie Vock (1):\r\n      drm/exec: Add helper to bypass IGNORE_DUPLICATES flag\r\n\r\n drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c           |  80 +++----\r\n drivers/gpu/drm/drm_exec.c                       |  52 +++--\r\n drivers/gpu/drm/i915/gem/i915_gem_ttm.c          |  35 ++-\r\n drivers/gpu/drm/ttm/tests/ttm_bo_validate_test.c |   8 +-\r\n drivers/gpu/drm/ttm/tests/ttm_kunit_helpers.c    |   2 -\r\n drivers/gpu/drm/ttm/ttm_bo.c                     | 272 +++++++----------------\r\n drivers/gpu/drm/ttm/ttm_bo_internal.h            |  17 +-\r\n drivers/gpu/drm/ttm/ttm_bo_util.c                |  58 +++--\r\n drivers/gpu/drm/ttm/ttm_device.c                 |  19 +-\r\n drivers/gpu/drm/ttm/ttm_resource.c               |  22 +-\r\n drivers/gpu/drm/xe/xe_bo.c                       |  32 +--\r\n include/drm/drm_exec.h                           |   2 +\r\n include/drm/ttm/ttm_bo.h                         |  50 ++---\r\n 13 files changed, 296 insertions(+), 353 deletions(-)\r\n---\r\nbase-commit: 44d19b8a7548aa25cbc6ebd5f27e958f7142c36b\r\nchange-id: 20260703-ttm_2_drm_exec-2dbdb1fb9d43\r\n\r\nBest regards,\r\n--  \r\nNatalie Vock <natalie.vock@gmx.de>\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, Christian Koenig <christian.koenig@amd.com>, Huang Rui <ray.huang@amd.com>, Matthew Auld <matthew.auld@intel.com>, Matthew Brost <matthew.brost@intel.com>, \"Thomas Hellström\" <thomas.hellstrom@linux.intel.com>, Alex Deucher <alexander.deucher@amd.com>",
-      "cc": "dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, amd-gfx@lists.freedesktop.org"
-    },
-    {
       "id": "19f28d68b9dcbddb",
       "msgId": "<akfjKpv838nqsl78@arm.com>",
       "inReplyTo": "<20260703-kmemleak_checksum-v1-1-5e0ab7d6966f@debian.org>",
@@ -13888,20 +13902,6 @@
       "listType": "LKML",
       "to": "Breno Leitao <leitao@debian.org>",
       "cc": "Andrew Morton <akpm@linux-foundation.org>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com, stable@vger.kernel.org"
-    },
-    {
-      "id": "19f28d60a1c5b3cb",
-      "msgId": "<58e4579d-f87c-48db-9682-fec99c4706af@sirena.org.uk>",
-      "inReplyTo": "<20260701095759.1012929-17-Vijendar.Mukunda@amd.com>",
-      "references": "<20260701095759.1012929-1-Vijendar.Mukunda@amd.com> <20260701095759.1012929-17-Vijendar.Mukunda@amd.com>",
-      "title": "Re: [PATCH 16/16] ASoC: SOF: amd: add system and runtime PM ops for ACP7x",
-      "updated": "Fri, 3 Jul 2026 17:28:17 +0100",
-      "authorName": "Mark Brown",
-      "authorEmail": "broonie@kernel.org",
-      "content": "On Wed, Jul 01, 2026 at 03:25:17PM +0530, Vijendar Mukunda wrote:\r\n> Add amd_sof_acp7x_suspend() and amd_sof_acp7x_resume() for ACP7.B/7.F\r\n> platforms power management.\r\n\r\nThe interrupt is requested with IRQF_SHARED so probably worth double\r\nchecking if the interrupt handler is safe to run while the suspend and\r\nresume callbacks are running, I see we reset the device during suspend\r\nso there might be some risk of corrupted register reads?\r\n",
-      "listType": "LKML",
-      "to": "Vijendar Mukunda <Vijendar.Mukunda@amd.com>",
-      "cc": "alsa-devel@alsa-project.org, lgirdwood@gmail.com, yung-chuan.liao@linux.intel.com, pierre-louis.bossart@linux.dev, perex@perex.cz, tiwai@suse.com, Basavaraj.Hiregoudar@amd.com, Sunil-kumar.Dommati@amd.com, venkataprasad.potturu@amd.com, mario.limonciello@amd.com, linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org, sound-open-firmware@alsa-project.org"
     },
     {
       "id": "19f2c25d8671dfd1",
