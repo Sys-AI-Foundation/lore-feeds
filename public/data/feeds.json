@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-07-11T22:00:44.417Z",
+  "timestamp": "2026-07-11T22:22:45.770Z",
   "entries": [
+    {
+      "id": "19f533cfc494a913",
+      "msgId": "<alK_lhT0HOI7LXKT@google.com>",
+      "inReplyTo": "<20260426043041.649202-1-dmitry.torokhov@gmail.com>",
+      "references": "<20260426043041.649202-1-dmitry.torokhov@gmail.com>",
+      "title": "Re: [PATCH 1/2] firmware_loader: builtin: ignore 0-size firmware",
+      "updated": "Sat, 11 Jul 2026 15:11:53 -0700",
+      "authorName": "Dmitry Torokhov",
+      "authorEmail": "dmitry.torokhov@gmail.com",
+      "content": "On Sat, Apr 25, 2026 at 09:30:38PM -0700, Dmitry Torokhov wrote:\r\n> Currently, the builtin firmware loader allows 0-size firmware to be\r\n> returned successfully to drivers. This differs from all other loading\r\n> mechanisms (filesystem, sysfs fallback) which reject 0-byte files, and\r\n> forces drivers to add boilerplate size checks.\r\n> \r\n> Modify firmware_request_builtin() to reject 0-size firmware. This will\r\n> also result in firmware loader falling back to other mechanisms if an\r\n> empty built-in firmware is present.\r\n> \r\n> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>\r\n> ---\r\n\r\nGentle ping on this and the next one...\r\n\r\n>  drivers/base/firmware_loader/builtin/main.c | 2 ++\r\n>  1 file changed, 2 insertions(+)\r\n> \r\n> diff --git a/drivers/base/firmware_loader/builtin/main.c b/drivers/base/firmware_loader/builtin/main.c\r\n> index d36befebb1b9..1dcebe8e7f8e 100644\r\n> --- a/drivers/base/firmware_loader/builtin/main.c\r\n> +++ b/drivers/base/firmware_loader/builtin/main.c\r\n> @@ -53,6 +53,8 @@ bool firmware_request_builtin(struct firmware *fw, const char *name)\r\n>  \r\n>  \tfor (b_fw = __start_builtin_fw; b_fw != __end_builtin_fw; b_fw++) {\r\n>  \t\tif (strcmp(name, b_fw->name) == 0) {\r\n> +\t\t\tif (b_fw->size == 0)\r\n> +\t\t\t\treturn false;\r\n>  \t\t\tfw->size = b_fw->size;\r\n>  \t\t\tfw->data = b_fw->data;\r\n>  \t\t\treturn true;\r\n\r\n-- \r\nDmitry\r\n\r\n",
+      "listType": "LKML",
+      "to": "Luis Chamberlain <mcgrof@kernel.org>, Russ Weight <russ.weight@linux.dev>, Danilo Krummrich <dakr@kernel.org>",
+      "cc": "driver-core@lists.linux.dev, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19f5332755327cc6",
+      "msgId": "<CANpmjNMckikjJUdTT=ugs4pHMTOOQ+9mvSWZG31BGU3EFvRU1g@mail.gmail.com>",
+      "inReplyTo": "<1e72d8d2-ecfb-42c8-9ba4-97cf70f8b70b@linux.ibm.com>",
+      "references": "<20260706141452.3008233-1-nilay@linux.ibm.com> <20260706141452.3008233-15-nilay@linux.ibm.com> <20260709063020.GC18056@lst.de> <1e72d8d2-ecfb-42c8-9ba4-97cf70f8b70b@linux.ibm.com>",
+      "title": "Re: [PATCH v3 14/18] list: Permit context-unguarded access with list_empty_careful()",
+      "updated": "Sat, 11 Jul 2026 23:59:48 +0200",
+      "authorName": "Marco Elver",
+      "authorEmail": "elver@google.com",
+      "content": "On Fri, 10 Jul 2026 at 10:10, Nilay Shroff <nilay@linux.ibm.com> wrote:\r\n>\r\n> Hi Marco,\r\n>\r\n> On 7/9/26 12:00 PM, Christoph Hellwig wrote:\r\n> > On Mon, Jul 06, 2026 at 07:44:16PM +0530, Nilay Shroff wrote:\r\n> >> From: Marco Elver <elver@google.com>\r\n> >>\r\n> >> With Context Analysis (viz. Clang's Thread Safety Analysis), list_heads\r\n> >> that are __guarded_by(..) require holding the appropriate context lock\r\n> >> when accessing and manipulating them via the list API. Because Clang's\r\n> >> warning diagnostics do not perform inter-procedural analysis, this is\r\n> >> enforced by Clang with -Wthread-safety-pointer in the caller at the call\r\n> >> boundary; a warning is produced when passing a pointer to a guarded\r\n> >> variable without holding the appropriate context locks:\r\n> >\r\n> > Same thing here, maybe try to get this to Linus late in the current\r\n> > window as it's trivial and makes dependency management much easier.\r\n\r\nIt's not a bug fix, more of a feature, so I don't think this should be\r\nsent in a post-rc1 PR (and Linus would likely reject it).\r\n\r\n> > If that doesn't work, move it to the front of the series.\r\n> >\r\n> Would it be possible for you to send a pull request for Linus directly, or\r\n> would it need to go through another maintainer?\r\n\r\nNeeds another maintainer.\r\n\r\n> If you're able to send it directly, we also have patch 09/18 in this\r\n> series that should go to Linus. In that case, I'd suggest including both\r\n> patches in the same pull request.\r\n\r\nlist has no de-facto maintainer, so anyone could take it. My guess is\r\nit could go through tip/locking/core since it's related to Context\r\nAnalysis...\r\n\r\n... alas, this is more complex than it needs to be, esp. given it's\r\nborderline to get this merged post-rc1.\r\n\r\n> Otherwise, as Christoph suggested, I'll move these patches to the\r\n> beginning of the series in the next revision.\r\n\r\nI'd just move it to the beginning on the respin, given what I said above.\r\n\r\nThanks,\r\n-- Marco\r\n\r\n",
+      "listType": "LKML",
+      "to": "Nilay Shroff <nilay@linux.ibm.com>",
+      "cc": "Christoph Hellwig <hch@lst.de>, linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org, kbusch@kernel.org, sagi@grimberg.me, axboe@fb.com, bvanassche@acm.org, gjoyce@linux.ibm.com"
+    },
     {
       "id": "19f532dc3e47b34e",
       "msgId": "<alK4jVB5dTp1nvuG@google.com>",
@@ -13916,34 +13944,6 @@
       "listType": "LKML",
       "to": "Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, Heiko Stuebner <heiko@sntech.de>, Frank Wang <frank.wang@rock-chips.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Thinh Nguyen <Thinh.Nguyen@synopsys.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philipp Zabel <p.zabel@pengutronix.de>",
       "cc": "Andy Yan <andy.yan@rock-chips.com>, Dmitry Baryshkov <lumag@kernel.org>, Yubing Zhang <yubing.zhang@rock-chips.com>, Alexey Charkov <alchark@flipper.net>, linux-phy@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@collabora.com, devicetree@vger.kernel.org, linux-usb@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.com>"
-    },
-    {
-      "id": "19f4dd20c32a29c9",
-      "msgId": "<20260710-rockchip-usbdp-cleanup-v12-28-8b41a9a9bef0@collabora.com>",
-      "inReplyTo": "<20260710-rockchip-usbdp-cleanup-v12-0-8b41a9a9bef0@collabora.com>",
-      "references": "<20260710-rockchip-usbdp-cleanup-v12-0-8b41a9a9bef0@collabora.com>",
-      "title": "[PATCH v12 28/36] phy: rockchip: usbdp: Only enable USB3 when not in high-speed mode",
-      "updated": "Fri, 10 Jul 2026 18:45:06 +0200",
-      "authorName": "Sebastian Reichel",
-      "authorEmail": "sebastian.reichel@collabora.com",
-      "content": "Ensure that USB3 mode is not accidently enabled during PHY re-init\r\nfor systems that are configured as high-speed only via DT.\r\n\r\nFixes: 2f70bbddeb45 (\"phy: rockchip: add usbdp combo phy driver\")\r\nReported-by: Sashiko <sashiko-bot@kernel.org>\r\nCloses: https://sashiko.dev/#/message/20260626212424.C215E1F000E9%40smtp.kernel.org\r\nSigned-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>\r\n---\r\n drivers/phy/rockchip/phy-rockchip-usbdp.c | 2 +-\r\n 1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/phy/rockchip/phy-rockchip-usbdp.c b/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\nindex 2099ae2e51d1..af915cc37727 100644\r\n--- a/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\n+++ b/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\n@@ -1009,7 +1009,7 @@ static int rk_udphy_power_on(struct rk_udphy *udphy, u8 mode)\r\n \t\tif (ret)\r\n \t\t\treturn ret;\r\n \r\n-\t\tif (udphy->mode & UDPHY_MODE_USB)\r\n+\t\tif (!udphy->hs && udphy->mode & UDPHY_MODE_USB)\r\n \t\t\trk_udphy_u3_port_disable(udphy, false);\r\n \t\tudphy->phy_needs_reinit = false;\r\n \t} else if (udphy->phy_needs_reinit) {\r\n\r\n-- \r\n2.53.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, Heiko Stuebner <heiko@sntech.de>, Frank Wang <frank.wang@rock-chips.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Thinh Nguyen <Thinh.Nguyen@synopsys.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philipp Zabel <p.zabel@pengutronix.de>",
-      "cc": "Andy Yan <andy.yan@rock-chips.com>, Dmitry Baryshkov <lumag@kernel.org>, Yubing Zhang <yubing.zhang@rock-chips.com>, Alexey Charkov <alchark@flipper.net>, linux-phy@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@collabora.com, devicetree@vger.kernel.org, linux-usb@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.com>, Sashiko <sashiko-bot@kernel.org>"
-    },
-    {
-      "id": "19f4dd2203918a60",
-      "msgId": "<20260710-rockchip-usbdp-cleanup-v12-24-8b41a9a9bef0@collabora.com>",
-      "inReplyTo": "<20260710-rockchip-usbdp-cleanup-v12-0-8b41a9a9bef0@collabora.com>",
-      "references": "<20260710-rockchip-usbdp-cleanup-v12-0-8b41a9a9bef0@collabora.com>",
-      "title": "[PATCH v12 24/36] phy: rockchip: usbdp: Hold mutex in DP PHY configure",
-      "updated": "Fri, 10 Jul 2026 18:45:02 +0200",
-      "authorName": "Sebastian Reichel",
-      "authorEmail": "sebastian.reichel@collabora.com",
-      "content": "rk_udphy_dp_phy_configure() accesses some variables from the struct\r\nrk_udphy, which are updated independently from the USB-C framework.\r\n\r\nThe USB-C mux/orientation switch functions already hold a mutex to\r\nensure mutual exclusive access to the struct rk_udphy states, so\r\nsimply hold the same one in the DP PHY configuration function.\r\n\r\nReproducing problems due to this on real hardware would be really hard,\r\nbut could be possible when quickly re-connecting the USB-C connector.\r\n\r\nFixes: 2f70bbddeb45 (\"phy: rockchip: add usbdp combo phy driver\")\r\nReported-by: Sashiko <sashiko-bot@kernel.org>\r\nCloses: https://lore.kernel.org/linux-phy/20260612164627.23D391F000E9@smtp.kernel.org/\r\nSigned-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>\r\n---\r\n drivers/phy/rockchip/phy-rockchip-usbdp.c | 2 ++\r\n 1 file changed, 2 insertions(+)\r\n\r\ndiff --git a/drivers/phy/rockchip/phy-rockchip-usbdp.c b/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\nindex a742bde7155b..cd79c5da566a 100644\r\n--- a/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\n+++ b/drivers/phy/rockchip/phy-rockchip-usbdp.c\r\n@@ -1154,6 +1154,8 @@ static int rk_udphy_dp_phy_configure(struct phy *phy,\r\n \tu32 i, val, lane;\r\n \tint ret;\r\n \r\n+\tguard(mutex)(&udphy->mutex);\r\n+\r\n \tif (dp->set_rate) {\r\n \t\tret = rk_udphy_dp_phy_verify_link_rate(udphy, dp);\r\n \t\tif (ret)\r\n\r\n-- \r\n2.53.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, Heiko Stuebner <heiko@sntech.de>, Frank Wang <frank.wang@rock-chips.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Thinh Nguyen <Thinh.Nguyen@synopsys.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philipp Zabel <p.zabel@pengutronix.de>",
-      "cc": "Andy Yan <andy.yan@rock-chips.com>, Dmitry Baryshkov <lumag@kernel.org>, Yubing Zhang <yubing.zhang@rock-chips.com>, Alexey Charkov <alchark@flipper.net>, linux-phy@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@collabora.com, devicetree@vger.kernel.org, linux-usb@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.com>, Sashiko <sashiko-bot@kernel.org>"
     },
     {
       "id": "19f4dd2697cf81cb",
