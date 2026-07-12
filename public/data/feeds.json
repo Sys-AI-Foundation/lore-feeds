@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-07-12T22:59:52.407Z",
+  "timestamp": "2026-07-12T23:24:27.410Z",
   "entries": [
+    {
+      "id": "19f58a05dd0ad1a4",
+      "msgId": "<4d7a0e59-7c34-4557-a475-8cd7fd2ad2d9@kernel.org>",
+      "inReplyTo": "<b834e9a0-a61c-4912-b57c-36d571938b75@linaro.org>",
+      "references": "<20260708-x1e-csi2-phy-v9-0-0210b90c04cf@linaro.org> <20260708-x1e-csi2-phy-v9-1-0210b90c04cf@linaro.org> <YSunV_lNJ8xW_y-Aa2psZavniF6mcHJlJipuj1RYWMB8Zb8yLC-gb7eEnk0XMjfwQOneMGsZM5foFKutCNhYqw==@protonmail.internalid> <b7baffda-b97c-4b83-8d9e-e381d0289682@linaro.org> <3ab676ac-919b-4a80-8dd6-71dd7f6fe06c@kernel.org> <-iN0mG5nS2joxEn49UrxFlORE3R6Ji3HRebfOMNMGnupMIobTBdRDvnwjRHAXHeLmGf6O4JJENVauduwZXwhiA==@protonmail.internalid> <b834e9a0-a61c-4912-b57c-36d571938b75@linaro.org>",
+      "title": "Re: [PATCH v9 1/2] dt-bindings: phy: qcom: Add CSI2 C-PHY/DPHY schema",
+      "updated": "Mon, 13 Jul 2026 00:18:23 +0100",
+      "authorName": "\"Bryan O'Donoghue\"",
+      "authorEmail": "bod@kernel.org",
+      "content": "On 09/07/2026 08:40, Vladimir Zapolskiy wrote:\r\n>> As explained in the cover letter: I'm following guidance from Rob on that.\r\n> Pehaps you've misread a given review comment, because Rob's guidance is\r\n> to remove 'phy-type' property,\r\n\r\nI'll just quote verbatim \"Perhaps putting this in phy cells would be \r\nbetter because the consumer decides on the mode.\"\r\n\r\nThat is not \"remove phy-type\" - it's \"move the mode into the cell\". I'm \r\nshifting this back to the DT schema maintainers since, I take their \r\nfeedback literally, seriously and canonically.\r\n\r\nAny of the triumvirate will do, Rob, Krzysztof or Conor.\r\n\r\nAbsent a different answer from the DT schema guys, v10 ships with the \r\nconsumer deciding the mode as per Rob's original guidance.\r\n\r\n---\r\nbod\r\n\r\n",
+      "listType": "LKML",
+      "to": "Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, \"Bryan O'Donoghue\" <bryan.odonoghue@linaro.org>, Vinod Koul <vkoul@kernel.org>, Kishon Vijay Abraham I <kishon@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>",
+      "cc": "linux-arm-msm@vger.kernel.org, linux-phy@lists.infradead.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19f58982bc532d69",
+      "msgId": "<yq1cxwrdgmx.fsf@ca-mkp.ca.oracle.com>",
+      "inReplyTo": "<20260627054220.2174166-1-csander@purestorage.com> (Caleb Sander Mateos's message of \"Fri, 26 Jun 2026 23:42:15 -0600\")",
+      "references": "<20260627054220.2174166-1-csander@purestorage.com>",
+      "title": "Re: [PATCH v4 0/5] block: use integrity interval instead of sector as seed",
+      "updated": "Sun, 12 Jul 2026 19:09:01 -0400",
+      "authorName": "\"Martin K. Petersen\"",
+      "authorEmail": "martin.petersen@oracle.com",
+      "content": "\r\nCaleb,\r\n\r\n> The block integrity layer currently sets the integrity seed (initial\r\n> reference tag) in units of 512-byte sectors.\r\n\r\n... because that is the fundamental addressing unit in the block layer.\r\n\r\n> However, Type 1 and Type 2 ref tags are actually in units of integrity\r\n> intervals.\r\n\r\nThey are not in units of anything until they reach their final\r\nprotection envelope.\r\n\r\n> On devices with integrity interval size > 512 bytes, ref tags are\r\n> seeded incorrectly.\r\n\r\nThe bip seed is whatever the caller decides it should be. The integrity\r\ninterval size is irrelevant. As is the destination LBA.\r\n\r\n> But REQ_OP_ZONE_APPEND operations don't have their ref tags remapped,\r\n> so the ref tags using units of sectors will be stored to the device.\r\n\r\nThen there's a problem with how we handle REQ_OP_ZONE_APPEND. For NVMe,\r\nthe PIREMAP flag should address this issue by remapping the written ref\r\ntags based on their ultimate destination LBA.\r\n\r\nFundamentally, you should be able to set the bip seed for any READ or\r\nWRITE bio to 42, regardless of logical block size, and have it work. If\r\nit doesn't, then that's a bug.\r\n\r\nThe fact that the block layer happens to know the start LBA or ZSLBA\r\ndoes not mean that callers above the block layer have access to the same\r\ninformation. Changing the block layer's integrity handling semantics is\r\nnot the correct approach. Everything above the block layer depends on\r\nthe existing, format-agnostic, semantics.\r\n\r\n-- \r\nMartin K. Petersen\r\n\r\n",
+      "listType": "LKML",
+      "to": "Caleb Sander Mateos <csander@purestorage.com>",
+      "cc": "Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, Chaitanya Kulkarni <kch@nvidia.com>, \"Martin K. Petersen\" <martin.petersen@oracle.com>, Anuj Gupta <anuj20.g@samsung.com>, linux-block@vger.kernel.org, linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "19f587ab95ec411b",
       "msgId": "<20260712223733.1084077-1-rosenp@gmail.com>",
@@ -13972,34 +14000,6 @@
       "listType": "LKML",
       "to": "Taehee Yoo <ap420073@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, \"David S . Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>",
       "cc": "netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "19f51c1b13310fae",
-      "msgId": "<20260711151744.GA8759@wp.pl>",
-      "inReplyTo": "<20260711144259.1124-1-ceohunk@gmail.com>",
-      "references": "<20260711144259.1124-1-ceohunk@gmail.com>",
-      "title": "Re: [PATCH] usb: atm: ueagle-atm: fix use-after-free in uea_upload_pre_firmware",
-      "updated": "Sat, 11 Jul 2026 17:17:44 +0200",
-      "authorName": "Stanislaw Gruszka",
-      "authorEmail": "stf_xl@wp.pl",
-      "content": "Hi,\r\n\r\nOn Sat, Jul 11, 2026 at 10:42:59PM +0800, Yuhong Cheng wrote:\r\n> syzbot reported a slab-use-after-free read in uea_upload_pre_firmware. This is because the usb_device is passed as context to request_firmware_nowait but its reference count is not incremented. Thus, if the USB device is disconnected before the firmware load completes, the callback accesses a freed usb_device.\r\n\r\nI think this not true, please see:\r\nhttps://lore.kernel.org/linux-usb/20260702093707.GA6804@wp.pl/\r\n\r\nRegards\r\nStanislaw\r\n\r\n> Fix this by taking a reference with usb_get_dev() before calling request_firmware_nowait() and releasing it with usb_put_dev() in the completion callback or if the request fails to start.\r\n> \r\n> Reported-by: syzbot+123456@syzkaller.appspotmail.com\r\n> ---\r\n>  drivers/usb/atm/ueagle-atm.c | 8 ++++++--\r\n>  1 file changed, 6 insertions(+), 2 deletions(-)\r\n> \r\n> diff --git a/drivers/usb/atm/ueagle-atm.c b/drivers/usb/atm/ueagle-atm.c\r\n> index d610cdcef..eaf2f2d3a 100644\r\n> --- a/drivers/usb/atm/ueagle-atm.c\r\n> +++ b/drivers/usb/atm/ueagle-atm.c\r\n> @@ -663,6 +663,7 @@ static void uea_upload_pre_firmware(const struct firmware *fw_entry,\r\n>  \tuea_err(usb, \"firmware is corrupted\\n\");\r\n>  err:\r\n>  \trelease_firmware(fw_entry);\r\n> +\tusb_put_dev(usb);\r\n>  }\r\n>  \r\n>  /*\r\n> @@ -693,13 +694,16 @@ static int uea_load_firmware(struct usb_device *usb, unsigned int ver)\r\n>  \t\tbreak;\r\n>  \t}\r\n>  \r\n> +\tusb_get_dev(usb);\r\n>  \tret = request_firmware_nowait(THIS_MODULE, 1, fw_name, &usb->dev,\r\n>  \t\t\t\t\tGFP_KERNEL, usb,\r\n>  \t\t\t\t\tuea_upload_pre_firmware);\r\n> -\tif (ret)\r\n> +\tif (ret) {\r\n>  \t\tuea_err(usb, \"firmware %s is not available\\n\", fw_name);\r\n> -\telse\r\n> +\t\tusb_put_dev(usb);\r\n> +\t} else {\r\n>  \t\tuea_info(usb, \"loading firmware %s\\n\", fw_name);\r\n> +\t}\r\n>  \r\n>  \treturn ret;\r\n>  }\r\n> -- \r\n> 2.46.0.windows.1\r\n> \r\n\r\n",
-      "listType": "LKML",
-      "to": "Yuhong Cheng <ceohunk@gmail.com>",
-      "cc": "castet.matthieu@free.fr, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot+123456@syzkaller.appspotmail.com"
-    },
-    {
-      "id": "19f51c1d16b337d2",
-      "msgId": "<alJejMW5JwNQWw7C@wunner.de>",
-      "inReplyTo": "<alInuM5TquLTv5QE@fudgebox>",
-      "references": "<alEr_e-G0L2nxxv-@fudgebox> <20260710213718.GD1911@quark> <2026071156-masculine-unsold-3567@gregkh> <CAOs+rJUPQq88D7YwHyrbTFF-G9Lw7cJ9pcaZBpACP89ES9z00w@mail.gmail.com> <alInuM5TquLTv5QE@fudgebox>",
-      "title": "Re: [PATCH] crypto: rsassa-pkcs1: use constant-time comparison for digest and signature verification",
-      "updated": "Sat, 11 Jul 2026 17:17:32 +0200",
-      "authorName": "Lukas Wunner",
-      "authorEmail": "lukas@wunner.de",
-      "content": "On Sat, Jul 11, 2026 at 01:23:36PM +0200, David Gall wrote:\r\n> That said, this function [rsassa_pkcs1_verify()] already uses\r\n> crypto_memneq() for the hash-prefix check a few lines above.\r\n> I'd argue for consistency it's worth using it for the digest\r\n> comparison too.\r\n\r\nI'd prefer the other way round, i.e. to use memcmp() for the hash_prefix\r\ncomparison.\r\n\r\nThanks,\r\n\r\nLukas\r\n\r\n",
-      "listType": "LKML",
-      "to": "David Gall <david.ccm.gall@googlemail.com>",
-      "cc": "Ignat Korchagin <ignat@linux.win>, Greg KH <gregkh@linuxfoundation.org>, Eric Biggers <ebiggers@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, \"David S. Miller\" <davem@davemloft.net>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org"
     }
   ]
 }
