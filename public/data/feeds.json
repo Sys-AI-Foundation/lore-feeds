@@ -1,6 +1,62 @@
 {
-  "timestamp": "2026-07-26T21:02:06.851Z",
+  "timestamp": "2026-07-26T21:26:03.415Z",
   "entries": [
+    {
+      "id": "19fa04d82a09c2bb",
+      "msgId": "<amZ6NlhFxn7Uaaww@ninjato>",
+      "inReplyTo": "<20260718163024.1726-3-wsa+renesas@sang-engineering.com>",
+      "references": "<20260718163024.1726-1-wsa+renesas@sang-engineering.com> <20260718163024.1726-3-wsa+renesas@sang-engineering.com>",
+      "title": "Re: [PATCH v4 2/3] hwspinlock: add list of mailboxes to debugfs",
+      "updated": "Sun, 26 Jul 2026 23:20:54 +0200",
+      "authorName": "Wolfram Sang",
+      "authorEmail": "wsa+renesas@sang-engineering.com",
+      "content": "\r\n> [Severity: High]\r\n> This isn't a bug introduced by this patch, but this debugfs addition exposes\r\n> a pre-existing lifetime issue with hwspinlock devices.\r\n> \r\n> Can a concurrent device unbind cause a use-after-free here?\r\n\r\nMy next hwspinlock series will tackle the plenty of UAF issues.\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "linux-renesas-soc@vger.kernel.org",
+      "cc": "Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, Bjorn Andersson <andersson@kernel.org>, Baolin Wang <baolin.wang@linux.alibaba.com>, linux-remoteproc@vger.kernel.org"
+    },
+    {
+      "id": "19fa04dc1ecf1708",
+      "msgId": "<amZ6FReXAVUCO-pr@ninjato>",
+      "inReplyTo": "<20260718163024.1726-2-wsa+renesas@sang-engineering.com>",
+      "references": "<20260718163024.1726-1-wsa+renesas@sang-engineering.com> <20260718163024.1726-2-wsa+renesas@sang-engineering.com>",
+      "title": "Re: [PATCH v4 1/3] hwspinlock: Convert to XArray",
+      "updated": "Sun, 26 Jul 2026 23:20:21 +0200",
+      "authorName": "Wolfram Sang",
+      "authorEmail": "wsa+renesas@sang-engineering.com",
+      "content": "\r\n> [Severity: High]\r\n> This is a pre-existing issue, but does dereferencing hwlock->bank->dev under\r\n> rcu_read_lock() and later accessing hwlock->bank->num_locks after dropping it\r\n> in of_hwspin_lock_get_id() lead to a Use-After-Free?\r\n> \r\n> While the XArray (and previously Radix Tree) lookup yields a pointer to\r\n> hwlock, the hwlock structure is managed by devres (e.g. devm_kzalloc) which\r\n> frees the memory synchronously on device unbind without waiting for an RCU\r\n> grace period.\r\n\r\nMy next hwspinlock series will tackle the plenty of UAF issues.\r\n\r\n> [Severity: High]\r\n> This is a pre-existing issue, but does aborting here lead to dangling\r\n> pointers in the XArray when devres subsequently frees the bank memory?\r\n\r\nDitto.\r\n\r\n> > +\txas_unlock(&xas);\r\n> >  \r\n> > +\tret = hwspin_lock_prepare(hwlock);\r\n> > +\r\n> > +\txas_lock(&xas);\r\n> > +\tif (ret < 0) {\r\n> > +\t\thwlock = NULL;\r\n> > +\t\txas_set_mark(&xas, HWSPINLOCK_UNUSED);\r\n> \r\n> [Severity: High]\r\n> Can reusing the un-reset XA_STATE after dropping the XArray lock and sleeping\r\n> in hwspin_lock_request_specific() lead to a Use-After-Free?\r\n> \r\n> This function drops the XArray lock and calls hwspin_lock_prepare(), which can\r\n> sleep via pm_runtime_get_sync(). While sleeping, concurrent modifications to\r\n> the XArray can cause internal nodes to be reallocated or freed.\r\n> \r\n> Upon waking, if hwspin_lock_prepare() fails, the function reacquires the lock\r\n> and calls xas_set_mark(&xas, HWSPINLOCK_UNUSED) using the stale xas iterator,\r\n> which might dereference the potentially freed xas.xa_node.\r\n\r\nI fixed this in v5 to be sent soon.\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "linux-renesas-soc@vger.kernel.org",
+      "cc": "Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, Bjorn Andersson <andersson@kernel.org>, Baolin Wang <baolin.wang@linux.alibaba.com>, linux-remoteproc@vger.kernel.org"
+    },
+    {
+      "id": "19fa046a591b87af",
+      "msgId": "<20260726211226.94059-1-jorijnvdgraaf@catcrafts.net>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] ASoC: qcom: q6apm: keep the graph start count in sync with the DSP",
+      "updated": "Sun, 26 Jul 2026 23:12:26 +0200",
+      "authorName": "Jorijn van der Graaf",
+      "authorEmail": "jorijnvdgraaf@catcrafts.net",
+      "content": "q6apm_graph_start() increments start_count even when APM_CMD_GRAPH_START\r\nfails, leaving the graph counted as running while the DSP never started\r\nit. A later start - a retried prepare, or a resume after a failed start -\r\nthen finds a non-zero count, skips the command and returns success with\r\nno data flowing.\r\n\r\nCount the graph only once the DSP has accepted the start. The count then\r\nstays at zero for a graph that never started, so also stop decrementing\r\nbelow zero in q6apm_graph_stop(): the compressed free path stops\r\nunconditionally, and a negative count would make the next start skip the\r\ncommand in the same way.\r\n\r\nFixes: 5477518b8a0e (\"ASoC: qdsp6: audioreach: add q6apm support\")\r\nAssisted-by: Claude:claude-opus-5\r\nSigned-off-by: Jorijn van der Graaf <jorijnvdgraaf@catcrafts.net>\r\n---\r\nFound by inspection while working on MI2S clocking on the Fairphone\r\n(Gen. 6); I have not hit either path on hardware, so no stable Cc - say\r\nthe word if you want one.\r\n\r\nOne patch, because the start hunk alone would leave q6apm_dai_compr_free()\r\nable to take the count negative - a bisect hole. That call became\r\nunbalanced with 88b60bf047fd (\"ASoC: q6dsp: q6apm-dai: Add open/free\r\ncompress DAI callbacks\"), but the counting logic is from the Fixes commit.\r\nA never-started graph is still torn down by APM_CMD_GRAPH_CLOSE.\r\n\r\nThe guard is in the helper to keep the count in one place; the equivalent\r\ncheck in the compressed free path, as q6apm_dai_close() has it, works too.\r\n\r\n sound/soc/qcom/qdsp6/q6apm.c | 12 +++++++++---\r\n 1 file changed, 9 insertions(+), 3 deletions(-)\r\n\r\ndiff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c\r\nindex 641d6d243229..f167b9dae3fa 100644\r\n--- a/sound/soc/qcom/qdsp6/q6apm.c\r\n+++ b/sound/soc/qcom/qdsp6/q6apm.c\r\n@@ -802,14 +802,17 @@ EXPORT_SYMBOL_GPL(q6apm_graph_prepare);\r\n int q6apm_graph_start(struct q6apm_graph *graph)\r\n {\r\n \tstruct audioreach_graph *ar_graph = graph->ar_graph;\r\n-\tint ret = 0;\r\n+\tint ret;\r\n \r\n-\tif (ar_graph->start_count == 0)\r\n+\tif (ar_graph->start_count == 0) {\r\n \t\tret = audioreach_graph_mgmt_cmd(ar_graph, APM_CMD_GRAPH_START);\r\n+\t\tif (ret)\r\n+\t\t\treturn ret;\r\n+\t}\r\n \r\n \tar_graph->start_count++;\r\n \r\n-\treturn ret;\r\n+\treturn 0;\r\n }\r\n EXPORT_SYMBOL_GPL(q6apm_graph_start);\r\n \r\n@@ -817,6 +820,9 @@ int q6apm_graph_stop(struct q6apm_graph *graph)\r\n {\r\n \tstruct audioreach_graph *ar_graph = graph->ar_graph;\r\n \r\n+\tif (ar_graph->start_count == 0)\r\n+\t\treturn 0;\r\n+\r\n \tif (--ar_graph->start_count > 0)\r\n \t\treturn 0;\r\n \r\n\r\nbase-commit: 4c4a11fdf61ca56a08ea05635a1479b9bee666f4\r\n-- \r\n2.55.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Srinivas Kandagatla <srini@kernel.org>, Mark Brown <broonie@kernel.org>",
+      "cc": "Jorijn van der Graaf <jorijnvdgraaf@catcrafts.net>, Liam Girdwood <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Pierre-Louis Bossart <pierre-louis.bossart@linux.dev>, Luca Weiss <luca.weiss@fairphone.com>, linux-sound@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19fa0458c4f6f8ca",
+      "msgId": "<20260726211200.2643484-1-rdunlap@infradead.org>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] docs/driver-api: infrastructure: add property.h and fwnode.h",
+      "updated": "Sun, 26 Jul 2026 14:12:00 -0700",
+      "authorName": "Randy Dunlap",
+      "authorEmail": "rdunlap@infradead.org",
+      "content": "Add more driver core header files to infrastructure.rst for\r\ncompleteness.\r\n\r\nSigned-off-by: Randy Dunlap <rdunlap@infradead.org>\r\n---\r\nCc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>\r\nCc: \"Rafael J. Wysocki\" <rafael@kernel.org>\r\nCc: Danilo Krummrich <dakr@kernel.org>\r\nCc: driver-core@lists.linux.dev\r\nCc: Jonathan Corbet <corbet@lwn.net>\r\nCc: Shuah Khan <skhan@linuxfoundation.org>\r\nCc: linux-doc@vger.kernel.org\r\n\r\n Documentation/driver-api/infrastructure.rst |    4 ++++\r\n 1 file changed, 4 insertions(+)\r\n\r\n--- linux-next-20260722.orig/Documentation/driver-api/infrastructure.rst\r\n+++ linux-next-20260722/Documentation/driver-api/infrastructure.rst\r\n@@ -17,6 +17,10 @@ The Basic Device Driver-Model Structures\r\n .. kernel-doc:: include/linux/device/driver.h\r\n    :identifiers: probe_type device_driver\r\n \r\n+.. kernel-doc:: include/linux/property.h\r\n+\r\n+.. kernel-doc:: include/linux/fwnode.h\r\n+\r\n Device Drivers Base\r\n -------------------\r\n \r\n\r\n",
+      "listType": "LKML",
+      "to": "linux-kernel@vger.kernel.org",
+      "cc": "Randy Dunlap <rdunlap@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, \"Rafael J. Wysocki\" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, driver-core@lists.linux.dev, Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, linux-doc@vger.kernel.org"
+    },
     {
       "id": "19fa03806b41280f",
       "msgId": "<84bd13c8-02d7-44b6-95b1-adc64242a8a1@baylibre.com>",
@@ -13930,62 +13986,6 @@
       "listType": "LKML",
       "to": "Breno Leitao <leitao@debian.org>, Christian Brauner <brauner@kernel.org>, Mateusz Guzik <mjguzik@gmail.com>, Jens Axboe <axboe@kernel.dk>",
       "cc": "Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, io-uring@vger.kernel.org, Alexey Gladkov <legion@kernel.org>"
-    },
-    {
-      "id": "19f99d950b3a69f0",
-      "msgId": "<CAEvNRgG=j7_FEGmE8NV9DaENQTJXn50aQepFaQZjn4zh4d8DFQ@mail.gmail.com>",
-      "inReplyTo": "<20260723210811.72720-9-seanjc@google.com>",
-      "references": "<20260723210811.72720-1-seanjc@google.com> <20260723210811.72720-9-seanjc@google.com>",
-      "title": "Re: [PATCH v6 8/9] KVM: guest_memfd: Explicitly pass number of pages to make_private() hook",
-      "updated": "Sat, 25 Jul 2026 08:14:43 -0700",
-      "authorName": "Ackerley Tng",
-      "authorEmail": "ackerleytng@google.com",
-      "content": "Sean Christopherson <seanjc@google.com> writes:\r\n\r\n> Tweak the guest_memfd make_private() hook to explicitly pass the number of\r\n> pages to align with the signature of the make_shared() hook, and because\r\n> the existing code is outright broken if a guest_memfd folio is comprised of\r\n> more than one page (which can't happen, yet).  The SNP code *tries* to\r\n> create a corresponding huge entry, but if the RMP must use 4KiB entries for\r\n> whatever reason, KVM will only convert the first pfn, and not the entire\r\n> range of pfns that will be mapped into the guest.\r\n>\r\n> Alternatively, @max_order could simply be repurposed as _the_ @order, but\r\n> that will fall apart when in-place conversion comes along, at which point\r\n> KVM will need to deal with conversions that aren't bound 1:1 to a folio.\r\n> I.e. the number of pages to convert may not be exactly be a power-of-2 (and\r\n> folios don't strictly guarantee power-of-2 pages anyways).\r\n>\r\n> WARN in the SNP code if the number of pages to prepare is anything other\r\n> than '1', i.e. if guest_memfd is trying to prepare/convert more than a\r\n> single 4KiB page, as sev_gmem_prepare() doesn't actually handle conversion\r\n> greater than order-0 folios.\r\n>\r\n> Opportunistically swap the ordering of @pfn and @gfn params for\r\n> kvm_x86_ops.gmem_make_private() to match kvm_arch_gmem_make_private().\r\n>\r\n> Fixes: b85524314a3d (\"KVM: guest_memfd: delay kvm_gmem_prepare_folio() until the memory is passed to the guest\")\r\n> Signed-off-by: Sean Christopherson <seanjc@google.com>\r\n> ---\r\n>  arch/x86/include/asm/kvm_host.h |  3 ++-\r\n>  arch/x86/kvm/svm/sev.c          | 27 +++++++++++----------------\r\n>  arch/x86/kvm/svm/svm.h          |  2 +-\r\n>  arch/x86/kvm/x86.c              |  5 +++--\r\n>  include/linux/kvm_host.h        |  2 +-\r\n>  virt/kvm/guest_memfd.c          |  2 +-\r\n>  6 files changed, 19 insertions(+), 22 deletions(-)\r\n>\r\n> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h\r\n> index 4be57157136b..230267b2203b 100644\r\n> --- a/arch/x86/include/asm/kvm_host.h\r\n> +++ b/arch/x86/include/asm/kvm_host.h\r\n> @@ -1725,7 +1725,8 @@ struct kvm_x86_ops {\r\n>  \tgva_t (*get_untagged_addr)(struct kvm_vcpu *vcpu, gva_t gva, unsigned int flags);\r\n>  \tvoid *(*alloc_apic_backing_page)(struct kvm_vcpu *vcpu);\r\n>  #ifdef CONFIG_HAVE_KVM_ARCH_GMEM_CONVERT\r\n> -\tint (*gmem_make_private)(struct kvm *kvm, kvm_pfn_t pfn, gfn_t gfn, int max_order);\r\n> +\tint (*gmem_make_private)(struct kvm *kvm, gfn_t gfn, kvm_pfn_t pfn,\r\n> +\t\t\t\t kvm_pfn_t nr_pages);\r\n>  #endif\r\n>  #ifdef CONFIG_HAVE_KVM_ARCH_GMEM_RECLAIM\r\n>  \tvoid (*gmem_make_shared)(kvm_pfn_t pfn, kvm_pfn_t nr_pages);\r\n> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c\r\n> index 0ecba768c153..bf7f94d1d7f9 100644\r\n> --- a/arch/x86/kvm/svm/sev.c\r\n> +++ b/arch/x86/kvm/svm/sev.c\r\n> @@ -5090,15 +5090,7 @@ static bool is_pfn_range_shared(kvm_pfn_t start, kvm_pfn_t end)\r\n>  \treturn true;\r\n>  }\r\n>\r\n> -static u8 max_level_for_order(int order)\r\n> -{\r\n> -\tif (order >= KVM_HPAGE_GFN_SHIFT(PG_LEVEL_2M))\r\n> -\t\treturn PG_LEVEL_2M;\r\n> -\r\n> -\treturn PG_LEVEL_4K;\r\n> -}\r\n> -\r\n> -static bool is_large_rmp_possible(struct kvm *kvm, kvm_pfn_t pfn, int order)\r\n> +static bool is_large_rmp_possible(kvm_pfn_t pfn, kvm_pfn_t nr_pages)\r\n>  {\r\n>  \tkvm_pfn_t pfn_aligned = ALIGN_DOWN(pfn, PTRS_PER_PMD);\r\n>\r\n> @@ -5107,14 +5099,14 @@ static bool is_large_rmp_possible(struct kvm *kvm, kvm_pfn_t pfn, int order)\r\n>  \t * PFN is currently shared, then the entire 2M-aligned range can be\r\n>  \t * set to private via a single 2M RMP entry.\r\n>  \t */\r\n> -\tif (max_level_for_order(order) > PG_LEVEL_4K &&\r\n> +\tif (nr_pages >= KVM_PAGES_PER_HPAGE(PG_LEVEL_2M) &&\r\n>  \t    is_pfn_range_shared(pfn_aligned, pfn_aligned + PTRS_PER_PMD))\r\n\r\nThis could actually just be return (everything in the if condition).\r\n\r\nThinking more about this, asking is_large_rmp_possible() of a pfn and\r\nnr_pages is perhaps the wrong question, since if nr_pages stretches into\r\nthe next 2M range, then you might have a different answer for the start\r\nand end (and in-between) 2M ranges.\r\n\r\nWe can solve all these when we get to huge pages :)\r\n\r\n>  \t\treturn true;\r\n>\r\n>  \treturn false;\r\n>  }\r\n>\r\n\r\nReviewed-by: Ackerley Tng <ackerleytng@google.com>\r\n\r\n>\r\n> [...snip...]\r\n>\r\n\r\n",
-      "listType": "LKML",
-      "to": "Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>",
-      "cc": "kvm@vger.kernel.org, linux-kernel@vger.kernel.org, Fuad Tabba <fuad.tabba@linux.dev>, Xiaoyao Li <xiaoyao.li@intel.com>, Michael Roth <michael.roth@amd.com>, Fuad Tabba <tabba@google.com>"
-    },
-    {
-      "id": "19f99d7b66dedea8",
-      "msgId": "<20260725150852.859188-5-ekffu200098@gmail.com>",
-      "inReplyTo": "<20260725150852.859188-1-ekffu200098@gmail.com>",
-      "references": "<20260725150852.859188-1-ekffu200098@gmail.com>",
-      "title": "[PATCH net-next v2 4/4] net: intel: remove conditional return with no effect",
-      "updated": "Sun, 26 Jul 2026 00:08:52 +0900",
-      "authorName": "Sang-Heon Jeon",
-      "authorEmail": "ekffu200098@gmail.com",
-      "content": "Both branches of the check return the same value, so the check has\r\nno effect. Remove it and return the value directly.\r\n\r\nThis is the result of running the Coccinelle script from\r\nscripts/coccinelle/misc/cond_return_no_effect.cocci.\r\n\r\nSigned-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>\r\n---\r\n drivers/net/ethernet/intel/i40e/i40e_main.c | 8 +-------\r\n drivers/net/ethernet/intel/igb/e1000_i210.c | 6 +-----\r\n drivers/net/ethernet/intel/igc/igc_phy.c    | 6 +-----\r\n 3 files changed, 3 insertions(+), 17 deletions(-)\r\n\r\ndiff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c\r\nindex a04683004a56..0cd0e5597c90 100644\r\n--- a/drivers/net/ethernet/intel/i40e/i40e_main.c\r\n+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c\r\n@@ -4864,16 +4864,10 @@ static void i40e_control_rx_q(struct i40e_pf *pf, int pf_q, bool enable)\r\n  **/\r\n int i40e_control_wait_rx_q(struct i40e_pf *pf, int pf_q, bool enable)\r\n {\r\n-\tint ret = 0;\r\n-\r\n \ti40e_control_rx_q(pf, pf_q, enable);\r\n \r\n \t/* wait for the change to finish */\r\n-\tret = i40e_pf_rxq_wait(pf, pf_q, enable);\r\n-\tif (ret)\r\n-\t\treturn ret;\r\n-\r\n-\treturn ret;\r\n+\treturn i40e_pf_rxq_wait(pf, pf_q, enable);\r\n }\r\n \r\n /**\r\ndiff --git a/drivers/net/ethernet/intel/igb/e1000_i210.c b/drivers/net/ethernet/intel/igb/e1000_i210.c\r\nindex 9db29b231d6a..784f9a7bcbed 100644\r\n--- a/drivers/net/ethernet/intel/igb/e1000_i210.c\r\n+++ b/drivers/net/ethernet/intel/igb/e1000_i210.c\r\n@@ -756,11 +756,7 @@ static s32 __igb_access_xmdio_reg(struct e1000_hw *hw, u16 address,\r\n \t\treturn ret_val;\r\n \r\n \t/* Recalibrate the device back to 0 */\r\n-\tret_val = hw->phy.ops.write_reg(hw, E1000_MMDAC, 0);\r\n-\tif (ret_val)\r\n-\t\treturn ret_val;\r\n-\r\n-\treturn ret_val;\r\n+\treturn hw->phy.ops.write_reg(hw, E1000_MMDAC, 0);\r\n }\r\n \r\n /**\r\ndiff --git a/drivers/net/ethernet/intel/igc/igc_phy.c b/drivers/net/ethernet/intel/igc/igc_phy.c\r\nindex 4cf737fb3b21..b758a7e0f013 100644\r\n--- a/drivers/net/ethernet/intel/igc/igc_phy.c\r\n+++ b/drivers/net/ethernet/intel/igc/igc_phy.c\r\n@@ -675,11 +675,7 @@ static s32 __igc_access_xmdio_reg(struct igc_hw *hw, u16 address,\r\n \t\treturn ret_val;\r\n \r\n \t/* Recalibrate the device back to 0 */\r\n-\tret_val = hw->phy.ops.write_reg(hw, IGC_MMDAC, 0);\r\n-\tif (ret_val)\r\n-\t\treturn ret_val;\r\n-\r\n-\treturn ret_val;\r\n+\treturn hw->phy.ops.write_reg(hw, IGC_MMDAC, 0);\r\n }\r\n \r\n /**\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "kuba@kernel.org, Tony Nguyen <anthony.l.nguyen@intel.com>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, Andrew Lunn <andrew+netdev@lunn.ch>, \"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>",
-      "cc": "intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org"
-    },
-    {
-      "id": "19f99d802995e7b2",
-      "msgId": "<20260725150852.859188-2-ekffu200098@gmail.com>",
-      "inReplyTo": "<20260725150852.859188-1-ekffu200098@gmail.com>",
-      "references": "<20260725150852.859188-1-ekffu200098@gmail.com>",
-      "title": "[PATCH net-next v2 1/4] dpll: zl3073x: remove conditional return with no effect",
-      "updated": "Sun, 26 Jul 2026 00:08:49 +0900",
-      "authorName": "Sang-Heon Jeon",
-      "authorEmail": "ekffu200098@gmail.com",
-      "content": "Both branches of the check return the same value, so the check has\r\nno effect. Remove it and return the value directly.\r\n\r\nThis is the result of running the Coccinelle script from\r\nscripts/coccinelle/misc/cond_return_no_effect.cocci.\r\n\r\nSigned-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>\r\n---\r\n drivers/dpll/zl3073x/dpll.c | 6 +-----\r\n drivers/dpll/zl3073x/out.c  | 8 ++------\r\n 2 files changed, 3 insertions(+), 11 deletions(-)\r\n\r\ndiff --git a/drivers/dpll/zl3073x/dpll.c b/drivers/dpll/zl3073x/dpll.c\r\nindex a2a641b8358f..0488ae6ac486 100644\r\n--- a/drivers/dpll/zl3073x/dpll.c\r\n+++ b/drivers/dpll/zl3073x/dpll.c\r\n@@ -2272,11 +2272,7 @@ zl3073x_dpll_init_fine_phase_adjust(struct zl3073x_dev *zldev)\r\n \tif (rc)\r\n \t\treturn rc;\r\n \r\n-\trc = zl3073x_write_u8(zldev, ZL_REG_SYNTH_PHASE_SHIFT_CTRL, 0x01);\r\n-\tif (rc)\r\n-\t\treturn rc;\r\n-\r\n-\treturn rc;\r\n+\treturn zl3073x_write_u8(zldev, ZL_REG_SYNTH_PHASE_SHIFT_CTRL, 0x01);\r\n }\r\n \r\n /**\r\ndiff --git a/drivers/dpll/zl3073x/out.c b/drivers/dpll/zl3073x/out.c\r\nindex eb5628aebcee..410d15b96d0b 100644\r\n--- a/drivers/dpll/zl3073x/out.c\r\n+++ b/drivers/dpll/zl3073x/out.c\r\n@@ -85,12 +85,8 @@ int zl3073x_out_state_fetch(struct zl3073x_dev *zldev, u8 index)\r\n \tif (rc)\r\n \t\treturn rc;\r\n \r\n-\trc = zl3073x_read_u32(zldev, ZL_REG_OUTPUT_PHASE_COMP,\r\n-\t\t\t      &out->phase_comp);\r\n-\tif (rc)\r\n-\t\treturn rc;\r\n-\r\n-\treturn rc;\r\n+\treturn zl3073x_read_u32(zldev, ZL_REG_OUTPUT_PHASE_COMP,\r\n+\t\t\t\t&out->phase_comp);\r\n }\r\n \r\n /**\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "kuba@kernel.org, Ivan Vecera <ivecera@redhat.com>, Prathosh Satish <Prathosh.Satish@microchip.com>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Jiri Pirko <jiri@resnulli.us>",
-      "cc": "linux-kernel@vger.kernel.org, netdev@vger.kernel.org"
-    },
-    {
-      "id": "19f99d77cf06d5f1",
-      "msgId": "<20260725150852.859188-1-ekffu200098@gmail.com>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH net-next v2 0/4] net: remove conditional returns with no effect",
-      "updated": "Sun, 26 Jul 2026 00:08:48 +0900",
-      "authorName": "Sang-Heon Jeon",
-      "authorEmail": "ekffu200098@gmail.com",
-      "content": "Hello,\r\n\r\nThis series removes conditional returns where both branches return\r\nthe same value, so the check has no effect. As suggested by Jakub, the\r\nnetdev patches of the treewide v1 series [1] are posted separately.\r\n\r\nAll patches are generated by the Coccinelle script, which you can\r\nfind in v1.\r\n\r\nThe patch grouping is unchanged from v1. If you would rather split,\r\nmerge or drop any of the patches, just let me know and I will address\r\nit in the next version.\r\n\r\n---\r\nChanges from v1 [1]\r\n- Collect Reviewed-by tags\r\n- Change base to net-next/main\r\n- Filter only netdev patches\r\n\r\n[1] https://lore.kernel.org/all/20260723184538.3888637-1-ekffu200098@gmail.com/\r\n---\r\n\r\nSang-Heon Jeon (4):\r\n  dpll: zl3073x: remove conditional return with no effect\r\n  net: ethernet: remove conditional return with no effect\r\n  net: remove conditional return with no effect\r\n  net: intel: remove conditional return with no effect\r\n\r\n drivers/dpll/zl3073x/dpll.c                           | 6 +-----\r\n drivers/dpll/zl3073x/out.c                            | 8 ++------\r\n drivers/net/ethernet/amazon/ena/ena_netdev.c          | 6 +-----\r\n drivers/net/ethernet/aquantia/atlantic/aq_macsec.c    | 6 +-----\r\n drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c   | 6 +-----\r\n drivers/net/ethernet/freescale/gianfar.c              | 6 +-----\r\n drivers/net/ethernet/intel/i40e/i40e_main.c           | 8 +-------\r\n drivers/net/ethernet/intel/igb/e1000_i210.c           | 6 +-----\r\n drivers/net/ethernet/intel/igc/igc_phy.c              | 6 +-----\r\n drivers/net/ethernet/qlogic/netxen/netxen_nic_hw.c    | 7 +------\r\n drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c | 6 +-----\r\n drivers/net/ethernet/renesas/rtsn.c                   | 7 +------\r\n drivers/net/phy/microchip_t1.c                        | 6 +-----\r\n drivers/net/pse-pd/tps23881.c                         | 6 +-----\r\n 14 files changed, 15 insertions(+), 75 deletions(-)\r\n\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "kuba@kernel.org, Andrew Lunn <andrew@lunn.ch>, Andrew Lunn <andrew+netdev@lunn.ch>, Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Arthur Kiyanovski <akiyano@amazon.com>, Arun Ramadoss <arun.ramadoss@microchip.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, David Arinzon <darinzon@amazon.com>, \"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Heiner Kallweit <hkallweit1@gmail.com>, Ioana Ciornei <ioana.ciornei@nxp.com>, Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, Kory Maincent <kory.maincent@bootlin.com>, Manish Chopra <manishc@marvell.com>, \"Niklas Söderlund\" <niklas.soderlund@ragnatech.se>, Oleksij Rempel <o.rempel@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>, Prathosh Satish <Prathosh.Satish@microchip.com>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, Rahul Verma <rahulv@marvell.com>, Sabrina Dubroca <sd@queasysnail.net>, Shahed Shaikh <shshaikh@marvell.com>, Sukhdeep Singh <sukhdeeps@marvell.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, Vadim Fedorenko <vadim.fedorenko@linux.dev>",
-      "cc": "GR-Linux-NIC-Dev@marvell.com, intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, netdev@vger.kernel.org, Russell King <linux@armlinux.org.uk>, UNGLinuxDriver@microchip.com"
     }
   ]
 }
