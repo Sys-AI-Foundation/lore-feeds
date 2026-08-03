@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-02T23:41:14.337Z",
+  "timestamp": "2026-08-03T00:05:52.017Z",
   "entries": [
+    {
+      "id": "19fc4e24dbe50586",
+      "msgId": "<20260803004940.0277c0ac@jic23-huawei>",
+      "inReplyTo": "<20260731-pmic5_gen4_adc-v1-1-9c49b2eea6f9@oss.qualcomm.com>",
+      "references": "<20260731-pmic5_gen4_adc-v1-0-9c49b2eea6f9@oss.qualcomm.com> <20260731-pmic5_gen4_adc-v1-1-9c49b2eea6f9@oss.qualcomm.com>",
+      "title": "Re: [PATCH 1/7] dt-bindings: iio: adc: Add support for QCOM PMIC5 Gen4 ADC",
+      "updated": "Mon, 3 Aug 2026 00:49:40 +0100",
+      "authorName": "Jonathan Cameron",
+      "authorEmail": "jic23@kernel.org",
+      "content": "On Fri, 31 Jul 2026 23:36:14 +0530\r\nJishnu Prakash <jishnu.prakash@oss.qualcomm.com> wrote:\r\n\r\n> PMIC5 Gen4 ADC is similar to PMIC5 Gen3 ADC, with several changes made for\r\n> improved performance, mostly at the hardware level. The main differences are\r\n> increased ratiometric conversion resolution (from 14 bits to 16 bits) and\r\n> increased bit field width for PMIC SID (to allow communication with an\r\n> increased number of PMICs, supported on latest SoCs).\r\n\r\nHi Jishnu,\r\n\r\nThe mixed case is enough of a surprise (to me least) that I'd expect\r\nthere to either be more discussion here or for it to be handled first\r\nas a dt binding patch to allow for v4 channels on v3 hardware.\r\n\r\nThat would provide a place for a description of why that is necessary and\r\nthen the following gen4 dt-bindings patch with gen3 channels would seem\r\nlike a natural extension.\r\n\r\nOther than that this seems fine to me.\r\n\r\nJonathan\r\n\r\n> \r\n> Signed-off-by: Jishnu Prakash <jishnu.prakash@oss.qualcomm.com>\r\n> ---\r\n>  .../bindings/iio/adc/qcom,spmi-adc5-gen3.yaml      | 47 +++++++++++++++++++++-\r\n>  1 file changed, 46 insertions(+), 1 deletion(-)\r\n> \r\n> diff --git a/Documentation/devicetree/bindings/iio/adc/qcom,spmi-adc5-gen3.yaml b/Documentation/devicetree/bindings/iio/adc/qcom,spmi-adc5-gen3.yaml\r\n> index 149f4af8f4b8..e79ddc2acca0 100644\r\n> --- a/Documentation/devicetree/bindings/iio/adc/qcom,spmi-adc5-gen3.yaml\r\n> +++ b/Documentation/devicetree/bindings/iio/adc/qcom,spmi-adc5-gen3.yaml\r\n> @@ -21,9 +21,14 @@ description: |\r\n>    All boards using a particular (SOC + master PMIC) combination will have the\r\n>    same number of ADC SDAMs supported on that PMIC.\r\n>  \r\n> +  PMIC5 Gen4 ADC is similar to Gen3 ADC, with some differences such as\r\n> +  improved ratiometric conversion resolution.\r\n> +\r\n>  properties:\r\n>    compatible:\r\n> -    const: qcom,spmi-adc5-gen3\r\n> +    enum:\r\n> +      - qcom,spmi-adc5-gen3\r\n> +      - qcom,spmi-adc5-gen4\r\n>  \r\n>    reg:\r\n>      items:\r\n> @@ -83,6 +88,46 @@ patternProperties:\r\n>            This property indicates ADC_TM monitoring is done on this channel.\r\n>          type: boolean\r\n>  \r\n> +      qcom,adc5-gen4:\r\n> +        description:\r\n> +          Indicates channel is of type ADC5 Gen4. This may be needed in cases where the\r\n> +          master PMIC has an ADC peripheral of type Gen3, but some of the other PMICs it\r\n> +          communicates with have ADC peripherals of type Gen4, so channels of those PMICs\r\n> +          need to be marked as Gen4 to ensure their conversions are handled correctly.\r\n> +        type: boolean\r\n> +\r\n> +      qcom,adc5-gen3:\r\n> +        description:\r\n> +          Indicates channel is of type ADC5 Gen3. This may be needed in cases where the\r\n> +          master PMIC has an ADC peripheral of type Gen4, but some of the other PMICs\r\n> +          under it have ADC peripherals of type Gen3.\r\n> +        type: boolean\r\n> +\r\n> +allOf:\r\n> +  - if:\r\n> +      properties:\r\n> +        compatible:\r\n> +          contains:\r\n> +            const: qcom,spmi-adc5-gen4\r\n> +\r\n> +    then:\r\n> +      patternProperties:\r\n> +        \"^channel@[0-9a-f]+$\":\r\n> +          properties:\r\n> +            qcom,adc5-gen4: false\r\n> +\r\n> +  - if:\r\n> +      properties:\r\n> +        compatible:\r\n> +          contains:\r\n> +            const: qcom,spmi-adc5-gen3\r\n> +\r\n> +    then:\r\n> +      patternProperties:\r\n> +        \"^channel@[0-9a-f]+$\":\r\n> +          properties:\r\n> +            qcom,adc5-gen3: false\r\n> +\r\n>  required:\r\n>    - compatible\r\n>    - reg\r\n> \r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Jishnu Prakash <jishnu.prakash@oss.qualcomm.com>",
+      "cc": "David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, \"Rafael J. Wysocki\" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, linux-iio@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org, Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>, Anjelique Melendez <anjelique.melendez@oss.qualcomm.com>, Manaf Meethalavalappu Pallikunhi <manaf.pallikunhi@oss.qualcomm.com>, Priyansh Jain <priyansh.jain@oss.qualcomm.com>"
+    },
+    {
+      "id": "19fc4db9cd856a36",
+      "msgId": "<am_V1qH4EktlKYo4@linux.dev>",
+      "inReplyTo": "<20260802172402.GBam99MtgAHg3a6TeG@fat_crate.local>",
+      "references": "<20260802093531.7165-2-thorsten.blum@linux.dev> <20260802172402.GBam99MtgAHg3a6TeG@fat_crate.local>",
+      "title": "Re: [PATCH v3] x86/kaslr: Remove two redundant if checks",
+      "updated": "Mon, 3 Aug 2026 01:42:14 +0200",
+      "authorName": "Thorsten Blum",
+      "authorEmail": "thorsten.blum@linux.dev",
+      "content": "On Sun, Aug 02, 2026 at 10:24:02AM -0700, Borislav Petkov wrote:\r\n> On Sun, Aug 02, 2026 at 11:35:30AM +0200, Thorsten Blum wrote:\r\n> > added the *output != random_addr check because add_identity_map() was\r\n> > only needed when the physical address changed.\r\n> \r\n> The check is there to update *output in case a new random address has been\r\n> generated.\r\n> \r\n> add_identity_map() was simply called to make sure that the new address is\r\n> mapped in the page table.\r\n> \r\n> Are you sure you understand the code you're touching?\r\n\r\nAre you objecting to the reasoning in the commit message, or to removing\r\nthe if check itself?\r\n\r\n",
+      "listType": "LKML",
+      "to": "Borislav Petkov <bp@alien8.de>",
+      "cc": "Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, \"H. Peter Anvin\" <hpa@zytor.com>, \"Mike Rapoport (Microsoft)\" <rppt@kernel.org>, \"Pratyush Yadav (Google)\" <pratyush@kernel.org>, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19fc4da96a359528",
+      "msgId": "<20260803004116.7e97cb68@jic23-huawei>",
+      "inReplyTo": "<20260802190701.10685-1-mokshpanicker.7@gmail.com>",
+      "references": "<20260802190701.10685-1-mokshpanicker.7@gmail.com>",
+      "title": "Re: [PATCH v2] iio: light: apds9306: fix PM reference leak in apds9306_read_data()",
+      "updated": "Mon, 3 Aug 2026 00:41:16 +0100",
+      "authorName": "Jonathan Cameron",
+      "authorEmail": "jic23@kernel.org",
+      "content": "On Sun,  2 Aug 2026 19:07:01 +0000\r\nMoksh Panicker <mokshpanicker.7@gmail.com> wrote:\r\n\r\n> apds9306_read_data() calls pm_runtime_resume_and_get() but several\r\n> error paths return directly without calling pm_runtime_put_autosuspend(),\r\n> leaking the runtime PM reference and preventing the device from\r\n> autosuspending.\r\n> \r\n> Use PM_RUNTIME_ACQUIRE_AUTOSUSPEND() and PM_RUNTIME_ACQUIRE_ERR() to\r\n> automatically handle runtime PM reference release on all return paths.\r\n> \r\n> Fixes: 620d1e6c7a3f (\"iio: light: Add support for APDS9306 Light Sensor\")\r\n> Cc: stable@vger.kernel.org\r\n> Signed-off-by: Moksh Panicker <mokshpanicker.7@gmail.com>\r\nApplied to the fixes-togreg branch of iio.git.\r\n\r\nNote however that I'm not planning to do another fixes pull request for this\r\ncycle so this will go upstream during the coming merge window\r\n\r\nThanks,\r\n\r\nJonathan\r\n\r\n> ---\r\n> Changes in v2:\r\n>  - Use PM_RUNTIME_ACQUIRE_AUTOSUSPEND() and PM_RUNTIME_ACQUIRE_ERR()\r\n>    instead of goto pattern as suggested by Jonathan Cameron\r\n> \r\n>  drivers/iio/light/apds9306.c | 8 +++-----\r\n>  1 file changed, 3 insertions(+), 5 deletions(-)\r\n> \r\n> diff --git a/drivers/iio/light/apds9306.c b/drivers/iio/light/apds9306.c\r\n> index 5ca4c87524fe..d582bda4d847 100644\r\n> --- a/drivers/iio/light/apds9306.c\r\n> +++ b/drivers/iio/light/apds9306.c\r\n> @@ -469,9 +469,9 @@ static int apds9306_read_data(struct apds9306_data *data, int *val, int reg)\r\n>  \tint status = 0;\r\n>  \tu8 buff[3];\r\n>  \r\n> -\tret = pm_runtime_resume_and_get(data->dev);\r\n> -\tif (ret)\r\n> -\t\treturn ret;\r\n> +\tPM_RUNTIME_ACQUIRE_AUTOSUSPEND(data->dev, pm);\r\n> +\tif (PM_RUNTIME_ACQUIRE_ERR(&pm))\r\n> +\t\treturn PM_RUNTIME_ACQUIRE_ERR(&pm);\r\n>  \r\n>  \tret = regmap_field_read(rf->intg_time, &intg_time_idx);\r\n>  \tif (ret)\r\n> @@ -535,8 +535,6 @@ static int apds9306_read_data(struct apds9306_data *data, int *val, int reg)\r\n>  \r\n>  \t*val = get_unaligned_le24(&buff);\r\n>  \r\n> -\tpm_runtime_put_autosuspend(data->dev);\r\n> -\r\n>  \treturn 0;\r\n>  }\r\n>  \r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Moksh Panicker <mokshpanicker.7@gmail.com>",
+      "cc": "dlechner@baylibre.com, subhajit.ghosh@tweaklogic.com, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, skhan@linuxfoundation.org"
+    },
     {
       "id": "19fc4d5602f014a6",
       "msgId": "<20260802233529.598707-1-dbgh9129@gmail.com>",
@@ -13946,20 +13988,6 @@
       "cc": "\"Theodore Ts'o\" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>, Baokun Li <libaokun@linux.alibaba.com>, Ojaswin Mujoo <ojaswin@linux.ibm.com>, Ritesh Harjani <ritesh.list@gmail.com>, Zhang Yi <yi.zhang@huawei.com>, Bob Copeland <me@bobcopeland.com>, Namjae Jeon <linkinjeon@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Yuezhang Mo <yuezhang.mo@sony.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>, Andreas Gruenbacher <agruenba@redhat.com>, linux-ext4@vger.kernel.org, ocfs2-devel@lists.linux.dev, gfs2@lists.linux.dev, linux-karma-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Chao Shi <coshi036@gmail.com>"
     },
     {
-      "id": "19fbf58a83fd3fcf",
-      "msgId": "<e0780ecfda9137d5755b4ac3e227152bf4c7983c.1785621505.git.coshi036@gmail.com>",
-      "inReplyTo": "<cover.1785621505.git.coshi036@gmail.com>",
-      "references": "<cover.1785621505.git.coshi036@gmail.com>",
-      "title": "[PATCH 01/19] buffer_head: Remove b_page",
-      "updated": "Sat,  1 Aug 2026 18:00:45 -0400",
-      "authorName": "Chao Shi",
-      "authorEmail": "coshi036@gmail.com",
-      "content": "From: \"Matthew Wilcox (Oracle)\" <willy@infradead.org>\r\n\r\nAll users except bh_offset() have been converted to use b_folio instead.\r\nConvert bh_offset() and remove b_page.\r\n\r\nSigned-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>\r\nSigned-off-by: Chao Shi <coshi036@gmail.com>\r\n---\r\n include/linux/buffer_head.h | 7 ++-----\r\n 1 file changed, 2 insertions(+), 5 deletions(-)\r\n\r\ndiff --git a/include/linux/buffer_head.h b/include/linux/buffer_head.h\r\nindex fd2c7115c054..699970b4bbf2 100644\r\n--- a/include/linux/buffer_head.h\r\n+++ b/include/linux/buffer_head.h\r\n@@ -59,10 +59,7 @@ struct address_space;\r\n struct buffer_head {\r\n \tunsigned long b_state;\t\t/* buffer state bitmap (see above) */\r\n \tstruct buffer_head *b_this_page;/* circular list of page's buffers */\r\n-\tunion {\r\n-\t\tstruct page *b_page;\t/* the page this bh is mapped to */\r\n-\t\tstruct folio *b_folio;\t/* the folio this bh is mapped to */\r\n-\t};\r\n+\tstruct folio *b_folio;\t\t/* the folio this bh is mapped to */\r\n \r\n \tsector_t b_blocknr;\t\t/* start block number */\r\n \tsize_t b_size;\t\t\t/* size of mapping */\r\n@@ -172,7 +169,7 @@ static __always_inline int buffer_uptodate(const struct buffer_head *bh)\r\n \r\n static inline unsigned long bh_offset(const struct buffer_head *bh)\r\n {\r\n-\treturn (unsigned long)(bh)->b_data & (page_size(bh->b_page) - 1);\r\n+\treturn (unsigned long)(bh)->b_data & (folio_size(bh->b_folio) - 1);\r\n }\r\n \r\n /* If we *know* page->private refers to buffer_heads */\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Jan Kara <jack@suse.cz>, Christian Brauner <brauner@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Matthew Wilcox <willy@infradead.org>, linux-fsdevel@vger.kernel.org",
-      "cc": "\"Theodore Ts'o\" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>, Baokun Li <libaokun@linux.alibaba.com>, Ojaswin Mujoo <ojaswin@linux.ibm.com>, Ritesh Harjani <ritesh.list@gmail.com>, Zhang Yi <yi.zhang@huawei.com>, Bob Copeland <me@bobcopeland.com>, Namjae Jeon <linkinjeon@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Yuezhang Mo <yuezhang.mo@sony.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>, Andreas Gruenbacher <agruenba@redhat.com>, linux-ext4@vger.kernel.org, ocfs2-devel@lists.linux.dev, gfs2@lists.linux.dev, linux-karma-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Chao Shi <coshi036@gmail.com>"
-    },
-    {
       "id": "19fbf5946208cd1d",
       "msgId": "<cover.1785621505.git.coshi036@gmail.com>",
       "inReplyTo": "",
@@ -13972,34 +14000,6 @@
       "listType": "LKML",
       "to": "Jan Kara <jack@suse.cz>, Christian Brauner <brauner@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Matthew Wilcox <willy@infradead.org>, linux-fsdevel@vger.kernel.org",
       "cc": "\"Theodore Ts'o\" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>, Baokun Li <libaokun@linux.alibaba.com>, Ojaswin Mujoo <ojaswin@linux.ibm.com>, Ritesh Harjani <ritesh.list@gmail.com>, Zhang Yi <yi.zhang@huawei.com>, Bob Copeland <me@bobcopeland.com>, Namjae Jeon <linkinjeon@kernel.org>, Sungjong Seo <sj1557.seo@samsung.com>, Yuezhang Mo <yuezhang.mo@sony.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>, Andreas Gruenbacher <agruenba@redhat.com>, linux-ext4@vger.kernel.org, ocfs2-devel@lists.linux.dev, gfs2@lists.linux.dev, linux-karma-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Chao Shi <coshi036@gmail.com>"
-    },
-    {
-      "id": "19fbf4bec8986183",
-      "msgId": "<6a6e6957.2d659fcc.1d46f5.01c5.GAE@google.com>",
-      "inReplyTo": "<OS7PR01MB1444517869AE41788EAE6CDB1ECD72@OS7PR01MB14445.jpnprd01.prod.outlook.com>",
-      "references": "",
-      "title": "Re: [syzbot] [usb?] WARNING in usb_ep_enable",
-      "updated": "Sat, 01 Aug 2026 14:47:03 -0700",
-      "authorName": "syzbot",
-      "authorEmail": "syzbot+7b70c4a6021fd49c4151@syzkaller.appspotmail.com",
-      "content": "Hello,\r\n\r\nsyzbot has tested the proposed patch and the reproducer did not trigger any issue:\r\n\r\nReported-by: syzbot+7b70c4a6021fd49c4151@syzkaller.appspotmail.com\r\nTested-by: syzbot+7b70c4a6021fd49c4151@syzkaller.appspotmail.com\r\n\r\nTested on:\r\n\r\ncommit:         5d5fd841 Merge 7.2-rc5 into usb-next\r\ngit tree:       git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git\r\nconsole output: https://syzkaller.appspot.com/x/log.txt?x=127c2db9580000\r\nkernel config:  https://syzkaller.appspot.com/x/.config?x=cb17729fb04b1e3a\r\ndashboard link: https://syzkaller.appspot.com/bug?extid=7b70c4a6021fd49c4151\r\ncompiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8\r\npatch:          https://syzkaller.appspot.com/x/patch.diff?x=1329ee32580000\r\n\r\nNote: testing is done by a robot and is best-effort only.\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-kernel@vger.kernel.org, lurenjia534@outlook.com, syzkaller-bugs@googlegroups.com",
-      "cc": ""
-    },
-    {
-      "id": "19fbf4bc6f28e26b",
-      "msgId": "<oisjadpeh7gyua3hhqni6ctazrosulcvbndftuxuovfczuqn2a@cej6shjbossa>",
-      "inReplyTo": "<am0bSUV7tRYWoWyr@google.com>",
-      "references": "<20260730185416.97166-1-atomlin@atomlin.com> <20260730185416.97166-3-atomlin@atomlin.com> <am0bSUV7tRYWoWyr@google.com>",
-      "title": "Re: [PATCH v5 2/3] perf sched latency: Auto-scale latency and runtime display units",
-      "updated": "Sat, 1 Aug 2026 17:45:27 -0400",
-      "authorName": "Aaron Tomlin",
-      "authorEmail": "atomlin@atomlin.com",
-      "content": "On Fri, Jul 31, 2026 at 03:01:45PM -0700, Namhyung Kim wrote:\r\n> On Thu, Jul 30, 2026 at 02:54:15PM -0400, Aaron Tomlin wrote:\r\n> > Currently, 'perf sched latency' displays task runtime and delay values\r\n> > exclusively in milliseconds (ms). This can be hard to read when\r\n> > latencies are very small (in the microsecond or nanosecond range) or\r\n> > unusually large (seconds).\r\n> > \r\n> > Introduce auto-scaling for latency and runtime display columns. Values\r\n> > are dynamically scaled and output with the most appropriate unit:\r\n> > nanoseconds (ns), microseconds (us), milliseconds (ms), or seconds (s).\r\n> > \r\n> > Additionally, rename column headers from \"Runtime ms\", \"Avg delay ms\",\r\n> > and \"Max delay ms\" to \"Runtime\", \"Avg delay\", and \"Max delay\"\r\n> > respectively, adjust spacing to maintain column alignment and stripe\r\n> > redundant prefix strings from each row's format string to produce a\r\n> > clean, tabular output.\r\n> \r\n> It'd be nice if you could include example output when you touched user-\r\n> visible area.  Comparing before and after would be great.\r\n\r\nHi Namhyung,\r\n\r\nAcknowledged—will do.\r\n\r\nKind regards,\r\n-- \r\nAaron Tomlin\r\n\r\n",
-      "listType": "LKML",
-      "to": "Namhyung Kim <namhyung@kernel.org>",
-      "cc": "peterz@infradead.org, mingo@redhat.com, acme@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, james.clark@linaro.org, howardchu95@gmail.com, neelx@suse.com, chjohnst@mail.com, sean@ashe.io, steve@abita.co, rishil1999@outlook.com, linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org"
     }
   ]
 }
