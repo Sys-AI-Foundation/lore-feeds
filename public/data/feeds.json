@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-08T22:51:46.153Z",
+  "timestamp": "2026-08-08T23:08:02.203Z",
   "entries": [
+    {
+      "id": "19fe39cd2b6ff3b5",
+      "msgId": "<DKJXQ3WDXBQI.1S1F8T5NTG660@gmail.com>",
+      "inReplyTo": "<20260808223829.3117-1-mahad.ibrahim.dev@gmail.com>",
+      "references": "<20260808223829.3117-1-mahad.ibrahim.dev@gmail.com>",
+      "title": "Re: [PATCH] thunderbolt: debugfs: Replace get_zeroed_page() with kzalloc()",
+      "updated": "Sun, 09 Aug 2026 04:01:40 +0500",
+      "authorName": "Mahad Ibrahim",
+      "authorEmail": "mahad.ibrahim.dev@gmail.com",
+      "content": "Some context I meant to include below the --- and accidentally forgot:\r\n\r\nMike Rapoport is running a broader effort to move allocations that do\r\nnot need struct page access off the page allocator. He does not seem to\r\nbe maintaining a tree for it, so landing this via your own tree would\r\nbe appreciated.\r\n\r\nThe buffer is kept at PAGE_SIZE to preserve the existing truncation\r\nbehaviour. If you would prefer it sized to the actual write instead,\r\nI can send a v2.\r\n\r\nBest regards,\r\nMahad Ibrahim\r\n\r\n",
+      "listType": "LKML",
+      "to": "Mahad Ibrahim <mahad.ibrahim.dev@gmail.com>, Andreas Noever <andreas.noever@gmail.com>, Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat <YehezkelShB@gmail.com>",
+      "cc": "Mike Rapoport <rppt@kernel.org>, <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>"
+    },
+    {
+      "id": "19fe39a0654a23a1",
+      "msgId": "<dc109944-206d-4e89-a268-6fcb05e7219c@w6rz.net>",
+      "inReplyTo": "<20260807143415.358597922@linuxfoundation.org>",
+      "references": "<20260807143415.358597922@linuxfoundation.org>",
+      "title": "Re: [PATCH 6.6 000/261] 6.6.151-rc1 review",
+      "updated": "Sat, 8 Aug 2026 15:58:45 -0700",
+      "authorName": "Ron Economos",
+      "authorEmail": "re@w6rz.net",
+      "content": "On 8/7/26 07:35, Greg Kroah-Hartman wrote:\r\n> This is the start of the stable review cycle for the 6.6.151 release.\r\n> There are 261 patches in this series, all will be posted as a response\r\n> to this one.  If anyone has any issues with these being applied, please\r\n> let me know.\r\n>\r\n> Responses should be made by Sun, 09 Aug 2026 14:33:46 +0000.\r\n> Anything received after that time might be too late.\r\n>\r\n> The whole patch series can be found in one patch at:\r\n> \thttps://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.6.151-rc1.gz\r\n> or in the git tree and branch at:\r\n> \tgit://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.6.y\r\n> and the diffstat can be found below.\r\n>\r\n> thanks,\r\n>\r\n> greg k-h\r\n\r\nBuilt and booted successfully on RISC-V RV64 (HiFive Unmatched).\r\n\r\nTested-by: Ron Economos <re@w6rz.net>\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org",
+      "cc": "patches@lists.linux.dev, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@nabladev.com, jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, broonie@kernel.org, achill@achill.org, sr@sladewatkins.com"
+    },
+    {
+      "id": "19fe3944bf0414e3",
+      "msgId": "<c142a0d7-e722-4a54-a1be-2cc59d14b9be@w6rz.net>",
+      "inReplyTo": "<20260807143418.516897842@linuxfoundation.org>",
+      "references": "<20260807143418.516897842@linuxfoundation.org>",
+      "title": "Re: [PATCH 6.12 000/337] 6.12.103-rc1 review",
+      "updated": "Sat, 8 Aug 2026 15:52:41 -0700",
+      "authorName": "Ron Economos",
+      "authorEmail": "re@w6rz.net",
+      "content": "On 8/7/26 07:33, Greg Kroah-Hartman wrote:\r\n> This is the start of the stable review cycle for the 6.12.103 release.\r\n> There are 337 patches in this series, all will be posted as a response\r\n> to this one.  If anyone has any issues with these being applied, please\r\n> let me know.\r\n>\r\n> Responses should be made by Sun, 09 Aug 2026 14:33:46 +0000.\r\n> Anything received after that time might be too late.\r\n>\r\n> The whole patch series can be found in one patch at:\r\n> \thttps://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.12.103-rc1.gz\r\n> or in the git tree and branch at:\r\n> \tgit://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.12.y\r\n> and the diffstat can be found below.\r\n>\r\n> thanks,\r\n>\r\n> greg k-h\r\n\r\nBuilt and booted successfully on RISC-V RV64 (HiFive Unmatched).\r\n\r\nTested-by: Ron Economos <re@w6rz.net>\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org",
+      "cc": "patches@lists.linux.dev, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@nabladev.com, jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, broonie@kernel.org, achill@achill.org, sr@sladewatkins.com, Ilya Maximets <i.maximets@ovn.org>, Pablo Neira Ayuso <pablo@netfilter.org>, Sasha Levin <sashal@kernel.org>"
+    },
     {
       "id": "19fe3914ddedc2ce",
       "msgId": "<d69355a2-a52f-4a97-8536-b6e3ff66bcb4@w6rz.net>",
@@ -14,6 +56,34 @@
       "listType": "LKML",
       "to": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org",
       "cc": "patches@lists.linux.dev, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@nabladev.com, jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, broonie@kernel.org, achill@achill.org, sr@sladewatkins.com"
+    },
+    {
+      "id": "19fe392cfe6afcad",
+      "msgId": "<20260808224315.1092263-2-mail@david-bauer.net>",
+      "inReplyTo": "<20260808224315.1092263-1-mail@david-bauer.net>",
+      "references": "<20260808224315.1092263-1-mail@david-bauer.net>",
+      "title": "[PATCH net-next v4 2/2] l2tp: unify headroom calculation",
+      "updated": "Sun,  9 Aug 2026 00:43:13 +0200",
+      "authorName": "David Bauer",
+      "authorEmail": "mail@david-bauer.net",
+      "content": "Unify the calculation to determine the required headroom for each skb.\r\nThis was previously done inconsistently, resulting requesting more space\r\nin the skb headroom when crafting the L2TP header than indicated with\r\nneeded_headroom.\r\n\r\nSigned-off-by: David Bauer <mail@david-bauer.net>\r\n---\r\n net/l2tp/l2tp_core.c | 10 +++++-----\r\n net/l2tp/l2tp_core.h | 19 +++++++++++++++++++\r\n net/l2tp/l2tp_eth.c  | 14 +++-----------\r\n 3 files changed, 27 insertions(+), 16 deletions(-)\r\n\r\ndiff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c\r\nindex d6fa0f7436629..f52bf3b532907 100644\r\n--- a/net/l2tp/l2tp_core.c\r\n+++ b/net/l2tp/l2tp_core.c\r\n@@ -1227,18 +1227,16 @@ static int l2tp_xmit_core(struct l2tp_session *session, struct sk_buff *skb, uns\r\n \tstruct l2tp_tunnel *tunnel = session->tunnel;\r\n \tunsigned int data_len = skb->len;\r\n \tstruct sock *sk = tunnel->sock;\r\n-\tint headroom, uhlen, udp_len;\r\n \tint ret = NET_XMIT_SUCCESS;\r\n \tstruct inet_sock *inet;\r\n \tstruct udphdr *uh;\r\n+\tint udp_len;\r\n \r\n \t/* Check that there's enough headroom in the skb to insert IP,\r\n \t * UDP and L2TP headers. If not enough, expand it to\r\n \t * make room. Adjust truesize.\r\n \t */\r\n-\tuhlen = (tunnel->encap == L2TP_ENCAPTYPE_UDP) ? sizeof(*uh) : 0;\r\n-\theadroom = NET_SKB_PAD + tunnel->l3_overhead + uhlen + session->hdr_len;\r\n-\tif (skb_cow_head(skb, headroom)) {\r\n+\tif (skb_cow_head(skb, l2tp_session_skb_headroom(session, tunnel))) {\r\n \t\tkfree_skb(skb);\r\n \t\treturn NET_XMIT_DROP;\r\n \t}\r\n@@ -1290,7 +1288,9 @@ static int l2tp_xmit_core(struct l2tp_session *session, struct sk_buff *skb, uns\r\n \t\tuh = udp_hdr(skb);\r\n \t\tuh->source = inet->inet_sport;\r\n \t\tuh->dest = inet->inet_dport;\r\n-\t\tudp_len = uhlen + session->hdr_len + data_len;\r\n+\r\n+\t\tudp_len = l2tp_tunnel_udp_hdrlen(tunnel);\r\n+\t\tudp_len += session->hdr_len + data_len;\r\n \t\tif (udp_len > U16_MAX) {\r\n \t\t\tkfree_skb(skb);\r\n \t\t\tret = NET_XMIT_DROP;\r\ndiff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h\r\nindex aab574376d95f..2c41877b6ce57 100644\r\n--- a/net/l2tp/l2tp_core.h\r\n+++ b/net/l2tp/l2tp_core.h\r\n@@ -335,6 +335,25 @@ static inline int l2tp_v3_ensure_opt_in_linear(struct l2tp_session *session, str\r\n \treturn 0;\r\n }\r\n \r\n+static inline int l2tp_tunnel_udp_hdrlen(struct l2tp_tunnel *tunnel)\r\n+{\r\n+\treturn tunnel->encap == L2TP_ENCAPTYPE_UDP ?\r\n+\t\tsizeof(struct udphdr) : 0;\r\n+}\r\n+\r\n+static inline int l2tp_session_overhead(struct l2tp_session *session,\r\n+\t\t\t\t\tstruct l2tp_tunnel *tunnel)\r\n+{\r\n+\treturn l2tp_tunnel_udp_hdrlen(tunnel) + session->hdr_len +\r\n+\t\ttunnel->l3_overhead;\r\n+}\r\n+\r\n+static inline int l2tp_session_skb_headroom(struct l2tp_session *session,\r\n+\t\t\t\t\t    struct l2tp_tunnel *tunnel)\r\n+{\r\n+\treturn NET_SKB_PAD + l2tp_session_overhead(session, tunnel);\r\n+}\r\n+\r\n #define MODULE_ALIAS_L2TP_PWTYPE(type) \\\r\n \tMODULE_ALIAS(\"net-l2tp-type-\" __stringify(type))\r\n \r\ndiff --git a/net/l2tp/l2tp_eth.c b/net/l2tp/l2tp_eth.c\r\nindex 66d1fc3ad409a..687ce1c6db946 100644\r\n--- a/net/l2tp/l2tp_eth.c\r\n+++ b/net/l2tp/l2tp_eth.c\r\n@@ -190,12 +190,6 @@ static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,\r\n \tunsigned int overhead = 0;\r\n \tu32 mtu;\r\n \r\n-\t/* if the encap is UDP, account for UDP header size */\r\n-\tif (tunnel->encap == L2TP_ENCAPTYPE_UDP) {\r\n-\t\toverhead += sizeof(struct udphdr);\r\n-\t\tdev->needed_headroom += sizeof(struct udphdr);\r\n-\t}\r\n-\r\n \tif (tunnel->l3_overhead == 0) {\r\n \t\t/* L3 Overhead couldn't be identified, this could be\r\n \t\t * because the socket's address family was not IPv4\r\n@@ -203,10 +197,8 @@ static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,\r\n \t\t */\r\n \t\treturn;\r\n \t}\r\n-\t/* Adjust MTU, factor overhead - underlay L3, overlay L2 hdr\r\n-\t * UDP overhead, if any, was already factored in above.\r\n-\t */\r\n-\toverhead += session->hdr_len + ETH_HLEN + tunnel->l3_overhead;\r\n+\t/* Calculate required overhead */\r\n+\toverhead = ETH_HLEN + l2tp_session_overhead(session, tunnel);\r\n \r\n \tmtu = l2tp_tunnel_dst_mtu(tunnel) - overhead;\r\n \tif (mtu < dev->min_mtu || mtu > dev->max_mtu)\r\n@@ -214,7 +206,7 @@ static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,\r\n \telse\r\n \t\tdev->mtu = mtu;\r\n \r\n-\tdev->needed_headroom += session->hdr_len;\r\n+\tdev->needed_headroom = l2tp_session_skb_headroom(session, tunnel);\r\n }\r\n \r\n static int l2tp_eth_create(struct net *net, struct l2tp_tunnel *tunnel,\r\n-- \r\n2.53.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "\"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>",
+      "cc": "netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "19fe392b8d124ddf",
+      "msgId": "<20260808224315.1092263-1-mail@david-bauer.net>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH net-next v4 1/2] l2tp: account for IP version in SKB headroom",
+      "updated": "Sun,  9 Aug 2026 00:43:12 +0200",
+      "authorName": "David Bauer",
+      "authorEmail": "mail@david-bauer.net",
+      "content": "Account for the IP version of the tunnel when accounting skb headroom on\r\nxmit. This avoids having to potentially copy the skb a second time down\r\nthe stack due to allocating not enough space for IPv6 headers in case\r\nthe tunnel uses IPv6.\r\n\r\nSigned-off-by: David Bauer <mail@david-bauer.net>\r\n---\r\n v4:\r\n  - Update comment to reflect new code behavior\r\n\r\n net/l2tp/l2tp_core.c |  3 ++-\r\n net/l2tp/l2tp_core.h |  1 +\r\n net/l2tp/l2tp_eth.c  | 14 ++++----------\r\n 3 files changed, 7 insertions(+), 11 deletions(-)\r\n\r\ndiff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c\r\nindex 4712cc41881a3..d6fa0f7436629 100644\r\n--- a/net/l2tp/l2tp_core.c\r\n+++ b/net/l2tp/l2tp_core.c\r\n@@ -1237,7 +1237,7 @@ static int l2tp_xmit_core(struct l2tp_session *session, struct sk_buff *skb, uns\r\n \t * make room. Adjust truesize.\r\n \t */\r\n \tuhlen = (tunnel->encap == L2TP_ENCAPTYPE_UDP) ? sizeof(*uh) : 0;\r\n-\theadroom = NET_SKB_PAD + sizeof(struct iphdr) + uhlen + session->hdr_len;\r\n+\theadroom = NET_SKB_PAD + tunnel->l3_overhead + uhlen + session->hdr_len;\r\n \tif (skb_cow_head(skb, headroom)) {\r\n \t\tkfree_skb(skb);\r\n \t\treturn NET_XMIT_DROP;\r\n@@ -1688,6 +1688,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,\r\n \t}\r\n \r\n \tsk->sk_allocation = GFP_ATOMIC;\r\n+\ttunnel->l3_overhead = kernel_sock_ip_overhead(sk);\r\n \trelease_sock(sk);\r\n \r\n \tsock_hold(sk);\r\ndiff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h\r\nindex ffd8ced3a51ff..aab574376d95f 100644\r\n--- a/net/l2tp/l2tp_core.h\r\n+++ b/net/l2tp/l2tp_core.h\r\n@@ -167,6 +167,7 @@ struct l2tp_tunnel {\r\n \tu32\t\t\ttunnel_id;\r\n \tu32\t\t\tpeer_tunnel_id;\r\n \tint\t\t\tversion;\t/* 2=>L2TPv2, 3=>L2TPv3 */\r\n+\tint\t\t\tl3_overhead;\t/* IP header overhead */\r\n \r\n \tchar\t\t\tname[L2TP_TUNNEL_NAME_MAX]; /* for logging */\r\n \tenum l2tp_encap_type\tencap;\r\ndiff --git a/net/l2tp/l2tp_eth.c b/net/l2tp/l2tp_eth.c\r\nindex a4956ef9574cc..66d1fc3ad409a 100644\r\n--- a/net/l2tp/l2tp_eth.c\r\n+++ b/net/l2tp/l2tp_eth.c\r\n@@ -188,7 +188,6 @@ static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,\r\n \t\t\t\tstruct net_device *dev)\r\n {\r\n \tunsigned int overhead = 0;\r\n-\tu32 l3_overhead = 0;\r\n \tu32 mtu;\r\n \r\n \t/* if the encap is UDP, account for UDP header size */\r\n@@ -197,22 +196,17 @@ static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,\r\n \t\tdev->needed_headroom += sizeof(struct udphdr);\r\n \t}\r\n \r\n-\tlock_sock(tunnel->sock);\r\n-\tl3_overhead = kernel_sock_ip_overhead(tunnel->sock);\r\n-\trelease_sock(tunnel->sock);\r\n-\r\n-\tif (l3_overhead == 0) {\r\n+\tif (tunnel->l3_overhead == 0) {\r\n \t\t/* L3 Overhead couldn't be identified, this could be\r\n-\t\t * because tunnel->sock was NULL or the socket's\r\n-\t\t * address family was not IPv4 or IPv6,\r\n-\t\t * dev mtu stays at 1500.\r\n+\t\t * because the socket's address family was not IPv4\r\n+\t\t * or IPv6 - dev mtu stays at 1500.\r\n \t\t */\r\n \t\treturn;\r\n \t}\r\n \t/* Adjust MTU, factor overhead - underlay L3, overlay L2 hdr\r\n \t * UDP overhead, if any, was already factored in above.\r\n \t */\r\n-\toverhead += session->hdr_len + ETH_HLEN + l3_overhead;\r\n+\toverhead += session->hdr_len + ETH_HLEN + tunnel->l3_overhead;\r\n \r\n \tmtu = l2tp_tunnel_dst_mtu(tunnel) - overhead;\r\n \tif (mtu < dev->min_mtu || mtu > dev->max_mtu)\r\n-- \r\n2.53.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "\"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>",
+      "cc": "netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
       "id": "19fe38c2c4636076",
@@ -13666,20 +13736,6 @@
       "cc": "Linus Torvalds <torvalds@linux-foundation.org>, \"Kernel Mailing List, Linux\" <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>, Yosry Ahmed <yosry@kernel.org>"
     },
     {
-      "id": "19fde29b6c5967c2",
-      "msgId": "<20260807143804.24cfd5710208d9a421b0e0e1@linux-foundation.org>",
-      "inReplyTo": "<20260807065038.2600949-1-sh_def@163.com>",
-      "references": "<20260806121006.1642946-1-sh_def@163.com> <20260806135125.a444f867993cb3cd3122551e@linux-foundation.org> <20260807065038.2600949-1-sh_def@163.com>",
-      "title": "Re: [PATCH] kasan: fix cache shrink race with CPU hotplug",
-      "updated": "Fri, 7 Aug 2026 14:38:04 -0700",
-      "authorName": "Andrew Morton",
-      "authorEmail": "akpm@linux-foundation.org",
-      "content": "On Fri,  7 Aug 2026 14:50:31 +0800 Hui Su <sh_def@163.com> wrote:\r\n\r\n> > Especially when proposing a backport.  At present we've provided our\r\n> > -stable recipients no reason to accept the patch.\r\n> > \r\n> > Documentation/process/stable-kernel-rules.rst says \"it must fix a real\r\n> > bug that bothers people\".\r\n> > \r\n> \r\n> Yes, I agree. I did not include the real bug dmesg in the original\r\n> changelog, which made the stable rationale unclear.\r\n> \r\n> The 9p case above shows that this is a real bug: a userspace-triggered\r\n> teardown path can leave objects in the 9p fcall cache and report the slab\r\n> shutdown warning after umount.\r\n\r\nOK, thanks.\r\n\r\n> Should I keep Cc: stable in PATCH v2 with this dmesg and\r\n> userspace-visible effect added to the changelog?\r\n\r\nYes please!\r\n\r\n",
-      "listType": "LKML",
-      "to": "Hui Su <sh_def@163.com>",
-      "cc": "ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com, dvyukov@google.com, vincenzo.frascino@arm.com, qiang1.zhang@intel.com, kasan-dev@googlegroups.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
-    },
-    {
       "id": "19fde2aadfb64ddb",
       "msgId": "<133e16bb0c7cb916f10bbfb017eba525449ad1d6.1786138493.git.jpoimboe@kernel.org>",
       "inReplyTo": "<cover.1786138493.git.jpoimboe@kernel.org>",
@@ -13778,20 +13834,6 @@
       "cc": "linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Song Liu <song@kernel.org>"
     },
     {
-      "id": "19fde2a2ff35d4fc",
-      "msgId": "<913e691c5009397df832c7c9a18cd5cf71b42737.1786138493.git.jpoimboe@kernel.org>",
-      "inReplyTo": "<cover.1786138493.git.jpoimboe@kernel.org>",
-      "references": "<cover.1786138493.git.jpoimboe@kernel.org>",
-      "title": "[PATCH v3 2/9] objtool/klp: Fix size of empty special section entries",
-      "updated": "Fri,  7 Aug 2026 14:37:47 -0700",
-      "authorName": "Josh Poimboeuf",
-      "authorEmail": "jpoimboe@kernel.org",
-      "content": "create_fake_symbols() sizes each ANNOTATE_DATA_SPECIAL entry from the\r\noffset of the next annotation, falling back to the end of the section\r\nfor the last entry.  But the last entry is detected by a zero size,\r\nwhich also happens for an *empty* entry: ALTERNATIVE(oldinstr, \"\", ft)\r\nstill annotates its zero-length replacement, at the same offset as the\r\nnext entry's annotation.\r\n\r\nSo every empty replacement gets a fake symbol spanning the entire rest\r\nof .altinstr_replacement.  That's harmless today only because\r\nfind_symbol_containing() picks the smaller of two overlapping symbols.\r\n\r\nTrack whether a next annotation was found rather than inferring it from\r\nthe size.  A zero-length fake symbol is fine: find_symbol_containing()\r\nskips those, so the properly sized symbol at the same offset still wins.\r\n\r\nFixes: dd590d4d57eb (\"objtool/klp: Introduce klp diff subcommand for diffing object files\")\r\nAcked-by: Song Liu <song@kernel.org>\r\nSigned-off-by: Josh Poimboeuf <jpoimboe@kernel.org>\r\n---\r\n tools/objtool/klp-diff.c | 13 +++++++++++--\r\n 1 file changed, 11 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/tools/objtool/klp-diff.c b/tools/objtool/klp-diff.c\r\nindex 492d7a012cffe..38fae861d12c7 100644\r\n--- a/tools/objtool/klp-diff.c\r\n+++ b/tools/objtool/klp-diff.c\r\n@@ -1627,13 +1627,17 @@ static int create_fake_symbols(struct elf *elf)\r\n \tfor_each_reloc(sec->rsec, reloc) {\r\n \t\tunsigned long offset, size;\r\n \t\tstruct reloc *next_reloc;\r\n+\t\tbool last = true;\r\n \r\n \t\tif (annotype(elf, sec, reloc) != ANNOTYPE_DATA_SPECIAL)\r\n \t\t\tcontinue;\r\n \r\n \t\toffset = reloc_addend(reloc);\r\n \r\n-\t\tsize = 0;\r\n+\t\t/*\r\n+\t\t * Find the start of the next entry so the fake symbol size can\r\n+\t\t * be calculated.\r\n+\t\t */\r\n \t\tnext_reloc = reloc;\r\n \t\tfor_each_reloc_continue(sec->rsec, next_reloc) {\r\n \t\t\tif (annotype(elf, sec, next_reloc) != ANNOTYPE_DATA_SPECIAL ||\r\n@@ -1641,10 +1645,15 @@ static int create_fake_symbols(struct elf *elf)\r\n \t\t\t\tcontinue;\r\n \r\n \t\t\tsize = reloc_addend(next_reloc) - offset;\r\n+\t\t\tlast = false;\r\n \t\t\tbreak;\r\n \t\t}\r\n \r\n-\t\tif (!size)\r\n+\t\t/*\r\n+\t\t * If no next entry found, this is the last entry, so its size\r\n+\t\t * is from the current offset to the end of the section.\r\n+\t\t */\r\n+\t\tif (last)\r\n \t\t\tsize = sec_size(reloc->sym->sec) - offset;\r\n \r\n \t\tif (create_fake_symbol(elf, reloc->sym->sec, offset, size))\r\n-- \r\n2.54.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "x86@kernel.org",
-      "cc": "linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Song Liu <song@kernel.org>"
-    },
-    {
       "id": "19fde2a87ad9cae3",
       "msgId": "<5a3cc4cded743167dd0878220201d80f7e48e5d7.1786138493.git.jpoimboe@kernel.org>",
       "inReplyTo": "<cover.1786138493.git.jpoimboe@kernel.org>",
@@ -13804,48 +13846,6 @@
       "listType": "LKML",
       "to": "x86@kernel.org",
       "cc": "linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Song Liu <song@kernel.org>"
-    },
-    {
-      "id": "19fde2a6b57f8e46",
-      "msgId": "<cover.1786138493.git.jpoimboe@kernel.org>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH v3 0/9] objtool/klp: sympos/module/alternative/etc fixes",
-      "updated": "Fri,  7 Aug 2026 14:37:45 -0700",
-      "authorName": "Josh Poimboeuf",
-      "authorEmail": "jpoimboe@kernel.org",
-      "content": "v3:\r\n- remove \"size = 0\" and add comments to create_fake_symbols()\r\n- add patches 8 & 9\r\n\r\nv2: https://lore.kernel.org/cover.1785939903.git.jpoimboe@kernel.org\r\n- rebased on tip/master (first 6 patches were merged)\r\n- dropped original patches 7-8 (will post followup)\r\n- added .klp.symid fix\r\n\r\nv1: https://lore.kernel.org/cover.1785727106.git.jpoimboe@kernel.org\r\n\r\nThis consolidates fixes for the klp-build issues reported by Joe over\r\nthe last several weeks, plus some more things I found while\r\ntesting/reviewing.\r\n\r\nJoe Lawrence (1):\r\n  objtool/klp: Allow new references to module exports\r\n\r\nJosh Poimboeuf (8):\r\n  objtool/klp: Fix vmlinux .klp.symid link error for .no_trim_symbol\r\n    symbols\r\n  objtool/klp: Fix size of empty special section entries\r\n  objtool/klp: Ignore replacement offset of empty x86 alternatives\r\n  objtool/klp: Explicitly disallow patching or referencing init\r\n    code/data\r\n  objtool/klp: Fix cross-module klp relocation section naming\r\n  objtool/klp: Don't match local symbols against exports\r\n  objtool/klp: Fix relocations for EXPORT_SYMBOL_FOR_MODULES() symbols\r\n  objtool/klp: Fix line numbers in Module.symvers parse errors\r\n\r\n tools/objtool/arch/x86/special.c        |  27 ++++++\r\n tools/objtool/include/objtool/klp.h     |  10 ++-\r\n tools/objtool/include/objtool/special.h |   7 ++\r\n tools/objtool/klp-diff.c                | 106 ++++++++++++++++++++----\r\n tools/objtool/klp-post-link.c           |  53 +++++++-----\r\n tools/objtool/klp-symid.c               |   1 +\r\n tools/objtool/klp-sympos.c              |  10 +++\r\n 7 files changed, 175 insertions(+), 39 deletions(-)\r\n\r\n-- \r\n2.54.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "x86@kernel.org",
-      "cc": "linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Song Liu <song@kernel.org>"
-    },
-    {
-      "id": "19fde27f6318559d",
-      "msgId": "<b2fd858b-b6f4-43f1-befd-142ea4db1ed1@sirena.org.uk>",
-      "inReplyTo": "<20260807012450.1038180-1-le.qi@oss.qualcomm.com>",
-      "references": "<20260807012450.1038180-1-le.qi@oss.qualcomm.com>",
-      "title": "Re: [PATCH] ASoC: qcom: sc8280xp: configure codec sysclk for QCS615",
-      "updated": "Fri, 7 Aug 2026 22:36:04 +0100",
-      "authorName": "Mark Brown",
-      "authorEmail": "broonie@kernel.org",
-      "content": "On Fri, Aug 07, 2026 at 09:24:50AM +0800, Le Qi wrote:\r\n> Continuous high-amplitude noise could occur in the DA7213 microphone\r\n> capture path after a Bluetooth out-of-range/reset event followed by\r\n> reconnection. The noise was present in both the raw ALSA capture and\r\n> PipeWire input, confirming that it originated before Bluetooth\r\n> encoding.\r\n\r\nThis doesn't apply against current code, please check and resend.\r\n",
-      "listType": "LKML",
-      "to": "Le Qi <le.qi@oss.qualcomm.com>",
-      "cc": "Srinivas Kandagatla <srini@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, linux-sound@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@oss.qualcomm.com, mohammad.rafi.shaik@oss.qualcomm.com"
-    },
-    {
-      "id": "19fde25f513268c1",
-      "msgId": "<2f63364d-6653-4f78-ab0f-c75b4fd5bb9c@collabora.com>",
-      "inReplyTo": "<anSuxfeitSqmSHNr@vaman>",
-      "references": "<20260726-dcphy-rx-v1-v2-0-cf9cc34a412a@gmail.com> <20260726-dcphy-rx-v1-v2-1-cf9cc34a412a@gmail.com> <82da3622-9c3a-454c-87bc-fb4ec7adb68d@collabora.com> <anSuxfeitSqmSHNr@vaman>",
-      "title": "Re: [PATCH v2 1/4] dt-bindings: phy: rockchip,rk3588-mipi-dcphy: support per-direction phys",
-      "updated": "Fri, 7 Aug 2026 23:33:28 +0200",
-      "authorName": "Michael Riesch",
-      "authorEmail": "michael.riesch@collabora.com",
-      "content": "Hi Vinoud,\r\n\r\nThanks for your feedback.\r\n\r\nOn 8/6/26 17:56, Vinod Koul wrote:\r\n> On 03-08-26, 13:17, Michael Riesch wrote:\r\n> \r\n>>> +      Two cells select the PHY type and the direction, so that the\r\n>>> +      transmitter (DSI) and the receiver (CSI) can be described as\r\n>>> +      independent consumers of the same PHY:\r\n>>> +        - <PHY_TYPE_DPHY RK_DCPHY_DIR_TX>\r\n>>> +        - <PHY_TYPE_DPHY RK_DCPHY_DIR_RX>\r\n>>\r\n>> How is that Rockchip specific? As you state above this is either MIPI\r\n>> CSI or MIPI DSI, two perfectly standard protocols.\r\n>>\r\n>> @all Would it be reasonable to introduce PHY_TYPE_CSI and PHY_TYPE_DSI?\r\n> \r\n> I think yes...\r\n> \r\n\r\nJason, could you incorporate that in a v3?\r\n\r\nThanks for your work and best regards,\r\nMichael\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Vinod Koul <vkoul@kernel.org>",
-      "cc": "jason98166@gmail.com, Neil Armstrong <neil.armstrong@linaro.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>, Guochun Huang <hero.huang@rock-chips.com>, Philipp Zabel <p.zabel@pengutronix.de>, linux-phy@lists.infradead.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org"
     },
     {
       "id": "19fde5dc150122e8",
