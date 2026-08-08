@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-08-08T04:40:34.972Z",
+  "timestamp": "2026-08-08T05:05:41.540Z",
   "entries": [
+    {
+      "id": "19fdfb88c7bb9c31",
+      "msgId": "<20260808045331.326769-1-rdunlap@infradead.org>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] docs: sphinx-build-wrapper: include localversion in kernel version string",
+      "updated": "Fri,  7 Aug 2026 21:53:31 -0700",
+      "authorName": "Randy Dunlap",
+      "authorEmail": "rdunlap@infradead.org",
+      "content": "Add any localversion* text to the kernel version string\r\nso that the docs index (home) page accurately indicates what\r\nthe docs build version is.\r\n\r\nE.g.:\r\n  7.2.0-rc6-next-20260807\r\n\r\nSigned-off-by: Randy Dunlap <rdunlap@infradead.org>\r\n---\r\nCc: Jonathan Corbet <corbet@lwn.net>\r\nCc: Shuah Khan <skhan@linuxfoundation.org>\r\nCc: Mauro Carvalho Chehab <mchehab@kernel.org>\r\nCc: linux-doc@vger.kernel.org\r\n\r\n tools/docs/sphinx-build-wrapper |    9 +++++++++\r\n 1 file changed, 9 insertions(+)\r\n\r\n--- linux-next-20260807.orig/tools/docs/sphinx-build-wrapper\r\n+++ linux-next-20260807/tools/docs/sphinx-build-wrapper\r\n@@ -220,6 +220,15 @@ class SphinxBuilder:\r\n         self.pdflatex = os.environ.get(\"PDFLATEX\", \"xelatex\")\r\n \r\n         #\r\n+        # Add localversion* to kernelversion if present\r\n+        #\r\n+        for file in glob(os.environ[\"srctree\"] + \"/localversion*\"):\r\n+            if not file.endswith(\".orig\"):\r\n+                with open(file, 'r', encoding='utf-8') as f:\r\n+                    text = f.read()\r\n+                    self.kernelversion += text\r\n+\r\n+        #\r\n         # Kernel main Makefile defines a PYTHON3 variable whose default is\r\n         # \"python3\". When set to a different value, it allows running a\r\n         # diferent version than the default official python3 package.\r\n\r\n",
+      "listType": "LKML",
+      "to": "linux-kernel@vger.kernel.org",
+      "cc": "Randy Dunlap <rdunlap@infradead.org>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-doc@vger.kernel.org"
+    },
+    {
+      "id": "19fdfaffb0736f52",
+      "msgId": "<tencent_CB14173C19427EDC26219662D6A984787209@qq.com>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] btrfs: free unlinked replace target on initialization failure",
+      "updated": "Sat,  8 Aug 2026 12:42:39 +0800",
+      "authorName": "Guanghui Yang",
+      "authorEmail": "3497809730@qq.com",
+      "content": "btrfs_init_dev_replace_tgtdev() allocates the replacement target before\r\nlooking up its dev_t and initializing its zoned device information. If\r\neither lookup_bdev() or btrfs_get_dev_zone_info() fails, the device has\r\nnot been linked into fs_devices->devices yet, but the error path only\r\ndrops the block device file reference.\r\n\r\nFree the allocated device on this error path to release its name,\r\nallocation state, zone info, and the device itself.\r\n\r\nSigned-off-by: Guanghui Yang <3497809730@qq.com>\r\n---\r\n fs/btrfs/dev-replace.c | 4 ++++\r\n fs/btrfs/volumes.c     | 2 +-\r\n fs/btrfs/volumes.h     | 1 +\r\n 3 files changed, 6 insertions(+), 1 deletion(-)\r\n\r\ndiff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c\r\nindex 318ddb790..3c17481c9 100644\r\n--- a/fs/btrfs/dev-replace.c\r\n+++ b/fs/btrfs/dev-replace.c\r\n@@ -240,6 +240,7 @@ static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,\r\n \tstruct block_device *bdev;\r\n \tu64 devid = BTRFS_DEV_REPLACE_DEVID;\r\n \tint ret = 0;\r\n+\tbool device_allocated = false;\r\n \r\n \t*device_out = NULL;\r\n \tif (srcdev->fs_devices->seeding) {\r\n@@ -287,6 +288,7 @@ static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,\r\n \t\tret = PTR_ERR(device);\r\n \t\tgoto error;\r\n \t}\r\n+\tdevice_allocated = true;\r\n \r\n \tret = lookup_bdev(device_path, &device->devt);\r\n \tif (ret)\r\n@@ -327,6 +329,8 @@ static int btrfs_init_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,\r\n \treturn 0;\r\n \r\n error:\r\n+\tif (device_allocated)\r\n+\t\tbtrfs_free_device(device);\r\n \tbdev_fput(bdev_file);\r\n \treturn ret;\r\n }\r\ndiff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c\r\nindex a8e27db8e..c479f268a 100644\r\n--- a/fs/btrfs/volumes.c\r\n+++ b/fs/btrfs/volumes.c\r\n@@ -402,7 +402,7 @@ static struct btrfs_fs_devices *alloc_fs_devices(const u8 *fsid)\r\n \treturn fs_devs;\r\n }\r\n \r\n-static void btrfs_free_device(struct btrfs_device *device)\r\n+void btrfs_free_device(struct btrfs_device *device)\r\n {\r\n \tWARN_ON(!list_empty(&device->post_commit_list));\r\n \t/*\r\ndiff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h\r\nindex eaf23c0dc..ecab3ce3c 100644\r\n--- a/fs/btrfs/volumes.h\r\n+++ b/fs/btrfs/volumes.h\r\n@@ -795,6 +795,7 @@ int btrfs_run_dev_stats(struct btrfs_trans_handle *trans);\r\n void btrfs_rm_dev_replace_remove_srcdev(struct btrfs_device *srcdev);\r\n void btrfs_rm_dev_replace_free_srcdev(struct btrfs_device *srcdev);\r\n void btrfs_destroy_dev_replace_tgtdev(struct btrfs_device *tgtdev);\r\n+void btrfs_free_device(struct btrfs_device *device);\r\n unsigned long btrfs_full_stripe_len(struct btrfs_fs_info *fs_info,\r\n \t\t\t\t    u64 logical);\r\n u64 btrfs_calc_stripe_length(const struct btrfs_chunk_map *map);\r\n-- \r\n2.53.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>",
+      "cc": "linux-btrfs@vger.kernel.org, linux-kernel@vger.kernel.org, Guanghui Yang <3497809730@qq.com>"
+    },
     {
       "id": "19fdfaa7db4ab948",
       "msgId": "<6ee7f32e-eb6c-e264-6f0d-541555f8fd62@oss.qualcomm.com>",
@@ -13650,34 +13678,6 @@
       "listType": "LKML",
       "to": "Vincent Guittot <vincent.guittot@linaro.org>, Christian Loehle <christian.loehle@arm.com>",
       "cc": "rafael@kernel.org, viresh.kumar@linaro.org, mingo@redhat.com, peterz@infradead.org, linux-arm-msm@vger.kernel.org, juri.lelli@redhat.com, dietmar.eggemann@arm.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com, linux-pm@vger.kernel.org, Ionela Voinescu <Ionela.Voinescu@arm.com>, Beata Michalska <Beata.Michalska@arm.com>"
-    },
-    {
-      "id": "19fdcb019d3c39ec",
-      "msgId": "<20260807144003.3498972-3-sammiee5311@gmail.com>",
-      "inReplyTo": "<20260807144003.3498972-1-sammiee5311@gmail.com>",
-      "references": "<20260807144003.3498972-1-sammiee5311@gmail.com>",
-      "title": "[PATCH 2/2] platform/x86: ISST: Validate level in perf mask ioctls",
-      "updated": "Fri,  7 Aug 2026 23:40:03 +0900",
-      "authorName": "HyeongJun An",
-      "authorEmail": "sammiee5311@gmail.com",
-      "content": "isst_if_get_perf_level_mask() and isst_if_get_base_freq_mask() use the\r\nuser-provided level as an index into perf_levels[] via\r\n_read_pp_level_info() and _read_bf_level_info(), but neither helper\r\nvalidates it first.\r\n\r\nThe adjacent level-info helpers reject levels above max_level before\r\nreading the same per-level register block. Add the same bounds checks to\r\nthe mask helpers, and reject disabled SST-PP levels in\r\nisst_if_get_perf_level_mask() to match isst_if_get_perf_level_info().\r\n\r\nThis prevents out-of-bounds reads from the per-level offset table on\r\ninvalid ioctl input.\r\n\r\nFixes: ea009e4769fa3 (\"platform/x86: ISST: Add SST-PP support via TPMI\")\r\nFixes: 06a61df83209 (\"platform/x86: ISST: Add SST-BF support via TPMI\")\r\nCc: stable@vger.kernel.org\r\nAssisted-by: Claude:claude-opus-5\r\nSigned-off-by: HyeongJun An <sammiee5311@gmail.com>\r\n---\r\n .../platform/x86/intel/speed_select_if/isst_tpmi_core.c  | 9 +++++++++\r\n 1 file changed, 9 insertions(+)\r\n\r\ndiff --git a/drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c b/drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c\r\nindex b2965baeaa36..f1b6109521c5 100644\r\n--- a/drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c\r\n+++ b/drivers/platform/x86/intel/speed_select_if/isst_tpmi_core.c\r\n@@ -1263,6 +1263,12 @@ static int isst_if_get_perf_level_mask(void __user *argp)\r\n \tif (!power_domain_info)\r\n \t\treturn -EINVAL;\r\n \r\n+\tif (cpumask.level > power_domain_info->max_level)\r\n+\t\treturn -EINVAL;\r\n+\r\n+\tif (!(power_domain_info->pp_header.level_en_mask & BIT(cpumask.level)))\r\n+\t\treturn -EINVAL;\r\n+\r\n \t_read_pp_level_info(\"mask\", mask, cpumask.level, SST_PP_INFO_2_OFFSET,\r\n \t\t\t    SST_PP_RSLVD_CORE_MASK_START, SST_PP_RSLVD_CORE_MASK_WIDTH,\r\n \t\t\t    SST_MUL_FACTOR_NONE)\r\n@@ -1344,6 +1350,9 @@ static int isst_if_get_base_freq_mask(void __user *argp)\r\n \tif (!power_domain_info)\r\n \t\treturn -EINVAL;\r\n \r\n+\tif (cpumask.level > power_domain_info->max_level)\r\n+\t\treturn -EINVAL;\r\n+\r\n \t_read_bf_level_info(\"BF-cpumask\", mask, cpumask.level, SST_BF_INFO_1_OFFSET,\r\n \t\t\t    P1_HI_CORE_MASK_START, P1_HI_CORE_MASK_WIDTH,\r\n \t\t\t    SST_MUL_FACTOR_NONE)\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Hans de Goede <hansg@kernel.org>, \"Ilpo Järvinen\" <ilpo.jarvinen@linux.intel.com>",
-      "cc": "platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, HyeongJun An <sammiee5311@gmail.com>"
-    },
-    {
-      "id": "19fdcb0092d660c4",
-      "msgId": "<20260807143740.2775738-3-sh_def@163.com>",
-      "inReplyTo": "<87pkzu852x.fsf@yellow.woof>",
-      "references": "<87pkzu852x.fsf@yellow.woof>",
-      "title": "Re: [PATCH] staging: fbtft: make dirty_lock IRQ-safe",
-      "updated": "Fri,  7 Aug 2026 22:37:42 +0800",
-      "authorName": "Hui Su",
-      "authorEmail": "sh_def@163.com",
-      "content": "From: sh_def <sh_def@163.com>\r\n\r\n> sh_def@163.com writes:\r\n> > diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c\r\n> > index ca0c38221c16..193643d0329d 100644\r\n> > --- a/drivers/staging/fbtft/fbtft-core.c\r\n> > +++ b/drivers/staging/fbtft/fbtft-core.c\r\n> > @@ -298,14 +298,20 @@ static void fbtft_mkdirty(struct fb_info *info, int y, int height)\r\n> >  {\r\n> >      struct fbtft_par *par = info->par;\r\n> >      struct fb_deferred_io *fbdefio = info->fbdefio;\r\n> > +    unsigned long flags;\r\n> >\r\n> >      /* Mark display lines/area as dirty */\r\n> > -    spin_lock(&par->dirty_lock);\r\n> > +    /*\r\n> > +     * fbcon takes dirty_lock while holding console_owner. Disable local\r\n> > +     * interrupts here so a printk hardirq cannot acquire console_owner\r\n> > +     * while dirty_lock is held and create the inverse lock ordering.\r\n> > +     */\r\n>\r\n> Beside that reason, we also need spin_lock_irqsave() because\r\n> fbtft_mkdirty() can be called in both task context and hardirq\r\n> context. And this reason alone suffices and usually is why\r\n> spin_lock_irqsave() is used, so I think a comment is not necessary.\r\n>\r\n\r\nThanks.\r\nI will drop it in v2.\r\n\r\n> But I am fine with it either way.\r\n>\r\n> >      spin_lock_irqsave(&par->dirty_lock, flags);\r\n> >      if (y < par->dirty_lines_start)\r\n> >          par->dirty_lines_start = y;\r\n> >      if (y + height - 1 > par->dirty_lines_end)\r\n> >          par->dirty_lines_end = y + height - 1;\r\n> > -    spin_unlock(&par->dirty_lock);\r\n> > +    spin_unlock_irqrestore(&par->dirty_lock, flags);\r\n> >\r\n> >      /* Schedule deferred_io to update display (no-op if already on queue)*/\r\n> >      schedule_delayed_work(&info->deferred_work, fbdefio->delay);\r\n> > @@ -317,14 +323,15 @@ static void fbtft_deferred_io(struct fb_info *info, struct list_head *pagereflis\r\n> >      unsigned int dirty_lines_start, dirty_lines_end;\r\n> >      struct fb_deferred_io_pageref *pageref;\r\n> >      unsigned int y_low = 0, y_high = 0;\r\n> > +    unsigned long flags;\r\n> >\r\n> > -    spin_lock(&par->dirty_lock);\r\n> > +    spin_lock_irqsave(&par->dirty_lock, flags);\r\n> >      dirty_lines_start = par->dirty_lines_start;\r\n> >      dirty_lines_end = par->dirty_lines_end;\r\n> >      /* set display line markers as clean */\r\n> >      par->dirty_lines_start = par->info->var.yres - 1;\r\n> >      par->dirty_lines_end = 0;\r\n> > -    spin_unlock(&par->dirty_lock);\r\n> > +    spin_unlock_irqrestore(&par->dirty_lock, flags);\r\n>\r\n> fbtft_deferred_io() is executed in workqueue with interrupt enabled. So\r\n> it can use spin_lock_irq() instead of spin_lock_irqsave(), right?\r\n\r\nYes, agreed. I will use spin_lock_irq() here in v2.\r\n\r\nThanks for the review.\r\n\r\n>\r\n> Nam\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "namcao@linutronix.de",
-      "cc": "andy@kernel.org, dri-devel@lists.freedesktop.org, gregkh@linuxfoundation.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev, notro@tronnes.org, sh_def@163.com, thomas.petazzoni@free-electrons.com"
     },
     {
       "id": "19fdcb8fe5f2af15",
