@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-08-15T03:55:26.002Z",
+  "timestamp": "2026-08-15T04:10:58.480Z",
   "entries": [
+    {
+      "id": "1a003979c18e87f1",
+      "msgId": "<20260815040302.653650-1-jorijnvdgraaf@catcrafts.net>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH net] net: ipa: fix stalled modem TX queue after runtime resume",
+      "updated": "Sat, 15 Aug 2026 06:03:02 +0200",
+      "authorName": "Jorijn van der Graaf",
+      "authorEmail": "jorijnvdgraaf@catcrafts.net",
+      "content": "ipa_start_xmit() unconditionally stops the TX queue before calling\r\npm_runtime_get(), relying on the wake scheduled by runtime resume\r\n(ipa_modem_wake_queue_work()) to restart it once power is ACTIVE.\r\nBut that work is queued from within the runtime resume callback,\r\nbefore the device's power state reaches RPM_ACTIVE, so it can run\r\nwhile the device is still RPM_RESUMING.  The wake is then consumed\r\ntoo early: the transmit it restarts stops the queue again,\r\npm_runtime_get() returns -EINPROGRESS without arranging any future\r\nwake (deferred_resume exists only for RPM_SUSPENDING), and after the\r\nresume completes nothing is left to wake the queue.  Transmit stalls\r\npermanently: packets pile up in the qdisc behind the stopped queue,\r\nthe device runtime-suspends, and since the netdev registers no\r\nndo_tx_timeout the watchdog never fires.  Observed on SM7635\r\n(Fairphone 6) as the cellular data path going permanently deaf\r\nwithin hours, RX included, since nothing resumes the suspended\r\nendpoints.\r\n\r\nClose the window by making the wake work wait for the resume to\r\ncomplete (pm_runtime_get_sync()) before waking the queue.  Every\r\nqueue stop is then guaranteed a later wake that happens while power\r\nis ACTIVE; a transmit racing a new suspend/resume cycle re-schedules\r\nthe work.  If the device could not be resumed, wake the queue anyway\r\nso pending packets are dropped by the transmit path rather than\r\nstranded.\r\n\r\nThe STARTED power flag used to narrow this window: a wake running\r\nbefore the transmit path's stop suppressed that stop, but only once,\r\nas the flag was cleared by the first stop it absorbed.  Removing the\r\nflag made a single transmit during an in-flight resume sufficient to\r\nstrand the queue, which is the form observed.\r\n\r\nWith an accelerated reproducer (autosuspend delay shortened to 5 ms,\r\n~20 packets/s of TX), an unpatched kernel stalled three times in\r\n230 s / 4380 packets; with this patch the same test ran 3601 s /\r\n70298 packets without a stall.\r\n\r\nFixes: 688de12f080f (\"net: ipa: kill the STARTED IPA power flag\")\r\nCc: stable@vger.kernel.org\r\nAssisted-by: Claude:claude-fable-5\r\nSigned-off-by: Jorijn van der Graaf <jorijnvdgraaf@catcrafts.net>\r\n---\r\n\r\nRuntime testing was done on a v7.1.2-based device kernel carrying\r\nthis same change, on a drivers/net/ipa/ipa_modem.c otherwise identical\r\nto this tree's; the patch as posted was build-tested on net at the\r\nbase commit.\r\n\r\n drivers/net/ipa/ipa_modem.c | 18 +++++++++++++++++-\r\n 1 file changed, 17 insertions(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/net/ipa/ipa_modem.c b/drivers/net/ipa/ipa_modem.c\r\nindex 9b136f6b8b4a..d84c1dbd3b1a 100644\r\n--- a/drivers/net/ipa/ipa_modem.c\r\n+++ b/drivers/net/ipa/ipa_modem.c\r\n@@ -266,13 +266,29 @@ void ipa_modem_suspend(struct net_device *netdev)\r\n  * the modem.  We can't enable the queue directly in ipa_modem_resume()\r\n  * because transmits restart the instant the queue is awakened; but the\r\n  * device power state won't be ACTIVE until *after* ipa_modem_resume()\r\n- * returns.\r\n+ * returns.  A transmit restarted before that would stop the queue\r\n+ * again and get -EINPROGRESS from pm_runtime_get(), and with this\r\n+ * work having already run, nothing would ever wake the queue again.\r\n+ * So wait for the resume to complete before waking the queue.\r\n  */\r\n static void ipa_modem_wake_queue_work(struct work_struct *work)\r\n {\r\n \tstruct ipa_priv *priv = container_of(work, struct ipa_priv, work);\r\n+\tstruct device *dev = priv->ipa->dev;\r\n+\tint ret;\r\n+\r\n+\tret = pm_runtime_get_sync(dev);\r\n \r\n+\t/* Wake the queue even if the device could not be resumed, so\r\n+\t * that pending packets are dropped by the transmit path rather\r\n+\t * than stranded behind a stopped queue.\r\n+\t */\r\n \tnetif_wake_queue(priv->tx->netdev);\r\n+\r\n+\tif (ret < 0)\r\n+\t\tpm_runtime_put_noidle(dev);\r\n+\telse\r\n+\t\t(void)pm_runtime_put_autosuspend(dev);\r\n }\r\n \r\n /** ipa_modem_resume() - resume callback for runtime_pm\r\n\r\nbase-commit: 24ef02f934eeb48830cff6b739abc3c62b1d107b\r\n-- \r\n2.55.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Alex Elder <elder@kernel.org>",
+      "cc": "Andrew Lunn <andrew+netdev@lunn.ch>, \"David S . Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Luca Weiss <luca.weiss@fairphone.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jorijn van der Graaf <jorijnvdgraaf@catcrafts.net>, stable@vger.kernel.org"
+    },
+    {
+      "id": "1a0038eeeec8ed57",
+      "msgId": "<A277EA38-31EF-4252-BA17-6B8A18DB6174@linux.dev>",
+      "inReplyTo": "<20260814083027.1419487-1-xialonglong2025@163.com>",
+      "references": "<20260814083027.1419487-1-xialonglong2025@163.com>",
+      "title": "Re: [PATCH 1/1] mm/hugetlb: keep max_huge_pages when dissolving surplus folios",
+      "updated": "Sat, 15 Aug 2026 11:54:29 +0800",
+      "authorName": "Muchun Song",
+      "authorEmail": "muchun.song@linux.dev",
+      "content": "\r\n\r\n> On Aug 14, 2026, at 16:30, Longlong Xia <xialonglong2025@163.com> wrote:\r\n> \r\n> From: Longlong Xia <xialonglong@kylinos.cn>\r\n> \r\n> dissolve_free_hugetlb_folio() can remove a free folio as surplus when\r\n> its node has surplus pages.  In that case remove_hugetlb_folio()\r\n> decrements both nr_huge_pages and surplus_huge_pages, leaving the\r\n> persistent pool size unchanged.\r\n> \r\n> Updating max_huge_pages as if a persistent folio had been removed can\r\n> therefore corrupt the persistent pool target and underflow it when\r\n> max_huge_pages is zero.  Keep max_huge_pages unchanged for surplus\r\n> folios, including the vmemmap restoration rollback path.\r\n> \r\n> Fixes: cb402bbdabca (\"mm/hugetlb: fix surplus pages in dissolve_free_huge_page()\")\r\n> Assisted-by: Codex:gpt-5.6-sol\r\n> Signed-off-by: Longlong Xia <xialonglong@kylinos.cn>\r\n\r\nReviewed-by: Muchun Song <muchun.song@linux.dev>\r\n\r\nThanks.\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Longlong Xia <xialonglong2025@163.com>",
+      "cc": "Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jinjiang Tu <tujinjiang@huawei.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Longlong Xia <xialonglong@kylinos.cn>"
+    },
     {
       "id": "1a003825e837f4ff",
       "msgId": "<CAJuCfpHYnjhHh6mex5vuzwz=ggn8cuW_oR03KWih9vx+76a+RQ@mail.gmail.com>",
@@ -13888,34 +13916,6 @@
       "listType": "LKML",
       "to": "Prabhakar <prabhakar.csengg@gmail.com>, Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, \"Krzysztof Wilczyński\" <kwilczynski@kernel.org>, Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>",
       "cc": "linux-pci@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, Fabrizio Castro <fabrizio.castro.jz@renesas.com>, Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, stable@vger.kernel.org"
-    },
-    {
-      "id": "1a0005e9e0d7e5f8",
-      "msgId": "<7f448edb-e618-4cfc-b2e5-cc8d58c2f305@citrix.com>",
-      "inReplyTo": "<20260814121247.GI788244@noisy.programming.kicks-ass.net>",
-      "references": "<20260814121247.GI788244@noisy.programming.kicks-ass.net>",
-      "title": "Re: UMIP and clearcpuid=",
-      "updated": "Fri, 14 Aug 2026 13:57:28 +0100",
-      "authorName": "Andrew Cooper",
-      "authorEmail": "andrew.cooper3@citrix.com",
-      "content": "> Supposedly, according to Gemini, the below 'patch' is sufficient to\r\n> 'fix' things. I tried and failed to get a reference to the thread\r\n> where it originated though.\r\n>\r\n>\r\n> ---\r\n> /* arch/x86/kernel/umip.c */\r\n>\r\n>  static int emulate_umip_insn(struct insn *insn, int insn_idx,\r\n>  \t\t\t     unsigned char *data, int *data_size)\r\n>  {\r\n> -\t/* Current upstream logic: sets up a high-canonical dummy address space */\r\n> -\tunsigned long dummy_base = -1UL << 32; /* Taints high 16 bits with 0xFFFF... */\r\n> +\t/* The 'Compatibility Fix': Forces high 16 bits to 0x0000 to mirror Windows */\r\n> +\tunsigned long dummy_base = 0x00000000FFFF0000UL;\r\n> ...\r\n\r\nMy reading of those notes is that the game wants to see precisely 0x7f\r\nin the limit field.\r\n\r\nBut, it also sounds like what they really want is for UMIP to just\r\nSIGSEGV like any other privilege violation.  They're already emulating\r\nCPUID via the SIGSEGV handler.\r\n\r\nOverall, we probably want umip=disable|emulate.  If you want it per\r\ntask, then that will involve writing CR4 on the context switch path.\r\n\r\nThe sad thing is that UMIP is too little too late.  We already point the\r\nGDT and LDT at read-only mappings in the first place to work around the\r\nproblem on non-UMIP platforms, so that SGDT/SIDT become less useful to\r\nan attack.  STR/SLDT/SMSW are practically useless to start with.\r\n\r\n~Andrew\r\n\r\n",
-      "listType": "LKML",
-      "to": "peterz@infradead.org",
-      "cc": "Andrew Cooper <andrew.cooper3@citrix.com>, bp@alien8.de, linux-kernel@vger.kernel.org, ronan@rjp.ie, x86@kernel.org"
-    },
-    {
-      "id": "1a0005dcf7084277",
-      "msgId": "<34412d10-cea1-42ef-a53c-ef515b452793@sirena.org.uk>",
-      "inReplyTo": "<87ik5ckh2j.fsf@bootlin.com>",
-      "references": "<20260813-perso-ma35d1-upstream-qspi-v1-0-b217b9870eb1@bootlin.com> <20260813-perso-ma35d1-upstream-qspi-v1-4-b217b9870eb1@bootlin.com> <09c3928f-4b58-4ac6-8e1a-84dfe3ff6b92@sirena.org.uk> <87ik5ckh2j.fsf@bootlin.com>",
-      "title": "Re: [PATCH 4/5] spi: ma35d1-qspi: Add DTR support",
-      "updated": "Fri, 14 Aug 2026 13:56:10 +0100",
-      "authorName": "Mark Brown",
-      "authorEmail": "broonie@kernel.org",
-      "content": "On Fri, Aug 14, 2026 at 02:44:04PM +0200, Miquel Raynal wrote:\r\n\r\n> > This needs ctlr->dtr_caps configuring, otherwise the validation will\r\n> > block it - only the _mem_caps were updated.\r\n\r\n> Ok, thanks!\r\n\r\nI've queued the existing stuff for CI since it all looks good and we're\r\nalmost at the merge window - please send an incremental change for this.\r\n",
-      "listType": "LKML",
-      "to": "Miquel Raynal <miquel.raynal@bootlin.com>",
-      "cc": "Jacky Huang <ychuang3@nuvoton.com>, Shan-Chun Hung <schung@nuvoton.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Steam Lin <STLin2@winbond.com>, linux-arm-kernel@lists.infradead.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
       "id": "1a0005f4095a708e",
