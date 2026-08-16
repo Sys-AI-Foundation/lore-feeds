@@ -1,6 +1,62 @@
 {
-  "timestamp": "2026-08-16T11:46:27.229Z",
+  "timestamp": "2026-08-16T12:05:32.236Z",
   "entries": [
+    {
+      "id": "1a00a71bfbd22781",
+      "msgId": "<6a81a644.dbb3a75c.20434b.002d.GAE@google.com>",
+      "inReplyTo": "<20260816112630.12622-1-jakovnovak30@gmail.com>",
+      "references": "",
+      "title": "Re: [syzbot] [usb?] BUG: sleeping function called from invalid context in cancel_delayed_work_sync",
+      "updated": "Sun, 16 Aug 2026 05:00:04 -0700",
+      "authorName": "syzbot",
+      "authorEmail": "syzbot+1ee4f3b9228e35f14677@syzkaller.appspotmail.com",
+      "content": "Hello,\r\n\r\nsyzbot has tested the proposed patch and the reproducer did not trigger any issue:\r\n\r\nReported-by: syzbot+1ee4f3b9228e35f14677@syzkaller.appspotmail.com\r\nTested-by: syzbot+1ee4f3b9228e35f14677@syzkaller.appspotmail.com\r\n\r\nTested on:\r\n\r\ncommit:         3eb40771 Merge tag 'soc-fixes-7.2-3' of git://git.kern..\r\ngit tree:       upstream\r\nconsole output: https://syzkaller.appspot.com/x/log.txt?x=15431949580000\r\nkernel config:  https://syzkaller.appspot.com/x/.config?x=1d67342c314f228d\r\ndashboard link: https://syzkaller.appspot.com/bug?extid=1ee4f3b9228e35f14677\r\ncompiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44\r\npatch:          https://syzkaller.appspot.com/x/patch.diff?x=178b7279580000\r\n\r\nNote: testing is done by a robot and is best-effort only.\r\n\r\n",
+      "listType": "LKML",
+      "to": "jakovnovak30@gmail.com, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com",
+      "cc": ""
+    },
+    {
+      "id": "1a00a69c012845bc",
+      "msgId": "<OS7PR01MB13914906DFF1C9AF471A5B46996D82@OS7PR01MB13914.jpnprd01.prod.outlook.com>",
+      "inReplyTo": "<CAGsJ_4wNPeSYHe_-UZnNRF1i1yWOxdbOiqsuVXVtLU7BDOBbJg@mail.gmail.com>",
+      "references": "<OS7PR01MB139142FE16EC63B892559D40496DA2@OS7PR01MB13914.jpnprd01.prod.outlook.com> <CAGsJ_4wNPeSYHe_-UZnNRF1i1yWOxdbOiqsuVXVtLU7BDOBbJg@mail.gmail.com>",
+      "title": "Re: [PATCH] mm/rmap: synchronize lock and unlock target in anon_vma_clone",
+      "updated": "Sun, 16 Aug 2026 20:51:15 +0900",
+      "authorName": "Seohyun Kim",
+      "authorEmail": "seohyun.kim@outlook.kr",
+      "content": "On 8/15/26 14:21, Barry Song wrote:\r\n\r\n> On Fri, Aug 14, 2026 at 2:33 PM Eric Kim <seohyun.kim@outlook.kr> wrote:\r\n>> Currently, in anon_vma_clone(), src vma's anon_vma is assigned to\r\n>> active_anon_vma and is used when unlocking anon_vma after linking new\r\n>> AVCs. However, the anon_vma is locked using src->anon_vma, instead of\r\n>> active_anon_vma, making the lock and unlock target inconsistent.\r\n> I'm not a native speaker, but I feel the lock and unlock are actually\r\n> consistent and operate on the same anon_vma. The code just looks\r\n> unpaired: one uses src->anon_vma, while the other uses\r\n> active_anon_vma. But aren't they actually the same thing?\r\nYou're right. My original commit message does come as confusing\r\nbecause it sounds like there's an actual lock/unlock target mismatch.\r\n(I'm not a native speaker too) My intent was to match the variable\r\nname for locking and unlocking, and since active_anon_vma is the\r\nimplemented alias for src->anon_vma, anon_vma_clone() should\r\nconsistently use active_anon_vma. Should I send a v2 to clarify the commit\r\nmessage?\r\n> Not an objection to the patch; I just find the changelog a bit\r\n> confusing.\r\n>\r\n>> Use active_anon_vma for both locking and unlocking.\r\n>>\r\n>> Signed-off-by: Eric Kim <seohyun.kim@outlook.kr>\r\n> Best Regards\r\n> Barry\r\n\r\nThanks for the feedback.\r\n\r\nEric Kim\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Barry Song <baohua@kernel.org>",
+      "cc": "akpm@linux-foundation.org, david@kernel.org, ljs@kernel.org, riel@surriel.com, liam@infradead.org, vbabka@kernel.org, harry@kernel.org, jannh@google.com, lance.yang@linux.dev, linux-mm@kvack.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a00a64b67d0c38d",
+      "msgId": "<20260816114544.35502-1-vlad@zlab.su>",
+      "inReplyTo": "<20260815022036.7c47585e@jic23-huawei>",
+      "references": "<20260815022036.7c47585e@jic23-huawei>",
+      "title": "Re: [PATCH] iio: adc: rockchip_saradc: Add support for RV1106",
+      "updated": "Sun, 16 Aug 2026 14:45:44 +0300",
+      "authorName": "Vladislav Leonov",
+      "authorEmail": "vlad@zlab.su",
+      "content": "Hi Jonathan,\r\n\r\nSent a separate patch for the dt-binding fix:\r\n\r\n  https://lore.kernel.org/all/20260816113636.33635-1-vlad@zlab.su\r\n\r\nRegards,\r\nVladislav\r\n\r\n",
+      "listType": "LKML",
+      "to": "jic23@kernel.org",
+      "cc": "andy@kernel.org, dlechner@baylibre.com, heiko@sntech.de, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, nuno.sa@analog.com, sjg@chromium.org, vlad@zlab.su"
+    },
+    {
+      "id": "1a00a6483b6b3540",
+      "msgId": "<aoGi3g9AlcG9EiyG@kernel.org>",
+      "inReplyTo": "<69522f38-7e5d-ebdf-d42e-11d822bce662@gmail.com>",
+      "references": "<9c936a9f-ed27-e510-872f-5b3b8c680975@gmail.com> <aoF_qmSHiEgujaH5@kernel.org> <69522f38-7e5d-ebdf-d42e-11d822bce662@gmail.com>",
+      "title": "Re: [PATCH] userfaultfd: reset err to be 0 when move_pages_ptes succeeded",
+      "updated": "Sun, 16 Aug 2026 14:45:34 +0300",
+      "authorName": "Mike Rapoport",
+      "authorEmail": "rppt@kernel.org",
+      "content": "On Sun, Aug 16, 2026 at 04:41:07PM +0700, Foxie Flakey wrote:\r\n> On Sun, 16 Aug 2026, Mike Rapoport wrote:\r\n> \r\n> > (adding Suren)\r\n> >\r\n> > On Sat, Aug 15, 2026 at 05:42:12PM +0700, Foxie Flakey wrote:\r\n> > >\r\n> > > Fixes: 50944692052b (\"userfaultfd: opportunistic TLB-flush batching for present pages in MOVE\")\r\n> > > Signed-off-by: Foxie Flakey <foxieflakey@gmail.com>\r\n> >\r\n> > Is Foxie Flakey your real name?\r\n> > Signed-off-by should be using a known identity (sorry, no anonymous contributions.)\r\n> \r\n> Thanks for response. Sorry, no. A question, by \"known identity\" there is it\r\n> means my real/legal name? because I have read a document about Signed-off-by\r\n> and because on internet I'm known as Foxie Flakey in multiple places, I\r\n> thought its fine.\r\n\r\nIt does not have to be the legal name, but we do prefer real/preferred\r\nnames over nicknames:\r\n\r\nCNCF's clarification on DCO explains it well:\r\nhttps://github.com/cncf/foundation/blob/659fd32c86dc/dco-guidelines.md\r\n \r\n\r\n-- \r\nSincerely yours,\r\nMike.\r\n\r\n",
+      "listType": "LKML",
+      "to": "Foxie Flakey <foxieflakey@gmail.com>",
+      "cc": "Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org, peterx@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "1a00a628935a76f2",
       "msgId": "<585cf79505dfbbd961eefad95a134c02d0fc30f6693b157a8ed4f1824c2e1db4@mail.kernel.org>",
@@ -13902,62 +13958,6 @@
       "listType": "LKML",
       "to": "Chenghai Huang <huangchenghai2@huawei.com>",
       "cc": "davem@davemloft.net, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, prime.zeng@hisilicon.com, liulongfang@huawei.com, qianweili@huawei.com, wangzhou1@hisilicon.com, yinzhushuai@huawei.com"
-    },
-    {
-      "id": "1a0030743a2822be",
-      "msgId": "<an_AOQWYPGvORVJJ@gondor.apana.org.au>",
-      "inReplyTo": "<20260803224028.87631-1-rosenp@gmail.com>",
-      "references": "<20260803224028.87631-1-rosenp@gmail.com>",
-      "title": "Re: [PATCH] crypto: eip93 - use struct_size() and flexible array for ring allocation",
-      "updated": "Sat, 15 Aug 2026 11:26:17 +1000",
-      "authorName": "Herbert Xu",
-      "authorEmail": "herbert@gondor.apana.org.au",
-      "content": "On Mon, Aug 03, 2026 at 03:40:28PM -0700, Rosen Penev wrote:\r\n> Embed the single ring as a flexible array member in eip93_device\r\n> instead of allocating it separately. This simplifies the probe path\r\n> and uses struct_size() for a single allocation.\r\n> \r\n> Assisted-by: opencode:big-pickle\r\n> Signed-off-by: Rosen Penev <rosenp@gmail.com>\r\n> ---\r\n>  .../crypto/inside-secure/eip93/eip93-main.c   |  6 +----\r\n>  .../crypto/inside-secure/eip93/eip93-main.h   | 22 +++++++++----------\r\n>  2 files changed, 12 insertions(+), 16 deletions(-)\r\n\r\nPatch applied.  Thanks.\r\n-- \r\nEmail: Herbert Xu <herbert@gondor.apana.org.au>\r\nHome Page: http://gondor.apana.org.au/~herbert/\r\nPGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt\r\n\r\n",
-      "listType": "LKML",
-      "to": "Rosen Penev <rosenp@gmail.com>",
-      "cc": "linux-crypto@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>, Antoine Tenart <atenart@kernel.org>, \"David S. Miller\" <davem@davemloft.net>, open list <linux-kernel@vger.kernel.org>"
-    },
-    {
-      "id": "1a0030722158afac",
-      "msgId": "<an_ALPtrIGVPoGhh@gondor.apana.org.au>",
-      "inReplyTo": "<20260803192621.329577-1-linux@jaseg.de>",
-      "references": "<20260803192621.329577-1-linux@jaseg.de>",
-      "title": "Re: [PATCH] crypto/krb5: use kfree_sensitive() for derived key buffers",
-      "updated": "Sat, 15 Aug 2026 11:26:04 +1000",
-      "authorName": "Herbert Xu",
-      "authorEmail": "herbert@gondor.apana.org.au",
-      "content": "On Mon, Aug 03, 2026 at 09:26:21PM +0200, Jan Sebastian Götte wrote:\r\n> crypto_krb5_prepare_encryption() and crypto_krb5_prepare_checksum()\r\n> free the buffer holding the freshly derived keys with plain kfree(),\r\n> leaving the key material behind in the freed slab object.\r\n> \r\n> Fixes: 3936f02bf2d3 (\"crypto/krb5: Implement Kerberos crypto core\")\r\n> Cc: stable@vger.kernel.org\r\n> Signed-off-by: Jan Sebastian Götte <linux@jaseg.de>\r\n> ---\r\n>  crypto/krb5/krb5_api.c | 8 ++++----\r\n>  1 file changed, 4 insertions(+), 4 deletions(-)\r\n\r\nPatch applied.  Thanks.\r\n-- \r\nEmail: Herbert Xu <herbert@gondor.apana.org.au>\r\nHome Page: http://gondor.apana.org.au/~herbert/\r\nPGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt\r\n\r\n",
-      "listType": "LKML",
-      "to": "\"Jan Sebastian Götte\" <linux@jaseg.de>",
-      "cc": "\"David S. Miller\" <davem@davemloft.net>, David Howells <dhowells@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Michael Bommarito <michael.bommarito@gmail.com>, Jeffrey Altman <jaltman@auristor.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, stable@vger.kernel.org"
-    },
-    {
-      "id": "1a0030655a322b04",
-      "msgId": "<an-_y1AuR2DUkcSu@jpoimboe>",
-      "inReplyTo": "<an-wHwTNX1xDxlRC@jpoimboe>",
-      "references": "<cover.1786138493.git.jpoimboe@kernel.org> <fe5a00818e06ec613344d41d5944de054fcd8832.1786138493.git.jpoimboe@kernel.org> <CADBMgpz7iWC0=t=_gE-tfvv0mTPq4kg0qQ2zgPH8DVPE6eQ9Kw@mail.gmail.com> <an-wHwTNX1xDxlRC@jpoimboe>",
-      "title": "Re: [PATCH v3 8/9] objtool/klp: Fix relocations for EXPORT_SYMBOL_FOR_MODULES() symbols",
-      "updated": "Fri, 14 Aug 2026 18:25:33 -0700",
-      "authorName": "Josh Poimboeuf",
-      "authorEmail": "jpoimboe@kernel.org",
-      "content": "On Fri, Aug 14, 2026 at 05:18:19PM -0700, Josh Poimboeuf wrote:\r\n> On Fri, Aug 14, 2026 at 02:05:48PM -0700, Dylan Hatch wrote:\r\n> > Following up on the other thread [1], I noticed that when a patch is\r\n> > touching a module function with a reference to one of these\r\n> > module-exported symbols, the patch/module is rejected because KLP\r\n> > relocs referencing vmlinux symbols are not allowed from\r\n> > module-specific livepatch relocation sections. I was able to reproduce\r\n> > this with a simple module/livepatch combo that depends on one of these\r\n> > symbols [2] (see samples/livepatch/testmod.c and test.patch):\r\n> > \r\n> > root@debian-vm:~$ insmod livepatch-test.ko\r\n> > root@debian-vm:~$ insmod testmod.ko\r\n> > insmod: ERROR: could not insert module testmod.ko: Invalid parameters\r\n> > \r\n> > With dmesg:\r\n> > [  655.596876] livepatch_test: loading out-of-tree module taints kernel.\r\n> > [  655.600961] livepatch_test: tainting kernel with TAINT_LIVEPATCH\r\n> > [  655.605436] livepatch: enabling patch 'livepatch_test'\r\n> > [  655.609119] livepatch: 'livepatch_test': starting patching transition\r\n> > [  656.653454] livepatch: 'livepatch_test': patching complete\r\n> > [  738.777872] livepatch: invalid access to vmlinux symbol\r\n> > 'get_task_policy' from module-specific livepatch relocation section\r\n> > [  738.784899] livepatch: failed to initialize patch 'livepatch_test'\r\n> > for module 'testmod' (-22)\r\n> > [  738.790371] livepatch: patch 'livepatch_test' failed for module\r\n> > 'testmod', refusing to load module 'testmod'\r\n> > \r\n> > Do you recommend a strategy for working around this, or is this\r\n> > something that would have to be fixed in the kernel?\r\n> \r\n> Ah, this is another tooling issue, let me work up a patch.\r\n\r\nHere is an untested diff, I'll post a proper patch once I get a chance\r\nto test it.\r\n\r\ndiff --git a/tools/objtool/include/objtool/klp.h b/tools/objtool/include/objtool/klp.h\r\nindex 646d8e1f12eff..c57775d78c71e 100644\r\n--- a/tools/objtool/include/objtool/klp.h\r\n+++ b/tools/objtool/include/objtool/klp.h\r\n@@ -20,8 +20,9 @@\r\n  * SHF_RELA_LIVEPATCH, nor does it support having two RELA sections for a\r\n  * single PROGBITS section.\r\n  *\r\n- * \"objname\" is the name of the object being patched (\"vmlinux\" or a module\r\n- * name).  post-link uses it to name the resulting\r\n+ * \"objname\" is the object whose loading gates the relocation: \"vmlinux\" for\r\n+ * references to vmlinux symbols, otherwise the name of the module being\r\n+ * patched.  post-link uses it to name the resulting\r\n  * .klp.rela.objname.section_name sections.\r\n  */\r\n #define KLP_RELOCS_SEC\t\"__klp_relocs\"\r\ndiff --git a/tools/objtool/klp-diff.c b/tools/objtool/klp-diff.c\r\nindex a66049e0726a6..16681a76f13d0 100644\r\n--- a/tools/objtool/klp-diff.c\r\n+++ b/tools/objtool/klp-diff.c\r\n@@ -1344,13 +1344,14 @@ static int clone_reloc_klp(struct elfs *e, struct reloc *patched_reloc,\r\n \t\t\t   struct section *sec, unsigned long offset,\r\n \t\t\t   struct export *export)\r\n {\r\n+\tconst char *sym_modname, *sym_orig_name, *sec_objname;\r\n \tstruct symbol *patched_sym = patched_reloc->sym;\r\n \ts64 addend = reloc_addend(patched_reloc);\r\n-\tconst char *sym_modname, *sym_orig_name;\r\n-\tstatic struct section *klp_relocs;\r\n \tchar tombstone_name[SYM_NAME_LEN];\r\n \tstruct symbol *sym, *klp_sym;\r\n \tunsigned long klp_reloc_off;\r\n+\tstruct section *klp_relocs;\r\n+\tchar sec_name[SEC_NAME_LEN];\r\n \tchar sym_name[SYM_NAME_LEN];\r\n \tstruct klp_reloc klp_reloc;\r\n \tunsigned long sympos;\r\n@@ -1441,20 +1442,28 @@ static int clone_reloc_klp(struct elfs *e, struct reloc *patched_reloc,\r\n \t * This intermediate step is necessary to prevent corruption by the\r\n \t * linker, which doesn't know how to properly handle two rela sections\r\n \t * applying to the same base section.\r\n+\t *\r\n+\t * The objname decides when the reloc gets applied.  A reference to a\r\n+\t * vmlinux symbol goes in the vmlinux section so it gets applied when\r\n+\t * the patch module loads.  Everything else goes in the patched\r\n+\t * object's section, applied when the patched module is loaded.\r\n \t */\r\n \r\n+\tif (!strcmp(sym_modname, \"vmlinux\")) {\r\n+\t\tsec_objname = \"vmlinux\";\r\n+\t} else {\r\n+\t\tsec_objname = find_modname(e);\r\n+\t\tif (!sec_objname)\r\n+\t\t\treturn -1;\r\n+\t}\r\n+\r\n+\t/* section format: __klp_relocs.objname */\r\n+\tif (snprintf_check(sec_name, SEC_NAME_LEN,\r\n+\t\t\t   KLP_RELOCS_SEC \".%s\", sec_objname))\r\n+\t\treturn -1;\r\n+\r\n+\tklp_relocs = find_section_by_name(e->out, sec_name);\r\n \tif (!klp_relocs) {\r\n-\t\tconst char *objname = find_modname(e);\r\n-\t\tchar sec_name[SEC_NAME_LEN];\r\n-\r\n-\t\tif (!objname)\r\n-\t\t\treturn -1;\r\n-\r\n-\t\t/* section format: __klp_relocs.objname */\r\n-\t\tif (snprintf_check(sec_name, SEC_NAME_LEN,\r\n-\t\t\t\t   KLP_RELOCS_SEC \".%s\", objname))\r\n-\t\t\treturn -1;\r\n-\r\n \t\tklp_relocs = elf_create_section(e->out, sec_name, 0,\r\n \t\t\t\t\t\t0, SHT_PROGBITS, 8, SHF_ALLOC);\r\n \t\tif (!klp_relocs)\r\n\r\n",
-      "listType": "LKML",
-      "to": "Dylan Hatch <dylanbhatch@google.com>",
-      "cc": "x86@kernel.org, linux-kernel@vger.kernel.org, live-patching@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Song Liu <song@kernel.org>"
-    },
-    {
-      "id": "1a003029f0dea369",
-      "msgId": "<20260815022036.7c47585e@jic23-huawei>",
-      "inReplyTo": "<20260810090826.146758-1-vlad@zlab.su>",
-      "references": "<20260714131631.v2.1.0b846080833e4b836793c43fc26d1c6d817cf9b4@changeid> <20260810090826.146758-1-vlad@zlab.su>",
-      "title": "Re: [PATCH] iio: adc: rockchip_saradc: Add support for RV1106",
-      "updated": "Sat, 15 Aug 2026 02:20:36 +0100",
-      "authorName": "Jonathan Cameron",
-      "authorEmail": "jic23@kernel.org",
-      "content": "On Mon, 10 Aug 2026 12:08:26 +0300\r\nVladislav Leonov <vlad@zlab.su> wrote:\r\n\r\n> The Successive Approximation ADC (SARADC) in RV1106 uses the v2\r\n> controller and supports:\r\n> - 10-bit resolution\r\n> - Up to 1MS/s sampling rate\r\n> - 2 single-ended input channels\r\n> \r\n> \"dt-bindings: iio: adc: rockchip-saradc: Add RV1106 compatible\"\r\n> documents \"rockchip,rv1106-saradc\" as falling back to\r\n> \"rockchip,rk3588-saradc\" (see Link below). The two IP blocks are not\r\n> equivalent, though: per the RV1106 TRM v0.3, chapter 20 (SAR-ADC),\r\n> RV1106 only has 2 channels at 10-bit resolution, versus 8 channels\r\n> at 12-bit on RK3588. Without a dedicated match entry, the driver\r\n> binds via the fallback compatible and uses the RK3588 channel table,\r\n> which reports 8 channels instead of 2, and an in_voltage_scale that\r\n> is off by exactly 4x (4096 vs 1024 full-scale).\r\n> \r\n> Add a dedicated compatible/data pair for RV1106 with the correct\r\n> 2-channel, 10-bit layout.\r\n> \r\n> Tested on a custom RV1106-based board, with:\r\n> \r\n>   &saradc {\r\n> \tvref-supply = <&vcc_saradc>; /* 1.8V fixed regulator */\r\n> \tstatus = \"okay\";\r\n>   };\r\n> \r\n> Before this patch:\r\n>   # ls /sys/bus/iio/devices/iio:device0/in_voltage*_raw | wc -l\r\n>   8\r\n>   # cat /sys/bus/iio/devices/iio:device0/in_voltage_scale\r\n>   0.439453125\r\n> \r\n> After this patch:\r\n>   # ls /sys/bus/iio/devices/iio:device0/in_voltage*_raw | wc -l\r\n>   2\r\n>   # cat /sys/bus/iio/devices/iio:device0/in_voltage_scale\r\n>   1.757812500\r\n> \r\n> Link: https://lore.kernel.org/all/20260714131631.v2.1.0b846080833e4b836793c43fc26d1c6d817cf9b4@changeid/\r\n> Signed-off-by: Vladislav Leonov <vlad@zlab.su>\r\n\r\nHi Vladislav,\r\n\r\nCould you also send a fix for the dt-binding as it clearly\r\nshouldn't claim the fallback compatible!\r\n\r\nWhilst I can see why you did here, in general don't reply\r\nto an existing series when sending a new one.  Your link tag\r\nis sufficient to associate the two.\r\n\r\nI'll give this a little longer on list to let other comment, but\r\nlooks good to me.\r\n\r\nThanks,\r\n\r\nJonathan\r\n\r\n> ---\r\n>  drivers/iio/adc/rockchip_saradc.c | 16 ++++++++++++++++\r\n>  1 file changed, 16 insertions(+)\r\n> \r\n> diff --git a/drivers/iio/adc/rockchip_saradc.c b/drivers/iio/adc/rockchip_saradc.c\r\n> index 0f0bf2906af0..5c45fae11890 100644\r\n> --- a/drivers/iio/adc/rockchip_saradc.c\r\n> +++ b/drivers/iio/adc/rockchip_saradc.c\r\n> @@ -348,6 +348,19 @@ static const struct rockchip_saradc_data rk3588_saradc_data = {\r\n>  \t.read = rockchip_saradc_read_v2,\r\n>  };\r\n>  \r\n> +static const struct iio_chan_spec rockchip_rv1106_saradc_iio_channels[] = {\r\n> +\tSARADC_CHANNEL(0, \"adc0\", 10),\r\n> +\tSARADC_CHANNEL(1, \"adc1\", 10),\r\n> +};\r\n> +\r\n> +static const struct rockchip_saradc_data rv1106_saradc_data = {\r\n> +\t.channels = rockchip_rv1106_saradc_iio_channels,\r\n> +\t.num_channels = ARRAY_SIZE(rockchip_rv1106_saradc_iio_channels),\r\n> +\t.clk_rate = 1000000,\r\n> +\t.start = rockchip_saradc_start_v2,\r\n> +\t.read = rockchip_saradc_read_v2,\r\n> +};\r\n> +\r\n>  static const struct of_device_id rockchip_saradc_match[] = {\r\n>  \t{\r\n>  \t\t.compatible = \"rockchip,saradc\",\r\n> @@ -370,6 +383,9 @@ static const struct of_device_id rockchip_saradc_match[] = {\r\n>  \t}, {\r\n>  \t\t.compatible = \"rockchip,rk3588-saradc\",\r\n>  \t\t.data = &rk3588_saradc_data,\r\n> +\t}, {\r\n> +\t\t.compatible = \"rockchip,rv1106-saradc\",\r\n> +\t\t.data = &rv1106_saradc_data,\r\n>  \t},\r\n>  \t{ }\r\n>  };\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Vladislav Leonov <vlad@zlab.su>",
-      "cc": "David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Heiko Stuebner <heiko@sntech.de>, Simon Glass <sjg@chromium.org>, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org"
     }
   ]
 }
