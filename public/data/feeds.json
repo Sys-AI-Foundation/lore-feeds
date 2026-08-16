@@ -1,6 +1,20 @@
 {
-  "timestamp": "2026-08-16T04:33:21.209Z",
+  "timestamp": "2026-08-16T04:53:31.399Z",
   "entries": [
+    {
+      "id": "1a008e3ec47c7d55",
+      "msgId": "<20260816044510.3848996-1-shuangpeng.kernel@gmail.com>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] IB/mlx4: Fix use-after-free on pkey sysfs registration failure",
+      "updated": "Sun, 16 Aug 2026 00:45:10 -0400",
+      "authorName": "Shuangpeng Bai",
+      "authorEmail": "shuangpeng.kernel@gmail.com",
+      "content": "register_pkey_tree() ignores errors from register_one_pkey_tree() and\r\ncontinues registering the remaining slaves. The per-slave error path has\r\nalready released the pkey parent kobjects, but their pointers remain\r\nstored in the device. A later device cleanup therefore passes the stale\r\npointers to kobject_put(), causing a use-after-free.\r\n\r\nClear the parent pointers after releasing a failed slave tree and skip\r\nunregistered trees during device cleanup. This preserves the existing\r\nbest-effort registration behavior while preventing a second cleanup of\r\nthe failed tree.\r\n\r\nFixes: c1e7e466120b (\"IB/mlx4: Add iov directory in sysfs under the ib device\")\r\nCc: stable@vger.kernel.org\r\nSigned-off-by: Shuangpeng Bai <shuangpeng.kernel@gmail.com>\r\n---\r\n drivers/infiniband/hw/mlx4/sysfs.c | 4 ++++\r\n 1 file changed, 4 insertions(+)\r\n\r\ndiff --git a/drivers/infiniband/hw/mlx4/sysfs.c b/drivers/infiniband/hw/mlx4/sysfs.c\r\nindex e688ad66a895..5438224bf325 100644\r\n--- a/drivers/infiniband/hw/mlx4/sysfs.c\r\n+++ b/drivers/infiniband/hw/mlx4/sysfs.c\r\n@@ -751,11 +751,13 @@ static int register_one_pkey_tree(struct mlx4_ib_dev *dev, int slave)\r\n \t\tkobject_put(p);\r\n \t}\r\n \tkobject_put(dev->dev_ports_parent[slave]);\r\n+\tdev->dev_ports_parent[slave] = NULL;\r\n \r\n err_ports:\r\n \tkobject_put(dev->pkeys.device_parent[slave]);\r\n \t/* extra put for the device_parent create_and_add */\r\n \tkobject_put(dev->pkeys.device_parent[slave]);\r\n+\tdev->pkeys.device_parent[slave] = NULL;\r\n \r\n fail_dev:\r\n \tkobject_put(dev->iov_parent);\r\n@@ -785,6 +787,8 @@ static void unregister_pkey_tree(struct mlx4_ib_dev *device)\r\n \t\treturn;\r\n \r\n \tfor (slave = device->dev->persist->num_vfs; slave >= 0; --slave) {\r\n+\t\tif (!device->pkeys.device_parent[slave])\r\n+\t\t\tcontinue;\r\n \t\tlist_for_each_entry_safe(p, t,\r\n \t\t\t\t\t &device->pkeys.pkey_port_list[slave],\r\n \t\t\t\t\t entry) {\r\n-- \r\n2.43.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "yishaih@nvidia.com, jgg@ziepe.ca, leon@kernel.org",
+      "cc": "linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Shuangpeng Bai <shuangpeng.kernel@gmail.com>"
+    },
     {
       "id": "1a008d324ec1f10e",
       "msgId": "<CAMoDTWjF6D0PNyf8sa7x3zO5+ZEn3pnvGftH7+HM7NDqNv2G8A@mail.gmail.com>",
@@ -13944,20 +13958,6 @@
       "listType": "LKML",
       "to": "Chaithanya Lagisetty <nagachaithanya9911@gmail.com>",
       "cc": "Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org, Frank Li <Frank.Li@kernel.org>, Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, Maxime Ripard <mripard@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a00213706b5721c",
-      "msgId": "<20260814205955.3490381-1-tj@kernel.org>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH sched_ext/for-7.2-fixes] sched_ext: Fix scx_bpf_dsq_reenq___compat kfunc extern prototype",
-      "updated": "Fri, 14 Aug 2026 10:59:55 -1000",
-      "authorName": "Tejun Heo",
-      "authorEmail": "tj@kernel.org",
-      "content": "scx_bpf_dsq_reenq() is registered with KF_IMPLICIT_ARGS and its kernel BTF\r\nprototype omits the trailing bpf_prog_aux argument. The ___compat extern\r\ndeclares the argument explicitly, so libbpf never matches the prototype and\r\nthe weak extern silently stays unresolved on every kernel. The wrapper\r\nalways takes the old fallback path, which disables generic reenq users like\r\nscx_qmap's lowpri mechanism and fails non-local reenq with \"kernel too old\"\r\neven on kernels that have the kfunc.\r\n\r\nDrop the explicit aux argument. Also correct the stale v6.20 reference, the\r\nkfunc was added in v7.1.\r\n\r\nFixes: 9c34c5074d1b (\"sched_ext: Introduce scx_bpf_dsq_reenq() for remote local DSQ reenqueue\")\r\nCc: stable@vger.kernel.org # v7.1+\r\nSigned-off-by: Tejun Heo <tj@kernel.org>\r\n---\r\n tools/sched_ext/include/scx/compat.bpf.h | 6 +++---\r\n 1 file changed, 3 insertions(+), 3 deletions(-)\r\n\r\ndiff --git a/tools/sched_ext/include/scx/compat.bpf.h b/tools/sched_ext/include/scx/compat.bpf.h\r\nindex 505ddd8f2fa4..bcc0b4c84fc0 100644\r\n--- a/tools/sched_ext/include/scx/compat.bpf.h\r\n+++ b/tools/sched_ext/include/scx/compat.bpf.h\r\n@@ -414,10 +414,10 @@ static inline void scx_bpf_reenqueue_local(void)\r\n }\r\n \r\n /*\r\n- * v6.20: New scx_bpf_dsq_reenq() that allows re-enqueues on more DSQs. This\r\n+ * v7.1: New scx_bpf_dsq_reenq() that allows re-enqueues on more DSQs. This\r\n  * will eventually deprecate scx_bpf_reenqueue_local().\r\n  */\r\n-void scx_bpf_dsq_reenq___compat(u64 dsq_id, u64 reenq_flags, const struct bpf_prog_aux *aux__prog) __ksym __weak;\r\n+void scx_bpf_dsq_reenq___compat(u64 dsq_id, u64 reenq_flags) __ksym __weak;\r\n \r\n static inline bool __COMPAT_has_generic_reenq(void)\r\n {\r\n@@ -427,7 +427,7 @@ static inline bool __COMPAT_has_generic_reenq(void)\r\n static inline void scx_bpf_dsq_reenq(u64 dsq_id, u64 reenq_flags)\r\n {\r\n \tif (bpf_ksym_exists(scx_bpf_dsq_reenq___compat))\r\n-\t\tscx_bpf_dsq_reenq___compat(dsq_id, reenq_flags, NULL);\r\n+\t\tscx_bpf_dsq_reenq___compat(dsq_id, reenq_flags);\r\n \telse if (dsq_id == SCX_DSQ_LOCAL && reenq_flags == 0)\r\n \t\tscx_bpf_reenqueue_local();\r\n \telse\r\n\r\n",
-      "listType": "LKML",
-      "to": "David Vernet <void@manifault.com>, Andrea Righi <arighi@nvidia.com>, Changwoo Min <changwoo@igalia.com>",
-      "cc": "Emil Tsalapatis <emil@etsalapatis.com>, sched-ext@lists.linux.dev, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, stable@vger.kernel.org"
     }
   ]
 }
