@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-16T05:31:13.997Z",
+  "timestamp": "2026-08-16T05:49:51.173Z",
   "entries": [
+    {
+      "id": "1a00916439b9f161",
+      "msgId": "<MN0PR18MB5870444BD9375EF4F7131851C6D82@MN0PR18MB5870.namprd18.prod.outlook.com>",
+      "inReplyTo": "<anlSAqWxS7boyJBT@monoceros>",
+      "references": "<20260726101739.33170-1-farbere@amazon.com> <20260726101739.33170-11-farbere@amazon.com> <anlSAqWxS7boyJBT@monoceros>",
+      "title": "RE: [PATCH v4 10/13] platform/x86: uniwill-wmi: use devm_blocking_notifier_chain_register()",
+      "updated": "Sun, 16 Aug 2026 05:39:47 +0000",
+      "authorName": "\"Farber, Eliav\"",
+      "authorEmail": "farbere@amazon.com",
+      "content": "> On Sun, Jul 26, 2026 at 10:17:36AM +0000, Eliav Farber wrote:\r\n> >  int devm_uniwill_wmi_register_notifier(struct device *dev, struct \r\n> > notifier_block *nb)  {\r\n> > -\tint ret;\r\n> > -\r\n> > -\tret = blocking_notifier_chain_register(&uniwill_wmi_chain_head, nb);\r\n> > -\tif (ret < 0)\r\n> > -\t\treturn ret;\r\n> > -\r\n> > -\treturn devm_add_action_or_reset(dev, devm_uniwill_wmi_unregister_notifier, nb);\r\n> > +\treturn devm_blocking_notifier_chain_register(dev,\r\n> > +\t\t\t\t\t\t     &uniwill_wmi_chain_head,\r\n> > +\t\t\t\t\t\t     nb);\r\n> >  }\r\n>\r\n> I'd remove this function and replace calls to it directly by devm_blocking_notifier_chain_register().\r\n\r\nuniwill_wmi_chain_head is static in uniwill-wmi.c and the caller is in\r\nuniwill-acpi.c. The wrapper encapsulates access to this module-private\r\nnotifier head - removing it would require exposing the variable through\r\nthe header, which breaks the current abstraction.\r\n\r\nI'd prefer to keep the wrapper as-is.\r\n\r\nBest regards\r\nEliav\r\n\r\n",
+      "listType": "LKML",
+      "to": "\"Uwe Kleine-König\" <ukleinek@kernel.org>",
+      "cc": "\"rafael@kernel.org\" <rafael@kernel.org>, \"tony.luck@intel.com\" <tony.luck@intel.com>, \"bp@alien8.de\" <bp@alien8.de>, \"guohanjun@huawei.com\" <guohanjun@huawei.com>, \"mchehab@kernel.org\" <mchehab@kernel.org>, \"xueshuai@linux.alibaba.com\" <xueshuai@linux.alibaba.com>, \"lenb@kernel.org\" <lenb@kernel.org>, \"laurent.pinchart@ideasonboard.com\" <laurent.pinchart@ideasonboard.com>, \"linusw@kernel.org\" <linusw@kernel.org>, \"brgl@kernel.org\" <brgl@kernel.org>, \"orsonzhai@gmail.com\" <orsonzhai@gmail.com>, \"baolin.wang@linux.alibaba.com\" <baolin.wang@linux.alibaba.com>, \"zhang.lyra@gmail.com\" <zhang.lyra@gmail.com>, \"jic23@kernel.org\" <jic23@kernel.org>, \"dlechner@baylibre.com\" <dlechner@baylibre.com>, \"nuno.sa@analog.com\" <nuno.sa@analog.com>, \"andy@kernel.org\" <andy@kernel.org>, \"dmitry.torokhov@gmail.com\" <dmitry.torokhov@gmail.com>, \"hansg@kernel.org\" <hansg@kernel.org>, \"ilpo.jarvinen@linux.intel.com\" <ilpo.jarvinen@linux.intel.com>, \"W_Armin@gmx.de\" <W_Armin@gmx.de>, \"fabio.m.de.francesco@linux.intel.com\" <fabio.m.de.francesco@linux.intel.com>, \"kaihengf@nvidia.com\" <kaihengf@nvidia.com>, \"ankita@nvidia.com\" <ankita@nvidia.com>, \"leitao@debian.org\" <leitao@debian.org>, \"pedro.pbg@usp.br\" <pedro.pbg@usp.br>, \"paulmck@kernel.org\" <paulmck@kernel.org>, \"frederic@kernel.org\" <frederic@kernel.org>, \"kees@kernel.org\" <kees@kernel.org>, \"linux-acpi@vger.kernel.org\" <linux-acpi@vger.kernel.org>, \"linux-kernel@vger.kernel.org\" <linux-kernel@vger.kernel.org>, \"linux-gpio@vger.kernel.org\" <linux-gpio@vger.kernel.org>, \"linux-pwm@vger.kernel.org\" <linux-pwm@vger.kernel.org>, \"linux-iio@vger.kernel.org\" <linux-iio@vger.kernel.org>, \"linux-input@vger.kernel.org\" <linux-input@vger.kernel.org>, \"platform-driver-x86@vger.kernel.org\" <platform-driver-x86@vger.kernel.org>"
+    },
+    {
+      "id": "1a00914e5d217c0d",
+      "msgId": "<aoFM8BTNhJW9PrGd@wyuan.org>",
+      "inReplyTo": "<b233295b-64c0-4d50-a0fd-516e4795eb96@hust.edu.cn>",
+      "references": "<20260814214419.49925-1-chenmiao.ku@gmail.com> <20260814214419.49925-6-chenmiao.ku@gmail.com> <e63fa3eb-7387-461e-9215-0974213a577e@hust.edu.cn> <aoFFhGeMzQNvt0i3@wyuan.org> <b233295b-64c0-4d50-a0fd-516e4795eb96@hust.edu.cn>",
+      "title": "Re: [PATCH v4 5/6] docs/zh_CN: doc-guide: document macOS Sphinx setup",
+      "updated": "Sun, 16 Aug 2026 13:38:56 +0800",
+      "authorName": "Weijie Yuan",
+      "authorEmail": "wy@wyuan.org",
+      "content": "On Sun, Aug 16, 2026 at 01:25:51PM +0800, Dongliang Mu wrote:\r\n> > > > diff --git a/Documentation/translations/zh_CN/doc-guide/sphinx.rst b/Documentation/translations/zh_CN/doc-guide/sphinx.rst\r\n> > > > index 3375c6f3a..e6d42d970 100644\r\n> > > > --- a/Documentation/translations/zh_CN/doc-guide/sphinx.rst\r\n> > > > +++ b/Documentation/translations/zh_CN/doc-guide/sphinx.rst\r\n> > > > @@ -110,6 +110,22 @@ PDF和LaTeX构建\r\n> > > >    \t使用Sphinx的系统打包，而不是Python虚拟环境。\r\n> > > > +macOS 默认使用不区分文件名大小写的 APFS 卷，而内核源码树中存在仅大小写\r\n> > > > +不同的文件。克隆源码前，请用 ``diskutil apfs list`` 找到 APFS 容器标识符，\r\n> > > > +将下面的 ``diskX`` 替换为该标识符，并创建一个额外的大小写敏感卷::\r\n> > > > +\r\n> > > > +\tdiskutil apfs addVolume diskX APFSX Linux\r\n> > > > +\r\n> > > > +在 macOS 上，该脚本使用 Homebrew 安装系统依赖，输出的 Homebrew 命令不需要\r\n> > > > +``sudo``。PDF 工具链由 ``mactex-no-gui`` cask 提供，所需的 DejaVu 和 Noto CJK\r\n> > > > +字体则通过 Homebrew font cask 安装；如果只构建 HTML 文档，请使用 ``--no-pdf``。\r\n> > > > +安装 MacTeX 后，请重新启动终端，或运行\r\n> > > > +``eval \"$(/usr/libexec/path_helper)\"`` 使命令行工具可见。macOS 用户建议使用\r\n> > > > +默认的 Python 虚拟环境，因为 PyYAML 会从\r\n> > > > +``Documentation/sphinx/requirements.txt`` 安装，而不是通过 Homebrew 安装。\r\n> > > > +该脚本还会检查 GNU Make 4.0 或更高版本；如果 Homebrew 将其安装为\r\n> > > > +``gmake``，请使用 ``gmake htmldocs``，而不是 ``make htmldocs``。\r\n> > > > +\r\n> > > Hi Chen Miao,\r\n> > > \r\n> > > The zh_CN only keeps the translations, therefore, you should first put this\r\n> > > part into the english documenation.\r\n> > > \r\n> > > Of course, you can extend this patch into one with English and zh_CN\r\n> > > changes.\r\n> > The English Documentation for this is in [PATCH v4 2/6], so you mean\r\n> > it's better to wait until the English part is merged, then we can apply\r\n> > the Chinese translation part, I guess.\r\n> \r\n> Oops, I missed this patch.\r\n> \r\n> Yes, I mean, this patchset should only changes the English documentation.\r\n> And then submit another patch to sync the zh_CN translation.\r\n> \r\n> The changes to how-to.rst does not affect English documentation and I had\r\n> commented with my reviewed-by tag.\r\n\r\nOK, thanks!\r\n\r\n> > But wait..:\r\n> > \r\n> > +该脚本还会检查 GNU Make 4.0 或更高版本；如果 Homebrew 将其安装为\r\n> > +``gmake``，请使用 ``gmake htmldocs``，而不是 ``make htmldocs``。\r\n> > \r\n> > Now I find that this part above is not in the original patch for English\r\n> > Docs, did you miss it on purpose? Sorry I didn't notice this in last\r\n> > rerolls.\r\n>\r\n> I think Chen Miao might miss it unintentionally since this change is in\r\n> another patch.\r\n\r\nomg, I somehow missed the English original in [PATCH v4 3/6], too. Then\r\nit's my fault. Chen Miao merged two parts of changes for English Docs\r\ninto one Chinese translation patch here. So he's right. I was just in a\r\nrush to send out the email and didn't take the time to double-check my\r\nquestion. Sorry for my recklessness.\r\n\r\nThanks!\r\n\r\n",
+      "listType": "LKML",
+      "to": "Dongliang Mu <dzm91@hust.edu.cn>",
+      "cc": "Chen Miao <chenmiao.ku@gmail.com>, corbet@lwn.net, alexs@kernel.org, si.yanteng@linux.dev, skhan@linuxfoundation.org, mchehab@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a0090c905292d56",
+      "msgId": "<CALuQH+WN+xftDONAk=T8zeB1qF5y=yaJ4F23DAg4W6puP+jToA@mail.gmail.com>",
+      "inReplyTo": "<20260814234845.773189-1-joshwash@google.com>",
+      "references": "<20260814234845.773189-1-joshwash@google.com>",
+      "title": "Re: [PATCH net 0/6] gve: various XDP fixes",
+      "updated": "Sat, 15 Aug 2026 22:29:39 -0700",
+      "authorName": "Joshua Washington",
+      "authorEmail": "joshwash@google.com",
+      "content": "Quite a few review bot concerns on this patch series. I will respin to\r\naddress the concerns and manually run Sashiko to hopefully catch any\r\nother lingering issues before resubmitting.\r\n\r\n",
+      "listType": "LKML",
+      "to": "netdev@vger.kernel.org",
+      "cc": "Harshitha Ramamurthy <hramamurthy@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>, \"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Jordan Rhee <jordanrhee@google.com>, Willem de Bruijn <willemb@google.com>, Ankit Garg <nktgrg@google.com>, Tim Hostetler <thostet@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>, Jeroen de Borst <jeroendb@google.com>, Stanislav Fomichev <sdf@fomichev.me>, linux-kernel@vger.kernel.org, bpf@vger.kernel.org"
+    },
     {
       "id": "1a00909377ea7880",
       "msgId": "<b233295b-64c0-4d50-a0fd-516e4795eb96@hust.edu.cn>",
@@ -13916,48 +13958,6 @@
       "listType": "LKML",
       "to": "Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>",
       "cc": "linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, goledhruva@gmail.com, m-chawdhry@ti.com, daniel.baluta@gmail.com, simona.toaca@nxp.com, j.bhargav.u@gmail.com"
-    },
-    {
-      "id": "1a002264abbd7580",
-      "msgId": "<178674240713.3963717.11667328689936932143.git-patchwork-notify@kernel.org>",
-      "inReplyTo": "<20260812060644.210997-1-kuangkai@kylinos.cn>",
-      "references": "<20260812060644.210997-1-kuangkai@kylinos.cn>",
-      "title": "Re: [PATCH net-next] net: dsa: drop explicit NULL comparisons",
-      "updated": "Fri, 14 Aug 2026 21:20:07 +0000",
-      "authorName": "patchwork-bot+netdevbpf@kernel.org",
-      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
-      "content": "Hello:\r\n\r\nThis patch was applied to netdev/net-next.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Wed, 12 Aug 2026 14:06:44 +0800 you wrote:\r\n> Replace explicit NULL comparisons with the boolean form to follow\r\n> the kernel coding style:\r\n> \r\n>   dev->class != NULL  -> dev->class\r\n>   user_dev == NULL    -> !user_dev\r\n> \r\n> No functional changes intended.\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [net-next] net: dsa: drop explicit NULL comparisons\r\n    https://git.kernel.org/netdev/net-next/c/e6a5d573d24c\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Kai Kuang <kuangkai@kylinos.cn>",
-      "cc": "netdev@vger.kernel.org, andrew@lunn.ch, olteanv@gmail.com, f.fainelli@gmail.com, linux-kernel@vger.kernel.org, kk47yx@gmail.com"
-    },
-    {
-      "id": "1a0022568c491196",
-      "msgId": "<an-GZpgfiPJj2JsV@zenone.zhora.eu>",
-      "inReplyTo": "<20260814100719.9548-1-hardikprakash.official@gmail.com>",
-      "references": "<20260814100719.9548-1-hardikprakash.official@gmail.com>",
-      "title": "Re: [PATCH] Revert \"i2c: designware: defer probe if child GpioInt controllers are not bound\"",
-      "updated": "Fri, 14 Aug 2026 23:19:51 +0200",
-      "authorName": "Andi Shyti",
-      "authorEmail": "andi.shyti@kernel.org",
-      "content": "Hi Hardik,\r\n\r\nOn Fri, Aug 14, 2026 at 03:37:19PM +0530, Hardik Prakash wrote:\r\n> This reverts commit 0a4bb2abc3e56d7be6e69b050c88ba52c87e22bf.\r\n> \r\n> The reverted commit causes a regression on ThinkPad T14s Gen 4 (AMD):\r\n> the touchpad's I2C controller fails with lost arbitration errors,\r\n> because it delays i2c-designware's probe by roughly 500ms, which\r\n> shifts the touchpad's first HID descriptor fetch into a window where\r\n> the platform's embedded controller is still acting as a secondary I2C\r\n> bus master. Debug tracing confirms the GpioInt dependency check itself\r\n> behaves correctly (it defers appropriately and confirms the GPIO\r\n> controller is bound); the arbitration failure happens roughly a\r\n> second after the check passes, when i2c_hid_acpi's own probe attempts\r\n> its first transaction.\r\n> \r\n> The original fix is still needed for the Lenovo Yoga 7 14AGP11\r\n> touchscreen race the commit addressed, but a corrected version will\r\n> be resubmitted once the EC bus-mastering interaction is understood\r\n> and handled properly, rather than reintroducing a different\r\n> regression on more widely-used ThinkPad hardware in the meantime.\r\n> \r\n> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>\r\n> Closes: https://lore.kernel.org/all/b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info/\r\n> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>\r\n\r\nmerged to i2c/i2c-2.\r\n\r\nThanks,\r\nAndi\r\n\r\n",
-      "listType": "LKML",
-      "to": "Hardik Prakash <hardikprakash.official@gmail.com>",
-      "cc": "linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org, chaitanya.kumar.borah@intel.com, linux@leemhuis.info, regressions@leemhuis.info, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a002246283be944",
-      "msgId": "<20260814211814.GG1013044@pedri>",
-      "inReplyTo": "<0706f7fc02ac17d292ada97443ca40a806c0582c.camel@intel.com>",
-      "references": "<20260722-tdx-selftests-v14-0-15ad654a50db@google.com> <20260722-tdx-selftests-v14-3-15ad654a50db@google.com> <0706f7fc02ac17d292ada97443ca40a806c0582c.camel@intel.com>",
-      "title": "Re: [PATCH v14 03/22] KVM: selftests: Initialize the TDX VM",
-      "updated": "Fri, 14 Aug 2026 14:18:14 -0700",
-      "authorName": "Peter Fang",
-      "authorEmail": "peter.fang@intel.com",
-      "content": "On Thu, Aug 13, 2026 at 04:41:07PM -0700, Edgecombe, Rick P wrote:\r\n> On Wed, 2026-07-22 at 23:13 +0000, Lisa Wang wrote:\r\n> > From: Sagi Shahar <sagis@google.com>\r\n> > \r\n> > Add tdx_init_vm() to handle the mandatory VM-level initialization\r\n> > sequence required for Intel TDX.\r\n> > \r\n> > For TDX, the guest's CPUID configuration must be \"sealed\" during\r\n> > KVM_TDX_INIT_VM before any vCPUs are created. This is necessary because\r\n> > the TDX hardware directly virtualizes CPUID and includes the\r\n> > configuration in the guest's initial security measurement.\r\n> \r\n> \"TDX hardware\" should be TDX module. But I'm not sure what it is trying to say\r\n> about directly virtualizes.\r\n> \r\n> Also, it is not accurate to say that the CPUID configuration is included in the\r\n> measurement? Is that right Peter? It's not in the report, but is it in the\r\n> measurement?\r\n\r\nCPUID is not in the report or the TDX module's measurement. TD\r\nattributes and XFAM are in both the report and initial measurement, and\r\nsome of the bits in there are related to CPUID (e.g. ATTRIBUTES.PKS or\r\nXFAM.MAXPA_VIRT). Probably better to make a distinction between these\r\nthings.\r\n\r\n> \r\n> Or maybe it doesn't really need to be in the log anyway.\r\n> \r\n> > \r\n\r\n",
-      "listType": "LKML",
-      "to": "\"Edgecombe, Rick P\" <rick.p.edgecombe@intel.com>",
-      "cc": "\"Aktas, Erdem\" <erdemaktas@google.com>, \"Li, Xiaoyao\" <xiaoyao.li@intel.com>, \"shuah@kernel.org\" <shuah@kernel.org>, \"dave.hansen@linux.intel.com\" <dave.hansen@linux.intel.com>, \"afranji@google.com\" <afranji@google.com>, \"kas@kernel.org\" <kas@kernel.org>, \"binbin.wu@linux.intel.com\" <binbin.wu@linux.intel.com>, \"ira.weiny@intel.com\" <ira.weiny@intel.com>, \"pbonzini@redhat.com\" <pbonzini@redhat.com>, \"Chatre, Reinette\" <reinette.chatre@intel.com>, \"isaku.yamahata@intel.com\" <isaku.yamahata@intel.com>, \"ackerleytng@google.com\" <ackerleytng@google.com>, \"seanjc@google.com\" <seanjc@google.com>, \"pratikrajesh.sampat@amd.com\" <pratikrajesh.sampat@amd.com>, \"oupton@kernel.org\" <oupton@kernel.org>, \"wyihan@google.com\" <wyihan@google.com>, \"sagis@google.com\" <sagis@google.com>, \"Gao, Chao\" <chao.gao@intel.com>, \"Wang, Roger\" <runanwang@google.com>, \"linux-kselftest@vger.kernel.org\" <linux-kselftest@vger.kernel.org>, \"ajones@ventanamicro.com\" <ajones@ventanamicro.com>, \"Qiang, Chenyi\" <chenyi.qiang@intel.com>, \"kvm@vger.kernel.org\" <kvm@vger.kernel.org>, \"linux-coco@lists.linux.dev\" <linux-coco@lists.linux.dev>, \"jmcrey@google.com\" <jmcrey@google.com>, \"linux-kernel@vger.kernel.org\" <linux-kernel@vger.kernel.org>, \"x86@kernel.org\" <x86@kernel.org>"
     }
   ]
 }
