@@ -1,6 +1,76 @@
 {
-  "timestamp": "2026-08-22T20:31:04.488Z",
+  "timestamp": "2026-08-22T20:48:16.574Z",
   "entries": [
+    {
+      "id": "1a02b34f569f1ea4",
+      "msgId": "<178743121314.1821669.490736256443928861.git-patchwork-notify@kernel.org>",
+      "inReplyTo": "<20260819023306.644849-1-yhlee@isslab.korea.ac.kr>",
+      "references": "<20260819023306.644849-1-yhlee@isslab.korea.ac.kr>",
+      "title": "Re: [PATCH net v7 0/3] net/smc: fix out-of-bounds and use-after-free in SMC-Rv2 LLC processing",
+      "updated": "Sat, 22 Aug 2026 20:40:13 +0000",
+      "authorName": "patchwork-bot+netdevbpf@kernel.org",
+      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
+      "content": "Hello:\r\n\r\nThis series was applied to netdev/net.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Wed, 19 Aug 2026 11:33:03 +0900 you wrote:\r\n> Patch 1 fixes a use-after-free of the LLC queue entry in\r\n> smc_llc_srv_add_link(), patch 2 bounds the peer's rkey counts, and patch 3\r\n> carries the tail of an oversized v2 message in the queue entry so that both\r\n> readers are bounded by what arrived. All three are tagged for stable: a\r\n> tree that takes 1 and 2 without 3 still deletes rkeys read from whatever an\r\n> earlier message left in the shared receive buffer.\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [net,v7,1/3] net/smc: fix use-after-free of the LLC qentry in smc_llc_srv_add_link()\r\n    https://git.kernel.org/netdev/net/c/a42a459ef0e5\r\n  - [net,v7,2/3] net/smc: bound the peer rkey counts in SMC-Rv2 LLC messages\r\n    https://git.kernel.org/netdev/net/c/2d1e7c5aaa33\r\n  - [net,v7,3/3] net/smc: carry oversized SMC-Rv2 LLC messages in the queue entry\r\n    https://git.kernel.org/netdev/net/c/8d3c1ab82c11\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Yehyeong Lee <yhlee@isslab.korea.ac.kr>",
+      "cc": "alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com, kuba@kernel.org, davem@davemloft.net, edumazet@google.com, pabeni@redhat.com, leitao@debian.org, horms@kernel.org, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com, guangguan.wang@linux.alibaba.com, kees@kernel.org, gustavoars@kernel.org, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a02b3508f8d2658",
+      "msgId": "<178743121165.1821669.13695262349197988811.git-patchwork-notify@kernel.org>",
+      "inReplyTo": "<20260821-page-pool-xa-drop-dma32-v1-1-6eab295c3478@rong.moe>",
+      "references": "<20260821-page-pool-xa-drop-dma32-v1-1-6eab295c3478@rong.moe>",
+      "title": "Re: [PATCH] net: page_pool: Remove zone/policy GFP flags when allocating XArray entries",
+      "updated": "Sat, 22 Aug 2026 20:40:11 +0000",
+      "authorName": "patchwork-bot+netdevbpf@kernel.org",
+      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
+      "content": "Hello:\r\n\r\nThis patch was applied to netdev/net.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Fri, 21 Aug 2026 01:41:25 +0800 you wrote:\r\n> Net drivers request GFP flags according to both the current context and\r\n> the device constraints, but the XArray entry itself is by no mean used\r\n> by the device. Passing though device constraints to XArray allocation is\r\n> a bug and will be warned and fixed up by slab, e.g.:\r\n> \r\n>     Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0x82820 (GFP_ATOMIC|__GFP_NOWARN|__GFP_NOMEMALLOC). Fix your code!\r\n>     CPU: 2 UID: 0 PID: 1071629 Comm: kworker/u80:1 Not tainted 7.2.0-rc7+ #1 PREEMPT(lazy)\r\n>     Hardware name: LENOVO 21Q4/LNVNB161216, BIOS PXCN27WW 10/20/2025\r\n>     Workqueue: mt76 mt792x_pm_wake_work [mt792x_lib]\r\n>     Call Trace:\r\n>      <TASK>\r\n>      dump_stack_lvl+0x6e/0x90\r\n>      kmalloc_fix_flags+0x4d/0x6a\r\n>      refill_objects+0x10a/0x330\r\n>      __pcs_replace_empty_main+0x292/0x5c0\r\n>      kmem_cache_alloc_lru_noprof+0x4c2/0x680\r\n>      ? __xas_nomem+0x3a/0x120\r\n>      __xas_nomem+0x3a/0x120\r\n>      __xa_alloc+0xd4/0x190\r\n>      page_pool_dma_map+0xef/0x400\r\n>      __page_pool_alloc_netmems_slow+0xed/0x480\r\n>      ? lock_release+0x280/0x490\r\n>      page_pool_alloc_frag_netmem+0xe0/0x3a0\r\n>      page_pool_alloc_frag+0xe/0x20\r\n>      mt76_dma_rx_fill_buf+0x1f6/0x580 [mt76]\r\n>      mt76_dma_rx_reset+0x1cf/0x230 [mt76]\r\n>      mt792x_wpdma_reset+0x183/0x1b0 [mt792x_lib]\r\n>      mt792x_wpdma_reinit_cond+0x5e/0xa0 [mt792x_lib]\r\n>      mt792xe_mcu_drv_pmctrl+0x28/0x60 [mt792x_lib]\r\n>      mt792x_mcu_drv_pmctrl+0x3e/0x90 [mt792x_lib]\r\n>      mt792x_pm_wake_work+0x2d/0x1d0 [mt792x_lib]\r\n>      ? process_one_work+0x20e/0x600\r\n>      process_one_work+0x230/0x600\r\n>      ? process_one_work+0x256/0x600\r\n>      worker_thread+0x1ec/0x3c0\r\n>      ? rescuer_thread+0x610/0x610\r\n>      kthread+0xf2/0x130\r\n>      ? kthread_affine_node+0x140/0x140\r\n>      ret_from_fork+0x2a5/0x380\r\n>      ? kthread_affine_node+0x140/0x140\r\n>      ret_from_fork_asm+0x11/0x20\r\n>      </TASK>\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - net: page_pool: Remove zone/policy GFP flags when allocating XArray entries\r\n    https://git.kernel.org/netdev/net/c/039f248a6cc1\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Rong Zhang <i@rong.moe>",
+      "cc": "hawk@kernel.org, ilias.apalodimas@linaro.org, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, almasrymina@google.com, toke@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a02b2cdf1fc0a3d",
+      "msgId": "<178743062488.1819488.16577192802417073757.git-patchwork-notify@kernel.org>",
+      "inReplyTo": "<20260818150000.7670-1-a0yami@mailbox.org>",
+      "references": "<20260818150000.7670-1-a0yami@mailbox.org>",
+      "title": "Re: [PATCH net v5] gtp: serialize PDP context updates",
+      "updated": "Sat, 22 Aug 2026 20:30:24 +0000",
+      "authorName": "patchwork-bot+netdevbpf@kernel.org",
+      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
+      "content": "Hello:\r\n\r\nThis patch was applied to netdev/net.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Tue, 18 Aug 2026 23:00:00 +0800 you wrote:\r\n> PDP contexts can be deleted through GTP_CMD_DELPDP or while the GTP\r\n> network device is being unregistered. The latter is serialized by RTNL,\r\n> but the generic-netlink delete path only holds RCU.\r\n> \r\n> Running both paths concurrently can therefore make both paths delete the\r\n> same PDP context. The issue was found through static analysis and\r\n> reproduced on a KASAN-enabled kernel by a simple two-thread program\r\n> racing GTP_CMD_DELPDP against RTM_DELLINK:\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [net,v5] gtp: serialize PDP context updates\r\n    https://git.kernel.org/netdev/net/c/498386b6d402\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Ming Qing <a0yami@mailbox.org>",
+      "cc": "pablo@netfilter.org, laforge@gnumonks.org, andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, kuniyu@google.com, osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
+    },
+    {
+      "id": "1a02b2c71f861d66",
+      "msgId": "<178743062338.1819488.10941044627288151617.git-patchwork-notify@kernel.org>",
+      "inReplyTo": "<20260817-misc-fixes-sparx5-lan969x-v3-0-c7c7fef723a8@microchip.com>",
+      "references": "<20260817-misc-fixes-sparx5-lan969x-v3-0-c7c7fef723a8@microchip.com>",
+      "title": "Re: [PATCH net v3 0/2] net: sparx5: misc fixes for sparx5 and lan969x",
+      "updated": "Sat, 22 Aug 2026 20:30:23 +0000",
+      "authorName": "patchwork-bot+netdevbpf@kernel.org",
+      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
+      "content": "Hello:\r\n\r\nThis series was applied to netdev/net.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Mon, 17 Aug 2026 17:41:57 +0200 you wrote:\r\n> This series fixes various issues in the sparx5 driver, which also\r\n> serves lan969x.\r\n> \r\n> Details are in the individual commit descriptions.\r\n> \r\n> Signed-off-by: Daniel Machon <daniel.machon@microchip.com>\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [net,v3,1/2] net: microchip: vcap: use port number instead of netdev name for debugfs\r\n    https://git.kernel.org/netdev/net/c/b7adcc56fd3d\r\n  - [net,v3,2/2] net: sparx5: fix sleep in atomic context in MAC table access\r\n    https://git.kernel.org/netdev/net/c/b62793a7baee\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Daniel Machon <daniel.machon@microchip.com>",
+      "cc": "andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, Steen.Hegelund@microchip.com, UNGLinuxDriver@microchip.com, bigeasy@linutronix.de, clrkwllms@kernel.org, rostedt@goodmis.org, bjarni.jonasson@microchip.com, lars.povlsen@microchip.com, p.zabel@pengutronix.de, kees@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org, steen.hegelund@microchip.com, linux-rt-devel@lists.linux.dev"
+    },
+    {
+      "id": "1a02b2c04d658735",
+      "msgId": "<178743062214.1819488.4090246622562487688.git-patchwork-notify@kernel.org>",
+      "inReplyTo": "<20260818073309.2266072-1-vnagare@redhat.com>",
+      "references": "<20260818073309.2266072-1-vnagare@redhat.com>",
+      "title": "Re: [PATCH net v5] qede: Fix NULL pointer dereference in TPA fragment processing",
+      "updated": "Sat, 22 Aug 2026 20:30:22 +0000",
+      "authorName": "patchwork-bot+netdevbpf@kernel.org",
+      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
+      "content": "Hello:\r\n\r\nThis patch was applied to netdev/net.git (main)\r\nby Jakub Kicinski <kuba@kernel.org>:\r\n\r\nOn Tue, 18 Aug 2026 13:03:09 +0530 you wrote:\r\n> Under memory pressure, the qede driver encounters NULL pointer\r\n> dereferences when processing TPA continuation fragments.\r\n> \r\n> Commit 8a8633978b84 (\"qede: Add build_skb() support.\") accidentally\r\n> dropped the assignment of tpa_info->buffer.data in qede_tpa_start().\r\n> \r\n> When memory pressure causes an SKB allocation failure in qede_tpa_start(),\r\n> the driver sets tpa_start_fail = true and attempts to recycle the physical\r\n> page later in qede_tpa_end() via qede_reuse_page(). However, because\r\n> buffer.data was left uninitialized (NULL), qede_reuse_page() pushes a\r\n> \"ghost\" BD (valid DMA mapping but NULL data pointer) back into the\r\n> active Rx ring.\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [net,v5] qede: Fix NULL pointer dereference in TPA fragment processing\r\n    https://git.kernel.org/netdev/net/c/06aa3d26327f\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Vaibhav Nagare <nagarevaibhav@gmail.com>",
+      "cc": "horms@kernel.org, davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, edumazet@google.com, andrew+netdev@lunn.ch, matvey.kovalev@ispras.ru, Pavel.Zhigulin@kaspersky.com, aelior@marvell.com, manishc@marvell.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, vnagare@redhat.com"
+    },
     {
       "id": "1a02b281f44a3dff",
       "msgId": "<20260822202659.4168893-1-lihaofeng@kylinos.cn>",
@@ -13918,20 +13988,6 @@
       "cc": "arnd@arndb.de, rosenp@gmail.com, chancel.liu@nxp.com, jonsmirl@gmail.com, linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org, Julian Braha <julianbraha@gmail.com>"
     },
     {
-      "id": "1a02574c3a1c1e2b",
-      "msgId": "<20260821175312.GA3141245@google.com>",
-      "inReplyTo": "<20260821144323.776371-1-thuth@redhat.com>",
-      "references": "<20260821144323.776371-1-thuth@redhat.com>",
-      "title": "Re: [PATCH] libceph: Re-establish the FIPS keylength check in the Ceph code",
-      "updated": "Fri, 21 Aug 2026 17:53:12 +0000",
-      "authorName": "Eric Biggers",
-      "authorEmail": "ebiggers@kernel.org",
-      "content": "On Fri, Aug 21, 2026 at 04:43:22PM +0200, Thomas Huth wrote:\r\n> When the Ceph code had been updated to use the libcrypto hmac_sha256\r\n> functions instead of the \"hmac(sha256)\" crypto shash driver, we lost\r\n> the FIPS key length check from  hmac_setkey() in crypto/hmac.c.\r\n\r\nWell, except on s390 which already didn't do the FIPS key length check.\r\n\r\n> @@ -720,6 +722,9 @@ static int setup_crypto(struct ceph_connection *con,\r\n>  \t\treturn 0;  /* auth_none */\r\n>  \t}\r\n>  \r\n> +\tif (fips_enabled && session_key_len < 112 / 8)\r\n> +\t\treturn -EKEYREJECTED;\r\n> +\r\n\r\nI assume it's intentional that auth_none is still FIPS-allowed?  Kind of\r\nironic.\r\n\r\nDo Ceph session keys shorter than 128 bits even actually occur in\r\npractice?  It seems that the Ceph authenticated modes support only\r\nAES-based cipher suites, where the minimum valid session key length is\r\n128 bits.\r\n\r\nI wonder if the client should just reject session_key_len < 16\r\nregardless of fips_enabled.\r\n\r\n- Eric\r\n\r\n",
-      "listType": "LKML",
-      "to": "Thomas Huth <thuth@redhat.com>",
-      "cc": "Ilya Dryomov <idryomov@gmail.com>, Alex Markuze <amarkuze@redhat.com>, Viacheslav Dubeyko <slava@dubeyko.com>, Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>, ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
       "id": "1a02574c70cc5717",
       "msgId": "<aoiQPrudvYZ76ZSD@cmpxchg.org>",
       "inReplyTo": "<CAJnrk1bFq7J7K0=X67voeZVkAb0dmiLkqomuQ+VcXBLyP5hMVg@mail.gmail.com>",
@@ -13944,62 +14000,6 @@
       "listType": "LKML",
       "to": "Joanne Koong <joannelkoong@gmail.com>",
       "cc": "Yosry Ahmed <yosry@kernel.org>, Song Hu <husong@kylinos.cn>, Shakeel Butt <shakeel.butt@linux.dev>, akpm@linux-foundation.org, linux-mm@kvack.org, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, nphamcs@gmail.com, chengming.zhou@linux.dev, yunzhao@cloudflare.com"
-    },
-    {
-      "id": "1a02573973a32295",
-      "msgId": "<7ce13e6d-0da6-4d6c-a05b-3ad5e67499f4@amd.com>",
-      "inReplyTo": "<20260821033543.1839719-1-lizhi.hou@amd.com>",
-      "references": "<20260821033543.1839719-1-lizhi.hou@amd.com>",
-      "title": "Re: [PATCH V1] accel/amdxdna: Remove __counted_by from struct amdxdna_cmd_chain",
-      "updated": "Fri, 21 Aug 2026 10:50:44 -0700",
-      "authorName": "Max Zhen",
-      "authorEmail": "max.zhen@amd.com",
-      "content": "\r\n\r\nOn 8/20/2026 Thu 20:35, Lizhi Hou wrote:\r\n> struct amdxdna_cmd_chain contains a flexible array annotated with\r\n> __counted_by(command_count). Since the structure is stored in shared\r\n> AMDXDNA_BO_SHARE memory, userspace can modify command_count concurrently.\r\n> If command_count is changed to zero, the bounds check generated from\r\n> __counted_by may fail and trigger a kernel panic.\r\n> \r\n> Remove __counted_by to avoid relying on the userspace-controlled\r\n> command_count for the flexible array bounds check.\r\n> \r\n> Fixes: aac243092b70 (\"accel/amdxdna: Add command execution\")\r\n> Signed-off-by: Lizhi Hou <lizhi.hou@amd.com>\r\nReviewed-by: Max Zhen <max.zhen@amd.com>\r\n> ---\r\n>   drivers/accel/amdxdna/amdxdna_ctx.h | 2 +-\r\n>   1 file changed, 1 insertion(+), 1 deletion(-)\r\n> \r\n> diff --git a/drivers/accel/amdxdna/amdxdna_ctx.h b/drivers/accel/amdxdna/amdxdna_ctx.h\r\n> index e6155f4b5db0..010538cb05a3 100644\r\n> --- a/drivers/accel/amdxdna/amdxdna_ctx.h\r\n> +++ b/drivers/accel/amdxdna/amdxdna_ctx.h\r\n> @@ -56,7 +56,7 @@ struct amdxdna_cmd_chain {\r\n>   \tu32 submit_index;\r\n>   \tu32 error_index;\r\n>   \tu32 reserved[3];\r\n> -\tu64 data[] __counted_by(command_count);\r\n> +\tu64 data[];\r\n>   };\r\n>   \r\n>   /*\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Lizhi Hou <lizhi.hou@amd.com>, <ogabbay@kernel.org>, <quic_jhugo@quicinc.com>, <dri-devel@lists.freedesktop.org>, <mario.limonciello@amd.com>, <karol.wachowski@linux.intel.com>",
-      "cc": "<linux-kernel@vger.kernel.org>, <sonal.santan@amd.com>"
-    },
-    {
-      "id": "1a0257348fa5a59b",
-      "msgId": "<4f0522e1-283f-4153-bbf7-2fa2c8b25b27@amd.com>",
-      "inReplyTo": "<20260813205016.941743-1-lizhi.hou@amd.com>",
-      "references": "<20260813205016.941743-1-lizhi.hou@amd.com>",
-      "title": "Re: [PATCH V2] accel/amdxdna: Fix unexpected wait when flushing notifier_wq",
-      "updated": "Fri, 21 Aug 2026 10:50:28 -0700",
-      "authorName": "Max Zhen",
-      "authorEmail": "max.zhen@amd.com",
-      "content": "\r\n\r\nOn 8/13/2026 Thu 13:50, Lizhi Hou wrote:\r\n> In amdxdna_gem_obj_free(), flush_workqueue(xdna->notifier_wq) waits for\r\n> all pending work items on the device-global notifier workqueue, rather\r\n> than only the work items associated with the BO being freed.\r\n> \r\n> If another BO has a pending hmm_unreg_work, freeing an unrelated BO can\r\n> be unnecessarily blocked until that work completes.\r\n> \r\n> mmu_interval_notifier_remove() is deferred to a workqueue because it\r\n> cannot be called from the MMU notifier callback itself. The BO free path\r\n> is not a notifier callback, so call mmu_interval_notifier_remove()\r\n> directly there and avoid the workqueue.\r\n> \r\n> Fixes: e486147c912f (\"accel/amdxdna: Add BO import and export\")\r\n> Signed-off-by: Lizhi Hou <lizhi.hou@amd.com>\r\nReviewed-by: Max Zhen <max.zhen@amd.com>\r\n> ---\r\n> V2:\r\n>    Fix sashiko comment.\r\n> \r\n>   drivers/accel/amdxdna/amdxdna_gem.c | 69 +++++++++++++++++++----------\r\n>   drivers/accel/amdxdna/amdxdna_gem.h |  1 +\r\n>   2 files changed, 47 insertions(+), 23 deletions(-)\r\n> \r\n> diff --git a/drivers/accel/amdxdna/amdxdna_gem.c b/drivers/accel/amdxdna/amdxdna_gem.c\r\n> index 1c63eff0a4a8..1c17122d1327 100644\r\n> --- a/drivers/accel/amdxdna/amdxdna_gem.c\r\n> +++ b/drivers/accel/amdxdna/amdxdna_gem.c\r\n> @@ -253,13 +253,16 @@ static bool amdxdna_hmm_invalidate(struct mmu_interval_notifier *mni,\r\n>   \tstruct amdxdna_gem_obj *abo = mapp->abo;\r\n>   \tstruct amdxdna_dev *xdna;\r\n>   \r\n> +\tif (!mmu_notifier_range_blockable(range))\r\n> +\t\treturn false;\r\n> +\r\n> +\tif (mapp->unmapped)\r\n> +\t\treturn true;\r\n> +\r\n>   \txdna = to_xdna_dev(to_gobj(abo)->dev);\r\n>   \tXDNA_DBG(xdna, \"Invalidating range 0x%lx, 0x%lx, type %d\",\r\n>   \t\t mapp->range.start, mapp->range.end, abo->type);\r\n>   \r\n> -\tif (!mmu_notifier_range_blockable(range))\r\n> -\t\treturn false;\r\n> -\r\n>   \tdown_write(&xdna->notifier_lock);\r\n>   \tabo->mem.map_invalid = true;\r\n>   \tmapp->invalid = true;\r\n> @@ -301,33 +304,40 @@ static void amdxdna_hmm_unregister(struct amdxdna_gem_obj *abo,\r\n>   \r\n>   \tdown_write(&xdna->notifier_lock);\r\n>   \tlist_for_each_entry(mapp, &abo->mem.umap_list, node) {\r\n> -\t\tif (!vma || compare_range(mapp, vma->vm_mm, vma->vm_start, vma->vm_end)) {\r\n> -\t\t\tif (!mapp->unmapped) {\r\n> -\t\t\t\tqueue_work(xdna->notifier_wq, &mapp->hmm_unreg_work);\r\n> -\t\t\t\tmapp->unmapped = true;\r\n> -\t\t\t}\r\n> -\t\t\tif (vma)\r\n> -\t\t\t\tbreak;\r\n> -\t\t}\r\n> +\t\tif (!compare_range(mapp, vma->vm_mm, vma->vm_start, vma->vm_end))\r\n> +\t\t\tcontinue;\r\n> +\r\n> +\t\tqueue_work(xdna->notifier_wq, &mapp->hmm_unreg_work);\r\n> +\t\tmapp->unmapped = true;\r\n>   \t}\r\n>   \tup_write(&xdna->notifier_lock);\r\n>   }\r\n>   \r\n> -static void amdxdna_umap_release(struct kref *ref)\r\n> +static void amdxdna_hmm_unregister_all(struct amdxdna_gem_obj *abo)\r\n>   {\r\n> -\tstruct amdxdna_umap *mapp = container_of(ref, struct amdxdna_umap, refcnt);\r\n> -\tstruct amdxdna_gem_obj *abo = mapp->abo;\r\n> -\tstruct amdxdna_dev *xdna;\r\n> -\r\n> -\tmmu_interval_notifier_remove(&mapp->notifier);\r\n> +\tstruct amdxdna_dev *xdna = to_xdna_dev(to_gobj(abo)->dev);\r\n> +\tstruct amdxdna_umap *mapp, *tmp;\r\n> +\tLIST_HEAD(dead);\r\n>   \r\n> -\txdna = to_xdna_dev(to_gobj(mapp->abo)->dev);\r\n>   \tdown_write(&xdna->notifier_lock);\r\n> -\tlist_del(&mapp->node);\r\n> -\tif (list_empty(&abo->mem.umap_list))\r\n> -\t\tabo->mem.uva = AMDXDNA_INVALID_ADDR;\r\n> +\tlist_for_each_entry_safe(mapp, tmp, &abo->mem.umap_list, node) {\r\n> +\t\tmapp->unmapped = true;\r\n> +\t\tmapp->cleanup = true;\r\n> +\t\tlist_move(&mapp->node, &dead);\r\n> +\t}\r\n>   \tup_write(&xdna->notifier_lock);\r\n>   \r\n> +\tlist_for_each_entry_safe(mapp, tmp, &dead, node) {\r\n> +\t\tcancel_work_sync(&mapp->hmm_unreg_work);\r\n> +\t\tamdxdna_umap_put(mapp);\r\n> +\t}\r\n> +}\r\n> +\r\n> +static void amdxdna_umap_release(struct kref *ref)\r\n> +{\r\n> +\tstruct amdxdna_umap *mapp = container_of(ref, struct amdxdna_umap, refcnt);\r\n> +\r\n> +\tmmu_interval_notifier_remove(&mapp->notifier);\r\n>   \tkvfree(mapp->range.hmm_pfns);\r\n>   \tkfree(mapp);\r\n>   }\r\n> @@ -341,6 +351,20 @@ static void amdxdna_hmm_unreg_work(struct work_struct *work)\r\n>   {\r\n>   \tstruct amdxdna_umap *mapp = container_of(work, struct amdxdna_umap,\r\n>   \t\t\t\t\t\t hmm_unreg_work);\r\n> +\tstruct amdxdna_gem_obj *abo = mapp->abo;\r\n> +\tstruct amdxdna_dev *xdna;\r\n> +\r\n> +\txdna = to_xdna_dev(to_gobj(mapp->abo)->dev);\r\n> +\tdown_write(&xdna->notifier_lock);\r\n> +\tif (mapp->cleanup) {\r\n> +\t\tup_write(&xdna->notifier_lock);\r\n> +\t\treturn;\r\n> +\t}\r\n> +\r\n> +\tlist_del(&mapp->node);\r\n> +\tif (list_empty(&abo->mem.umap_list))\r\n> +\t\tabo->mem.uva = AMDXDNA_INVALID_ADDR;\r\n> +\tup_write(&xdna->notifier_lock);\r\n>   \r\n>   \tamdxdna_umap_put(mapp);\r\n>   }\r\n> @@ -643,8 +667,7 @@ static void amdxdna_gem_obj_free(struct drm_gem_object *gobj)\r\n>   \tstruct amdxdna_dev *xdna = to_xdna_dev(gobj->dev);\r\n>   \tstruct amdxdna_gem_obj *abo = to_xdna_obj(gobj);\r\n>   \r\n> -\tamdxdna_hmm_unregister(abo, NULL);\r\n> -\tflush_workqueue(xdna->notifier_wq);\r\n> +\tamdxdna_hmm_unregister_all(abo);\r\n>   \r\n>   \tif (abo->pinned)\r\n>   \t\tamdxdna_gem_unpin(abo);\r\n> diff --git a/drivers/accel/amdxdna/amdxdna_gem.h b/drivers/accel/amdxdna/amdxdna_gem.h\r\n> index 1e90e32bf3cd..fb033ced1045 100644\r\n> --- a/drivers/accel/amdxdna/amdxdna_gem.h\r\n> +++ b/drivers/accel/amdxdna/amdxdna_gem.h\r\n> @@ -20,6 +20,7 @@ struct amdxdna_umap {\r\n>   \tstruct kref\t\t\trefcnt;\r\n>   \tbool\t\t\t\tinvalid;\r\n>   \tbool\t\t\t\tunmapped;\r\n> +\tbool\t\t\t\tcleanup;\r\n>   };\r\n>   \r\n>   struct amdxdna_mem {\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Lizhi Hou <lizhi.hou@amd.com>, <ogabbay@kernel.org>, <quic_jhugo@quicinc.com>, <dri-devel@lists.freedesktop.org>, <mario.limonciello@amd.com>, <karol.wachowski@linux.intel.com>",
-      "cc": "<linux-kernel@vger.kernel.org>, <sonal.santan@amd.com>"
-    },
-    {
-      "id": "1a02572dc9fef7b0",
-      "msgId": "<178733460914.1412990.11377910972320071983.git-patchwork-notify@kernel.org>",
-      "inReplyTo": "<20260813160858.1042834-3-sh_def@163.com>",
-      "references": "<20260813160858.1042834-3-sh_def@163.com>",
-      "title": "Re: [PATCH bpf v2] bpf: fix BPF_F_CPU validation for sparse CPU IDs",
-      "updated": "Fri, 21 Aug 2026 17:50:09 +0000",
-      "authorName": "patchwork-bot+netdevbpf@kernel.org",
-      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
-      "content": "Hello:\r\n\r\nThis patch was applied to bpf/bpf.git (master)\r\nby Andrii Nakryiko <andrii@kernel.org>:\r\n\r\nOn Fri, 14 Aug 2026 00:09:00 +0800 you wrote:\r\n> BPF_F_CPU stores the target CPU ID in the upper 32 bits of the map\r\n> operation flags. bpf_map_check_op_flags() currently compares that ID\r\n> with num_possible_cpus(), which is the number of possible CPUs rather\r\n> than a bound on CPU IDs.\r\n> \r\n> On an arm64 QEMU guest with a CPU device-tree hole, the possible CPU\r\n> mask was 0,2-3. A userspace program using raw bpf() syscalls creates\r\n> a BPF_MAP_TYPE_PERCPU_ARRAY and performs update and lookup operations\r\n> for each CPU by setting BPF_F_CPU and the CPU ID in the flags.\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [bpf,v2] bpf: fix BPF_F_CPU validation for sparse CPU IDs\r\n    https://git.kernel.org/bpf/bpf/c/ed54bf564ac5\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Hui Su <sh_def@163.com>",
-      "cc": "ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, eddyz87@gmail.com, memxor@gmail.com, leon.hwang@linux.dev, martin.lau@linux.dev, song@kernel.org, yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, john.fastabend@gmail.com, bpf@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a02572b83de0082",
-      "msgId": "<178733460765.1412990.8574022020312732917.git-patchwork-notify@kernel.org>",
-      "inReplyTo": "<20260813155131.1022745-3-sh_def@163.com>",
-      "references": "<20260813155131.1022745-3-sh_def@163.com>",
-      "title": "Re: [PATCH bpf v2] bpf: fix percpu map update indexing with sparse CPU IDs",
-      "updated": "Fri, 21 Aug 2026 17:50:07 +0000",
-      "authorName": "patchwork-bot+netdevbpf@kernel.org",
-      "authorEmail": "patchwork-bot+netdevbpf@kernel.org",
-      "content": "Hello:\r\n\r\nThis patch was applied to bpf/bpf.git (master)\r\nby Andrii Nakryiko <andrii@kernel.org>:\r\n\r\nOn Thu, 13 Aug 2026 23:51:33 +0800 you wrote:\r\n> Per-CPU array, hash, and cgroup storage map updates without BPF_F_CPU\r\n> or BPF_F_ALL_CPUS use a value buffer whose per-CPU slots are packed in\r\n> possible-CPU order. The buffer is sized as:\r\n> \r\n>   round_up(value_size, 8) * num_possible_cpus()\r\n> \r\n> The update paths iterate over possible CPUs, but use the logical CPU ID\r\n> to calculate the source offset:\r\n> \r\n> [...]\r\n\r\nHere is the summary with links:\r\n  - [bpf,v2] bpf: fix percpu map update indexing with sparse CPU IDs\r\n    https://git.kernel.org/bpf/bpf/c/75b0a6db4300\r\n\r\nYou are awesome, thank you!\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/patchwork/pwbot.html\r\n\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Hui Su <sh_def@163.com>",
-      "cc": "bpf@vger.kernel.org, ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, leon.hwang@linux.dev, eddyz87@gmail.com, memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, linux-kernel@vger.kernel.org"
     }
   ]
 }
