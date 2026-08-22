@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-08-22T15:30:20.964Z",
+  "timestamp": "2026-08-22T15:47:03.702Z",
   "entries": [
+    {
+      "id": "1a02a1bbcbcb61a4",
+      "msgId": "<7f59aa09-87ea-4950-9db5-c7d6ab0ed187@I-love.SAKURA.ne.jp>",
+      "inReplyTo": "<7c77c2f4-a46d-4448-a366-e91e02a56993@I-love.SAKURA.ne.jp>",
+      "references": "<7c77c2f4-a46d-4448-a366-e91e02a56993@I-love.SAKURA.ne.jp>",
+      "title": "Re: [PATCH v4] hpfs: obsolete check=none mount option",
+      "updated": "Sun, 23 Aug 2026 00:33:18 +0900",
+      "authorName": "Tetsuo Handa",
+      "authorEmail": "penguin-kernel@i-love.sakura.ne.jp",
+      "content": "On 2026/08/23 0:16, Tetsuo Handa wrote:\r\n> syzbot is reporting use-after-free read problems when a crafted HPFS image\r\n> was mounted with \"check=none\" option. We should fix code that results in\r\n> use-after-free bugs in the kernel space.\r\n> \r\n> This patch obsoletes \"check=none\" option, but this patch does not eliminate\r\n> \"check=none\" option itself in order not to break existing scripts or\r\n> /etc/fstab configurations that people may have. This patch instead\r\n> eliminates sb_chk != 0 test that becomes redundant. But in order to keep\r\n> this patch minimal, this patch does not fix coding style problems.\r\n> \r\n> Reported-by: syzbot+fa88eb476e42878f2844@syzkaller.appspotmail.com\r\n> Closes: https://syzkaller.appspot.com/bug?extid=fa88eb476e42878f2844\r\n> Reported-by: syzbot+8debf4b3f7c7391cd8eb@syzkaller.appspotmail.com\r\n> Closes: https://syzkaller.appspot.com/bug?extid=8debf4b3f7c7391cd8eb\r\n> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>\r\n> ---\r\n> Resending v4 patch. It seems that sashiko.dev is now running a version\r\n> which includes https://github.com/sashiko-dev/sashiko/issues/320 .\r\n> I guess sashiko.dev can review this time...\r\n> \r\n>  fs/hpfs/alloc.c |  4 ++--\r\n>  fs/hpfs/anode.c | 13 ++++---------\r\n>  fs/hpfs/dir.c   |  5 ++---\r\n>  fs/hpfs/dnode.c | 19 ++++---------------\r\n>  fs/hpfs/map.c   | 14 +++++++-------\r\n>  fs/hpfs/super.c | 10 +++++-----\r\n>  6 files changed, 24 insertions(+), 41 deletions(-)\r\n\r\nsashiko did not find problems with this patch. But sashiko found two pre-existing issues.\r\n\r\nhttps://sashiko.dev/#/patchset/7c77c2f4-a46d-4448-a366-e91e02a56993%40I-love.SAKURA.ne.jp\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Mikulas Patocka <mpatocka@redhat.com>, LKML <linux-kernel@vger.kernel.org>",
+      "cc": "Deepanshu Kartikey <kartikey406@gmail.com>, William Theesfeld <william@theesfeld.net>"
+    },
+    {
+      "id": "1a02a1b3445667de",
+      "msgId": "<20260822153245.423259-1-maxime.chevallier@bootlin.com>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH net] net: stmmac: selftests: Pass the IP proto mask in the TC selftest",
+      "updated": "Sat, 22 Aug 2026 17:32:43 +0200",
+      "authorName": "Maxime Chevallier",
+      "authorEmail": "maxime.chevallier@bootlin.com",
+      "content": "The stmmac TC filtering rules have recently gained sanity checks to make\r\nsure the passed keys and their respective masks are aligned with the HW\r\nfiltering abilities.\r\n\r\nThe stmmac selftests failed to pass the mask in the match data for L4\r\nfiltering tests, and are now failing consistently with -EINVAL :\r\n\r\n$ ethtool -t eth1\r\n[...]\r\n23. L4 DA TCP Filtering          -22\r\n24. L4 SA TCP Filtering          -22\r\n25. L4 DA UDP Filtering          -22\r\n26. L4 SA UDP Filtering          -22\r\n\r\nLet's pass the ip_proto mask in the l4 filtering tests match data. Found\r\non imx8mp, which now have passing L4 tests :\r\n\r\n$ ethtool -t eth1\r\n[...]\r\n23. L4 DA TCP Filtering          0\r\n24. L4 SA TCP Filtering          0\r\n25. L4 DA UDP Filtering          0\r\n26. L4 SA UDP Filtering          0\r\n\r\nFixes: 5536d7c84363 (\"net: stmmac: fix l3l4 filter rejecting unsupported offload requests\")\r\nSigned-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>\r\n---\r\n drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c | 2 ++\r\n 1 file changed, 2 insertions(+)\r\n\r\ndiff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c\r\nindex 1df26c217f9a..e9be4d7cbb82 100644\r\n--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c\r\n+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c\r\n@@ -1489,6 +1489,8 @@ static int __stmmac_test_l4filt(struct stmmac_priv *priv, u32 dst, u32 src,\r\n \tkeys.bkey.ip_proto = udp ? IPPROTO_UDP : IPPROTO_TCP;\r\n \tkeys.key.src = htons(src);\r\n \tkeys.key.dst = htons(dst);\r\n+\t/* Match the full IP proto field */\r\n+\tmasks.bmask.ip_proto = 0xff;\r\n \tmasks.mask.src = src_mask;\r\n \tmasks.mask.dst = dst_mask;\r\n \r\n-- \r\n2.55.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Andrew Lunn <andrew+netdev@lunn.ch>, davem@davemloft.net, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Russell King <linux@armlinux.org.uk>, Heiner Kallweit <hkallweit1@gmail.com>, \"Alexis Lothoré\" <alexis.lothore@bootlin.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>",
+      "cc": "Maxime Chevallier <maxime.chevallier@bootlin.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, Nazim Amirul <muhammad.nazim.amirul.nazle.asmade@altera.com>"
+    },
     {
       "id": "1a02a122fb30b5e5",
       "msgId": "<20260822112248.1b7e1b1d@fedora>",
@@ -13946,20 +13974,6 @@
       "cc": "Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shuah Khan <shuah@kernel.org>, Andrey Konovalov <andreyknvl@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Amit Daniel Kachhap <amit.kachhap@arm.com>, Yeoreum Yun <yeoreum.yun@arm.com>, open list <linux-kernel@vger.kernel.org>, \"moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)\" <linux-arm-kernel@lists.infradead.org>, \"open list:KERNEL SELFTEST FRAMEWORK\" <linux-kselftest@vger.kernel.org>"
     },
     {
-      "id": "1a0251426ab3fc24",
-      "msgId": "<aohiK3N9IVncuRbI@gmail.com>",
-      "inReplyTo": "<CAL3q7H4MW6AXhz=EnEawJNU_OEFVqdeXUaivY30cb1Lqxeqdfg@mail.gmail.com>",
-      "references": "<20260821-b4-btrfs-em-shrinker-v1-1-286f3fb15873@debian.org> <CAL3q7H4MW6AXhz=EnEawJNU_OEFVqdeXUaivY30cb1Lqxeqdfg@mail.gmail.com>",
-      "title": "Re: [PATCH] btrfs: skip the extent map tree lock for inodes without extent maps",
-      "updated": "Fri, 21 Aug 2026 09:07:23 -0700",
-      "authorName": "Breno Leitao",
-      "authorEmail": "leitao@debian.org",
-      "content": "Hello Filipe,\r\n\r\nOn Fri, Aug 21, 2026 at 12:17:26PM +0100, Filipe Manana wrote:\r\n> On Fri, Aug 21, 2026 at 11:39 AM Breno Leitao <leitao@debian.org> wrote:\r\n> > +               if (!READ_ONCE(tree->root.rb_node))\r\n> \r\n> Please use the proper rbtree api to check if a tree is empty:\r\n> \r\n> RB_EMPTY_ROOT(&tree->root)\r\n> \r\n> That's a lot more elegant and hides the use of READ_ONCE().\r\n> \r\n> But really when there are harmless races, I like to see an explicit\r\n> data_race() annotation and a comment about why the race is harmless.\r\n> \r\n> Nevertheless, first, I would like to know how much the performance\r\n> improvement was...\r\n\r\nSorry for not posting it earlier.\r\n\r\nHow I got into this: I've found while profiling arm64 production hosts\r\nthat had high system utilization and : _raw_write_trylock and xa_find\r\ndominated, and the callchain pointed at find_first_inode_to_shrink()\r\nlocking every inode it walks.\r\n\r\nLooking at the whole the Meta production fleet, the extent map shrinker\r\nis ~0.35% of non-idle kernel CPU.  Within it, and attributing callees to\r\ntheir caller, find_first_inode_to_shrink() is ~65% and the\r\nwrite_trylock() it does is ~30% of the whole shrinker. Two thirds of\r\nwhat the shrinker costs is looking for inodes that have anything to\r\nshrink, and half of that is a lock we do not need to take.\r\n\r\n\r\nmicro benchmarks\r\n================\r\n\r\nI've hacked up a 6 GiB btrfs on a loop device, 100000 empty files\r\nkept open, plus 200 1 MiB files created last, so they have the highest\r\ninode numbers and every scan has to walk all the empty ones first.\r\n\r\nEach round drops the page cache, re-reads the data files to recreate the\r\nextent maps, then triggers the shrinker with \"echo\r\n2 > /proc/sys/vm/drop_caches\". 15 rounds per run, arm64 (Neoverse V2),\r\n8 CPUs, no lock debugging, cost of find_first_inode_to_shrink() from the\r\n ftrace function profiler:\r\n\r\n  ns per inode walked, median of runs\r\n\r\n                          base   patched    delta\r\n    idle                  46.4      40.1   -13.6%\r\n    4 concurrent readers  47.8      38.4   -19.7%\r\n\r\nA separate build with CONFIG_LOCK_STAT, same test, for the extent map\r\ntree rwlock.  Note the shrinker is not the only user of that lock, every\r\nextent map insert and lookup takes it too, which is why the acquisition\r\ncount drops by two thirds rather than to nothing:\r\n\r\n                              base   patched    delta\r\n    write acquisitions      628016    228000   -63.7%\r\n    hold time total (us)     47512     22717   -52.2%\r\n    acq cacheline bounces     1574      1288   -18.2%\r\n\r\nDoes it help?\r\n\r\nThanks for the quick reply,\r\n--breno\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Filipe Manana <fdmanana@kernel.org>",
-      "cc": "Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, fdmanana@suse.com, boris@bur.io, wqu@suse.com, layton@kernel.org, linux-btrfs@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@meta.com"
-    },
-    {
       "id": "1a0251658489e3db",
       "msgId": "<20260821-temp-v3-2-9ac1f8806929@ti.com>",
       "inReplyTo": "<20260821-temp-v3-0-9ac1f8806929@ti.com>",
@@ -13983,20 +13997,6 @@
       "authorName": "Kendall Willis",
       "authorEmail": "k-willis@ti.com",
       "content": "Add the out-band-wakeup property as a possible property. The property\r\nindicates that the device can wakeup the system even when its power\r\ndomain is off.\r\n\r\nSigned-off-by: Kendall Willis <k-willis@ti.com>\r\n---\r\n Documentation/devicetree/bindings/net/can/bosch,m_can.yaml | 2 ++\r\n 1 file changed, 2 insertions(+)\r\n\r\ndiff --git a/Documentation/devicetree/bindings/net/can/bosch,m_can.yaml b/Documentation/devicetree/bindings/net/can/bosch,m_can.yaml\r\nindex 2c9d37975bedd652b3060ab11ba75c37565edaad..0663beaa532bcc4a71cd6ad01520a4dfea294d0c 100644\r\n--- a/Documentation/devicetree/bindings/net/can/bosch,m_can.yaml\r\n+++ b/Documentation/devicetree/bindings/net/can/bosch,m_can.yaml\r\n@@ -150,6 +150,8 @@ properties:\r\n     description:\r\n       List of phandles to system idle states in which mcan can wakeup the system.\r\n \r\n+  out-band-wakeup: true\r\n+\r\n required:\r\n   - compatible\r\n   - reg\r\n\r\n-- \r\n2.34.1\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Markus Schneider-Pargmann <msp@baylibre.com>, Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Chandrasekar Ramakrishnan <rcsekar@samsung.com>",
-      "cc": "<s-kochidanadu@ti.com>, <a-kaur@ti.com>, <s-tripathi1@ti.com>, <vishalm@ti.com>, <k-willis@ti.com>, <linux-can@vger.kernel.org>, <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>"
-    },
-    {
-      "id": "1a025151b0c12bc3",
-      "msgId": "<20260821-temp-v3-0-9ac1f8806929@ti.com>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH v3 0/2] can: m_can: support out-of-band wakeup capability",
-      "updated": "Fri, 21 Aug 2026 11:06:59 -0500",
-      "authorName": "Kendall Willis",
-      "authorEmail": "k-willis@ti.com",
-      "content": "This series adds support for the out-of-band wakeup capability in the m_can\r\ndriver. Some CAN devices are wakeup capable and can wake up the system\r\nwhile being in a domain that is OFF. Allow the driver to set the\r\nout-of-band wakeup flag during suspend if the \"out-band-wakeup\" property\r\nis present in the device tree.\r\n\r\nA corresponding DTS series enabling this feature on TI K3 AM62A, AM62D,\r\nAM62P, and AM62X-LP SoCs has been submitted separately:\r\n\"arm64: dts: ti: add out-band-wakeup property to m_can devices\"\r\n\r\nDependency\r\n----------\r\nThe DT bindings are dependent on this PR in the dt-schema repository,\r\nwhich defines the out-band-wakeup property:\r\nhttps://github.com/devicetree-org/dt-schema/pull/205\r\n\r\nTesting\r\n-------\r\nTested suspend/resume with CAN wakeup on AM62P SK EVM.\r\n\r\nSigned-off-by: Kendall Willis <k-willis@ti.com>\r\n---\r\nChanges in v3:\r\n- Remove definition of \"out-band-wakeup\" property in dt binding.\r\n- Allow \"out-band-wakeup\" property in dt binding.\r\n- Link to v2: https://lore.kernel.org/r/20260820-temp-v2-0-dd3f8cacc15e@ti.com\r\n\r\nChanges in v2:\r\n- Create \"out-band-wakeup\" property in dt bindings.\r\n- Use \"out-band-wakeup\" property to set the out_band_wakeup flag upon\r\n  suspend.\r\n- Rebase to v7.2\r\n- Link to v1: https://lore.kernel.org/r/20260213-mcan-out-of-band-v1-1-af68d4c570b3@ti.com\r\n\r\n---\r\nKendall Willis (2):\r\n      dt-bindings: can: m_can: add out-band-wakeup property\r\n      can: m_can: set out-of-band wakeup if wakeup pinctrl exists\r\n\r\n Documentation/devicetree/bindings/net/can/bosch,m_can.yaml | 2 ++\r\n drivers/net/can/m_can/m_can.c                              | 6 +++++-\r\n 2 files changed, 7 insertions(+), 1 deletion(-)\r\n---\r\nbase-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f\r\nchange-id: 20260819-temp-93299bee27b7\r\n\r\nBest regards,\r\n-- \r\nKendall Willis <k-willis@ti.com>\r\n\r\n\r\n",
       "listType": "LKML",
       "to": "Markus Schneider-Pargmann <msp@baylibre.com>, Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Chandrasekar Ramakrishnan <rcsekar@samsung.com>",
       "cc": "<s-kochidanadu@ti.com>, <a-kaur@ti.com>, <s-tripathi1@ti.com>, <vishalm@ti.com>, <k-willis@ti.com>, <linux-can@vger.kernel.org>, <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>"
