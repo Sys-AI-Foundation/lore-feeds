@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-22T10:30:04.047Z",
+  "timestamp": "2026-08-22T10:49:03.144Z",
   "entries": [
+    {
+      "id": "1a0290ec101a7db0",
+      "msgId": "<6a897c8e.dbb3a75c.13dd47.002f.GAE@google.com>",
+      "inReplyTo": "<67bd6bef.050a0220.bbfd1.009d.GAE@google.com>",
+      "references": "",
+      "title": "Forwarded: [PATCH] fbcon: Fix KASAN slab-out-of-bounds Read in fbcon_prepare_logo",
+      "updated": "Sat, 22 Aug 2026 03:40:14 -0700",
+      "authorName": "syzbot",
+      "authorEmail": "syzbot+0c815b25cdb3678e7083@syzkaller.appspotmail.com",
+      "content": "For archival purposes, forwarding an incoming command email to\r\nlinux-kernel@vger.kernel.org.\r\n\r\n***\r\n\r\nSubject: [PATCH] fbcon: Fix KASAN slab-out-of-bounds Read in fbcon_prepare_logo\r\nAuthor: deller@kernel.org\r\n\r\n#syz test\r\n\r\nEnsure the logo will not exceed the screen size, which then should\r\nfix a reported KASAN: slab-out-of-bounds Read in fbcon_prepare_logo.\r\n\r\nReported-by: syzbot+0c815b25cdb3678e7083@syzkaller.appspotmail.com\r\nLink: https://syzkaller.appspot.com/bug?extid=0c815b25cdb3678e7083\r\nSigned-off-by: Helge Deller <deller@gmx.de>\r\n\r\ndiff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c\r\nindex 23b3c536d53d..01715873ea49 100644\r\n--- a/drivers/video/fbdev/core/fbcon.c\r\n+++ b/drivers/video/fbdev/core/fbcon.c\r\n@@ -660,6 +660,13 @@ static void fbcon_prepare_logo(struct vc_data *vc, struct fb_info *info,\r\n \t\terase &= ~0x400;\r\n \tlogo_height = fb_prepare_logo(info, par->rotate);\r\n \tlogo_lines = DIV_ROUND_UP(logo_height, vc->vc_font.height);\r\n+\tlogo_lines = min(logo_lines, rows);\r\n+\tlogo_lines = min(logo_lines, new_rows - 1);\r\n+\tif (logo_lines <= 0) {\r\n+\t\tlogo_lines = 0;\r\n+\t\tlogo_shown = FBCON_LOGO_DONTSHOW;\r\n+\t\treturn;\r\n+\t}\r\n \tq = (unsigned short *) (vc->vc_origin +\r\n \t\t\t\tvc->vc_size_row * rows);\r\n \tstep = logo_lines * cols;\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "linux-kernel@vger.kernel.org",
+      "cc": ""
+    },
+    {
+      "id": "1a0290b342ef192f",
+      "msgId": "<2026082252-segment-haste-2eb7@gregkh>",
+      "inReplyTo": "<20260822102357.4634-1-erdaitianjiao@gmail.com>",
+      "references": "<20260822102357.4634-1-erdaitianjiao@gmail.com>",
+      "title": "Re: [PATCH] usb: xhci: validate CAPLENGTH in xhci_gen_setup()",
+      "updated": "Sat, 22 Aug 2026 12:34:46 +0200",
+      "authorName": "Greg Kroah-Hartman",
+      "authorEmail": "gregkh@linuxfoundation.org",
+      "content": "On Sat, Aug 22, 2026 at 06:23:57PM +0800, erdaitianjiao wrote:\r\n> xhci_hcd can be bound to arbitrary PCI devices via the\r\n> driver_override sysfs knob. When this happens to a device whose\r\n> MMIO registers are not xHCI capability registers,\r\n> xhci_gen_setup() reads CAPLENGTH from the foreign register\r\n> layout and uses it as a byte offset to compute op_regs.\r\n> \r\n> A non-xHCI device can return a CAPLENGTH value that is\r\n>   - not large enough to fit the capability register block, or\r\n>   - not 4-byte aligned (e.g. the NVMe CAP register's low byte is\r\n>     0xff, which becomes CAPLENGTH = 0xff).\r\n\r\nThat's crazy, and I'm getting tired of rejecting patches like this.\r\nAgain, if you use 'bind' to attach a device to a driver you HAVE to know\r\nwhat you are doing.  Attempting to fix up each and every driver to\r\nhandle this is not ok, and will not happen.\r\n\r\nsorry, syzbot is broken and needs to be fixed,\r\n\r\ngreg k-h\r\n\r\n",
+      "listType": "LKML",
+      "to": "erdaitianjiao <erdaitianjiao@gmail.com>",
+      "cc": "Mathias Nyman <mathias.nyman@intel.com>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a0290a7ec1b3f82",
+      "msgId": "<2026082229-alkalize-animating-bd24@gregkh>",
+      "inReplyTo": "<20260822102357.4634-1-erdaitianjiao@gmail.com>",
+      "references": "<20260822102357.4634-1-erdaitianjiao@gmail.com>",
+      "title": "Re: [PATCH] usb: xhci: validate CAPLENGTH in xhci_gen_setup()",
+      "updated": "Sat, 22 Aug 2026 12:33:45 +0200",
+      "authorName": "Greg Kroah-Hartman",
+      "authorEmail": "gregkh@linuxfoundation.org",
+      "content": "On Sat, Aug 22, 2026 at 06:23:57PM +0800, erdaitianjiao wrote:\r\n> xhci_hcd can be bound to arbitrary PCI devices via the\r\n> driver_override sysfs knob. When this happens to a device whose\r\n> MMIO registers are not xHCI capability registers,\r\n> xhci_gen_setup() reads CAPLENGTH from the foreign register\r\n> layout and uses it as a byte offset to compute op_regs.\r\n> \r\n> A non-xHCI device can return a CAPLENGTH value that is\r\n>   - not large enough to fit the capability register block, or\r\n>   - not 4-byte aligned (e.g. the NVMe CAP register's low byte is\r\n>     0xff, which becomes CAPLENGTH = 0xff).\r\n> \r\n> The unaligned case is especially harmful on arm64: MMIO is\r\n> Device memory and Device-nGnRE accesses require natural\r\n> alignment, so readl(&op_regs->command) faults with an\r\n> alignment exception even when the address is within the\r\n> ioremapped region.\r\n> \r\n> Validate CAPLENGTH in xhci_gen_setup() and fail probe with\r\n> -ENODEV if the value is smaller than 0x20 (capability registers\r\n> are 32 bytes per the xHCI spec), not 4-byte aligned, or leaves\r\n> no room for the operational register space within the mapped\r\n> region.\r\n> \r\n> The run_regs_off read on the next line has the same shape, but\r\n> is not reachable on the xhci_halt code path and is left\r\n> untouched here.\r\n> \r\n> Reproduced on a QEMU virt machine with a syzkaller repro that\r\n> unbinds the NVMe driver on 0000:00:02.0 and binds xhci_hcd via\r\n> driver_override. Before this patch the kernel Oopses and\r\n> panics; after, the probe is rejected cleanly. Ran the repro for\r\n> over two hours (66,709 consecutive probe attempts) with zero\r\n> Oopses.\r\n> \r\n> Reported-by: syzbot+c90273bf9017ef1462af@syzkaller.appspotmail.com\r\n> Closes: https://syzkaller.appspot.com/bug?id=44c85514940262c7e2fad6f8fd0c07d8f2884154\r\n> Fixes: 552e0c4f12fe (\"usb/xhci: move xhci_gen_setup() away from -pci.\")\r\n> Signed-off-by: erdaitianjiao <erdaitianjiao@gmail.com>\r\n> ---\r\n>  drivers/usb/host/xhci.c | 14 +++++++++++---\r\n>  1 file changed, 11 insertions(+), 3 deletions(-)\r\n\r\nHi,\r\n\r\nThis is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him\r\na patch that has triggered this response.  He used to manually respond\r\nto these common problems, but in order to save his sanity (he kept\r\nwriting the same thing over and over, yet to different people), I was\r\ncreated.  Hopefully you will not take offence and will fix the problem\r\nin your patch and resubmit it so that it can be accepted into the Linux\r\nkernel tree.\r\n\r\nYou are receiving this message because of the following common error(s)\r\nas indicated below:\r\n\r\n- It looks like you did not use your \"real\" name for the patch on either\r\n  the Signed-off-by: line, or the From: line (both of which have to\r\n  match).  Please read the kernel file,\r\n  Documentation/process/submitting-patches.rst for how to do this\r\n  correctly.\r\n\r\nIf you wish to discuss this problem further, or you have questions about\r\nhow to resolve this issue, please feel free to respond to this email and\r\nGreg will reply once he has dug out from the pending patches received\r\nfrom other developers.\r\n\r\nthanks,\r\n\r\ngreg k-h's patch email bot\r\n\r\n",
+      "listType": "LKML",
+      "to": "erdaitianjiao <erdaitianjiao@gmail.com>",
+      "cc": "Mathias Nyman <mathias.nyman@intel.com>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "1a02902e85b8e81c",
       "msgId": "<A300A1B5-0673-4C53-8803-29E72BEC80C7@grrlz.net>",
@@ -13918,20 +13960,6 @@
       "cc": "skhan@linuxfoundation.org, me@brighamcampbell.com, jkoolstra@xs4all.nl, linux-crypto@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org, Mohamad Raizudeen <raizudeen.kerneldev@gmail.com>"
     },
     {
-      "id": "1a024e45ad4810c4",
-      "msgId": "<20260821151107.19945-1-jeffinphilip14@gmail.com>",
-      "inReplyTo": "<2026082125-getting-upstroke-a146@gregkh>",
-      "references": "<2026082125-getting-upstroke-a146@gregkh>",
-      "title": "Re: [PATCH] usb: typec: fix null-pointer-dereference in wcove_typec_probe()",
-      "updated": "Fri, 21 Aug 2026 20:41:07 +0530",
-      "authorName": "Jeffin Philip",
-      "authorEmail": "jeffinphilip14@gmail.com",
-      "content": "On Fri, 21 Aug 2026 17:00:12 +0200, Greg KH wrote:\r\n>How can a platform device NOT have a parent device?  WHat system is this\r\n>broken in?  Why not fix the platform definition properly instead as\r\n>something is really wrong here if this is a \"root\" platform device as\r\n>that should never happen.\r\n\r\nAs seen in the Closes: tag, this is a syzbot issue. It used driver_override()\r\nto bind it in an unnatural way. So, I don't think it is possible in a real system.\r\nWe could atleast validate pmic like other functions using dev_get_drvdata() or it\r\ncould be left alone as is.\r\n\r\nThanks,\r\nJeffin. \r\n\r\n",
-      "listType": "LKML",
-      "to": "gregkh@linuxfoundation.org",
-      "cc": "heikki.krogerus@linux.intel.com, jeffinphilip14@gmail.com, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, mika.westerberg@linux.intel.com, stable@vger.kernel.org, syzbot+1a01783ea233350598b5@syzkaller.appspotmail.com, syzbot+520d7648a0d934061fb0@syzkaller.appspotmail.com"
-    },
-    {
       "id": "1a024e67b73d659c",
       "msgId": "<aohqhMZ2nhJObwnz@ninjato>",
       "inReplyTo": "<20260821135608.275233-7-prabhakar.mahadev-lad.rj@bp.renesas.com>",
@@ -13958,34 +13986,6 @@
       "listType": "LKML",
       "to": "Koichiro Den <den@valinux.co.jp>",
       "cc": "Jon Mason <jdmason@kudzu.us>, Frank Li <Frank.Li@kernel.org>, Allen Hubbe <allenbh@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Niklas Cassel <cassel@kernel.org>, Nicholas Bellinger <nab@linux-iscsi.org>, ntb@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a024e4fa1558285",
-      "msgId": "<aohqItUOivG0UXhC@SMW015318>",
-      "inReplyTo": "<25b9e249-053f-4560-ab3c-eaa30bf0b240@amd.com>",
-      "references": "<20260810100452.426320-1-nagendra.golla@amd.com> <20260810100452.426320-2-nagendra.golla@amd.com> <antKJr1N3A111W_V@SMW015318> <25b9e249-053f-4560-ab3c-eaa30bf0b240@amd.com>",
-      "title": "Re: [PATCH V3 1/6] dmaengine: zynqmp_dma: Fix PM usage count handling in probe error path",
-      "updated": "Fri, 21 Aug 2026 10:09:22 -0500",
-      "authorName": "Frank Li",
-      "authorEmail": "Frank.li@oss.nxp.com",
-      "content": "On Fri, Aug 21, 2026 at 09:57:49AM +0530, Golla, Nagendra wrote:\r\n> Hi Frank\r\n>\r\n> On 8/11/2026 9:43 PM, Frank Li wrote:\r\n> > On Mon, Aug 10, 2026 at 03:34:47PM +0530, Golla Nagendra wrote:\r\n> > > When pm_runtime_resume_and_get() succeeds during probe, it increments\r\n> > > the usage count and enables clocks. If a later step (e.g., channel\r\n> > > probe) fails, the error path only called pm_runtime_disable() without\r\n> > > a matching pm_runtime_put_sync(), leaking the reference and the clock\r\n> > > enable.\r\n> > >\r\n> > > Add an else branch to drop the usage count acquired by\r\n> > > pm_runtime_resume_and_get() when runtime PM is still enabled, letting\r\n> > > the PM core suspend/disable clocks on the success-then-later-failure\r\n> > > path.\r\n> > >\r\n> > > Fixes: 64c6f7da8c2c (\"dmaengine: zynqmp_dma: Add runtime pm support\")\r\n> > > Signed-off-by: Golla Nagendra <nagendra.golla@amd.com>\r\n> > > ---\r\n> > > Changes in V3:\r\n> > > - New patch: split from V2 2/3 per Frank Li's review to keep the PM usage\r\n> > >    count fix separate from the per-channel reset changes\r\n> > > ---\r\n> > >   drivers/dma/xilinx/zynqmp_dma.c | 2 ++\r\n> > >   1 file changed, 2 insertions(+)\r\n> > >\r\n> > > diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c\r\n> > > index f6a812e49ddc..87986f65d24c 100644\r\n> > > --- a/drivers/dma/xilinx/zynqmp_dma.c\r\n> > > +++ b/drivers/dma/xilinx/zynqmp_dma.c\r\n> > > @@ -1152,6 +1152,8 @@ static int zynqmp_dma_probe(struct platform_device *pdev)\r\n> > >   err_disable_pm:\r\n> > >   \tif (!pm_runtime_enabled(zdev->dev))\r\n> >\r\n> > You just enable runtime pm above few lines.  Is it for CONFIG_PM?\r\n> >\r\n> > You should check return value of pm_runtime_enable(), or change to use\r\n> >\r\n> > devm_pm_runtime_enable().\r\n> >\r\n> > if devm_runtime_enable() failure, you can direct return. Need check\r\n> > pm_runtime_enabled() here again.\r\n> >\r\n> > >   \t\tzynqmp_dma_runtime_suspend(zdev->dev);\r\n> > > +\telse\r\n> > > +\t\tpm_runtime_put_sync(zdev->dev);\r\n> >\r\n> > This one suggest use PM acquire to fix this.\r\n> Thanks for the review\r\n>\r\n> The probe error path already holds a reference from\r\n> pm_runtime_resume_and_get().Using PM_RUNTIME_ACQUIRE_IF_ACTIVE() here would\r\n\r\nMy means replace pm_runtime_resume_and_get() with PM_RUNTIME_ACQUIRE_IF_ACTIVE()\r\n\r\n> acquire a second reference on top of the existing one incrementing the usage\r\n> count to 2, and the guard releasing one at scope exit would still leave one\r\n> leaked reference. The guard is designed for cases where no reference is held\r\n> yet (like the IRQ handler). Here we just need to release the one existing\r\n\r\ncall pm_runtime_put() before return 0 at probe, which have not hold\r\nruntime pm count for IRQ.\r\n\r\nFrank\r\n\r\n> reference, so i am using the pm_runtime_put_sync_suspend().\r\n>\r\n> Thanks,\r\n> Nagendra\r\n> >\r\n> > Frank\r\n> >\r\n> > >   \tpm_runtime_disable(zdev->dev);\r\n> > >   \treturn ret;\r\n> > >   }\r\n> > > --\r\n> > > 2.43.7\r\n> > >\r\n>\r\n\r\n",
-      "listType": "LKML",
-      "to": "\"Golla, Nagendra\" <Nagendra.Golla@amd.com>",
-      "cc": "vkoul@kernel.org, Frank.Li@kernel.org, michal.simek@amd.com, robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, rafael@kernel.org, git@amd.com, dmaengine@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org"
-    },
-    {
-      "id": "1a024e48b3d6ae6c",
-      "msgId": "<20260821150912.183976-1-gourry@gourry.net>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH] mm/madvise: use folio_trylock() in the cold/pageout PMD split",
-      "updated": "Fri, 21 Aug 2026 11:09:12 -0400",
-      "authorName": "Gregory Price",
-      "authorEmail": "gourry@gourry.net",
-      "content": "MADV_COLD or MADV_PAGEOUT over part of a PMD splits the THP in\r\nmadvise_cold_or_pageout_pte_range().  Two threads doing that to\r\nthe same THP create spurious failures.\r\n\r\n  CPU0                          CPU1\r\n  ----                          ----\r\n  folio_get()\r\n  spin_unlock(ptl)\r\n  folio_lock()\r\n                                folio_get()\r\n                                spin_unlock(ptl)\r\n                                folio_lock()  <- blocks, keeps its ref\r\n  split_folio()\r\n    folio_expected_ref_count(folio) != folio_ref_count(folio) - 1\r\n    -EAGAIN\r\n\r\nCPU1 cannot drop its reference until it gets the lock CPU0 holds, so CPU0's\r\nsplit always fails.  folio_trylock() makes CPU1 leave without ever taking a\r\nreference.  The PTE branch of this same function already does this, as do\r\nmadvise_free_pte_range() and madvise_free_huge_pmd().\r\n\r\nReproducer: 400 rounds of eight threads calling MADV_COLD on half of each\r\nof eight THPs, re-formed with MADV_COLLAPSE between rounds.  From\r\n/proc/vmstat:\r\n\r\n                     thp_split_page   thp_split_page_failed\r\n    before                     3186                     860\r\n    after                      3200                       0\r\n\r\nThe short before count is rounds where every thread failed and the\r\nadvice was dropped for that THP entirely.\r\n\r\nOn failure the walker returns 0 and nothing retries.  The PMD path becomes\r\nbest effort when the folio lock is held elsewhere - same as the PTE path.\r\n\r\nReported-by: sashiko-bot <sashiko-bot@kernel.org>\r\nCloses: https://sashiko.dev/#/patchset/20260817220810.1175596-1-gourry%40gourry.net\r\nAssisted-by: Claude:claude-opus-5\r\nSigned-off-by: Gregory Price (Meta) <gourry@gourry.net>\r\n---\r\n mm/madvise.c | 3 ++-\r\n 1 file changed, 2 insertions(+), 1 deletion(-)\r\n\r\ndiff --git a/mm/madvise.c b/mm/madvise.c\r\nindex 07a21ca31bad..bd9119880ef2 100644\r\n--- a/mm/madvise.c\r\n+++ b/mm/madvise.c\r\n@@ -405,9 +405,10 @@ static int madvise_cold_or_pageout_pte_range(pmd_t *pmd,\r\n \t\tif (next - addr != HPAGE_PMD_SIZE) {\r\n \t\t\tint err;\r\n \r\n+\t\t\tif (!folio_trylock(folio))\r\n+\t\t\t\tgoto huge_unlock;\r\n \t\t\tfolio_get(folio);\r\n \t\t\tspin_unlock(ptl);\r\n-\t\t\tfolio_lock(folio);\r\n \t\t\terr = split_folio(folio);\r\n \t\t\tfolio_unlock(folio);\r\n \t\t\tfolio_put(folio);\r\n-- \r\n2.55.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-mm@kvack.org",
-      "cc": "linux-kernel@vger.kernel.org, kernel-team@meta.com, akpm@linux-foundation.org, liam@infradead.org, ljs@kernel.org, david@kernel.org, vbabka@kernel.org, jannh@google.com, sashiko-bot <sashiko-bot@kernel.org>, \"Gregory Price (Meta)\" <gourry@gourry.net>"
     },
     {
       "id": "1a024edde352ad28",
