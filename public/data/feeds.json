@@ -1,6 +1,76 @@
 {
-  "timestamp": "2026-08-22T12:57:53.000Z",
+  "timestamp": "2026-08-22T13:15:13.578Z",
   "entries": [
+    {
+      "id": "1a0299a7e5a3c519",
+      "msgId": "<af0eb54b-f0ef-4304-ac3b-ef70359d4169@web.de>",
+      "inReplyTo": "<20260821230217.319418-4-rosenp@gmail.com>",
+      "references": "<20260821230217.319418-4-rosenp@gmail.com>",
+      "title": "Re: [PATCH 3/3] i2c: ibm_iic: use devm for main allocation",
+      "updated": "Sat, 22 Aug 2026 15:12:50 +0200",
+      "authorName": "Markus Elfring",
+      "authorEmail": "Markus.Elfring@web.de",
+      "content": "> Allows getting rid of kfree in failure and remove paths.\r\n\r\nWill another improved change description become more desirable?\r\nhttps://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?h=v7.2#n94\r\n\r\nRegards,\r\nMarkus\r\n\r\n",
+      "listType": "LKML",
+      "to": "Rosen Penev <rosenp@gmail.com>, linux-i2c@vger.kernel.org",
+      "cc": "LKML <linux-kernel@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>"
+    },
+    {
+      "id": "1a02997942ccadbf",
+      "msgId": "<2026082213092838377a26@mail.local>",
+      "inReplyTo": "<20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>",
+      "references": "<20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>",
+      "title": "Re: [PATCH] rtc: rv3028: configure backup switch mode from device tree",
+      "updated": "Sat, 22 Aug 2026 15:09:28 +0200",
+      "authorName": "Alexandre Belloni",
+      "authorEmail": "alexandre.belloni@bootlin.com",
+      "content": "On 22/08/2026 14:59:11+0530, Dhaval Shiroya wrote:\r\n> Enable and set the backup switch mode directly from the device tree at\r\n> probe, instead of requiring a userspace RTC_PARAM_BACKUP_SWITCH_MODE\r\n> ioctl on every unit.\r\n> \r\n\r\nNo, just use the ioctl.\r\n\r\n> Signed-off-by: Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>\r\n> \r\n> diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c\r\n> index d96f6bb68850..5dde1aed76dd 100644\r\n> --- a/drivers/rtc/rtc-rv3028.c\r\n> +++ b/drivers/rtc/rtc-rv3028.c\r\n> @@ -80,6 +80,7 @@\r\n>  #define RV3028_EEBUSY_TIMEOUT\t\t100000\r\n>  \r\n>  #define RV3028_BACKUP_TCE\t\tBIT(5)\r\n> +#define RV3028_BACKUP_FEDE\t\tBIT(4)\r\n>  #define RV3028_BACKUP_TCR_MASK\t\tGENMASK(1,0)\r\n>  #define RV3028_BACKUP_BSM\t\tGENMASK(3,2)\r\n>  \r\n> @@ -519,70 +520,6 @@ static int rv3028_set_offset(struct device *dev, long offset)\r\n>  \r\n>  }\r\n>  \r\n> -static int rv3028_param_get(struct device *dev, struct rtc_param *param)\r\n> -{\r\n> -\tstruct rv3028_data *rv3028 = dev_get_drvdata(dev);\r\n> -\tint ret;\r\n> -\tu32 value;\r\n> -\r\n> -\tswitch(param->param) {\r\n> -\tcase RTC_PARAM_BACKUP_SWITCH_MODE:\r\n> -\t\tret = regmap_read(rv3028->regmap, RV3028_BACKUP, &value);\r\n> -\t\tif (ret < 0)\r\n> -\t\t\treturn ret;\r\n> -\r\n> -\t\tvalue = FIELD_GET(RV3028_BACKUP_BSM, value);\r\n> -\r\n> -\t\tswitch(value) {\r\n> -\t\tcase RV3028_BACKUP_BSM_DSM:\r\n> -\t\t\tparam->uvalue = RTC_BSM_DIRECT;\r\n> -\t\t\tbreak;\r\n> -\t\tcase RV3028_BACKUP_BSM_LSM:\r\n> -\t\t\tparam->uvalue = RTC_BSM_LEVEL;\r\n> -\t\t\tbreak;\r\n> -\t\tdefault:\r\n> -\t\t\tparam->uvalue = RTC_BSM_DISABLED;\r\n> -\t\t}\r\n> -\t\tbreak;\r\n> -\r\n> -\tdefault:\r\n> -\t\treturn -EINVAL;\r\n> -\t}\r\n> -\r\n> -\treturn 0;\r\n> -}\r\n> -\r\n> -static int rv3028_param_set(struct device *dev, struct rtc_param *param)\r\n> -{\r\n> -\tstruct rv3028_data *rv3028 = dev_get_drvdata(dev);\r\n> -\tu8 mode;\r\n> -\r\n> -\tswitch(param->param) {\r\n> -\tcase RTC_PARAM_BACKUP_SWITCH_MODE:\r\n> -\t\tswitch (param->uvalue) {\r\n> -\t\tcase RTC_BSM_DISABLED:\r\n> -\t\t\tmode = 0;\r\n> -\t\t\tbreak;\r\n> -\t\tcase RTC_BSM_DIRECT:\r\n> -\t\t\tmode = RV3028_BACKUP_BSM_DSM;\r\n> -\t\t\tbreak;\r\n> -\t\tcase RTC_BSM_LEVEL:\r\n> -\t\t\tmode = RV3028_BACKUP_BSM_LSM;\r\n> -\t\t\tbreak;\r\n> -\t\tdefault:\r\n> -\t\t\treturn -EINVAL;\r\n> -\t\t}\r\n> -\r\n> -\t\treturn rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_BSM,\r\n> -\t\t\t\t\t FIELD_PREP(RV3028_BACKUP_BSM, mode));\r\n> -\r\n> -\tdefault:\r\n> -\t\treturn -EINVAL;\r\n> -\t}\r\n> -\r\n> -\treturn 0;\r\n> -}\r\n> -\r\n>  static int rv3028_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)\r\n>  {\r\n>  \tstruct rv3028_data *rv3028 = dev_get_drvdata(dev);\r\n> @@ -852,8 +789,6 @@ static const struct rtc_class_ops rv3028_rtc_ops = {\r\n>  \t.read_offset = rv3028_read_offset,\r\n>  \t.set_offset = rv3028_set_offset,\r\n>  \t.ioctl = rv3028_ioctl,\r\n> -\t.param_get = rv3028_param_get,\r\n> -\t.param_set = rv3028_param_set,\r\n>  };\r\n>  \r\n>  static const struct regmap_config regmap_config = {\r\n> @@ -920,6 +855,65 @@ static u8 rv3028_set_trickle_charger(struct rv3028_data *rv3028,\r\n>  \treturn ret;\r\n>  }\r\n>  \r\n> +/*\r\n> + * Configure backup switchover mode from device tree.\r\n> + *   0 = disabled\r\n> + *   1 = DSM (Direct Switching Mode)  - switch when VDD < VBACKUP\r\n> + *   3 = LSM (Level Switching Mode)   - switch when VDD < 2.0V\r\n> + */\r\n> +static int rv3028_set_bsm_from_dt(struct rv3028_data *rv3028,\r\n> +\t\t\t\t  struct i2c_client *client)\r\n> +{\r\n> +\tu32 val_old, bsm_dt, bsm_bits;\r\n> +\tint ret;\r\n> +\r\n> +\tif (device_property_read_u32(&client->dev, \"backup-switch-mode\",\r\n> +\t\t\t\t     &bsm_dt))\r\n> +\t\treturn 0;\r\n> +\r\n> +\t/* Validate and convert DT value to register bits */\r\n> +\tswitch (bsm_dt) {\r\n> +\tcase 0:\r\n> +\t\tbsm_bits = 0;\r\n> +\t\tbreak;\r\n> +\tcase 1:\r\n> +\t\tbsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_DSM);\r\n> +\t\tbreak;\r\n> +\tcase 3:\r\n> +\t\tbsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_LSM);\r\n> +\t\tbreak;\r\n> +\tdefault:\r\n> +\t\tdev_warn(&client->dev,\r\n> +\t\t\t \"invalid backup-switch-mode %u (use 0, 1, or 3)\\n\",\r\n> +\t\t\t bsm_dt);\r\n> +\t\treturn 0;\r\n> +\t}\r\n> +\r\n> +\t/* Read current BACKUP register */\r\n> +\tret = regmap_read(rv3028->regmap, RV3028_BACKUP, &val_old);\r\n> +\tif (ret < 0)\r\n> +\t\treturn ret;\r\n> +\r\n> +\t/* Check if BSM and FEDE already match desired values */\r\n> +\tif ((val_old & (RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) ==\r\n> +\t    (bsm_bits | RV3028_BACKUP_FEDE)) {\r\n> +\t\tdev_dbg(&client->dev,\r\n> +\t\t\t\"backup switch mode already set to %u\\n\", bsm_dt);\r\n> +\t\treturn 0;\r\n> +\t}\r\n> +\r\n> +\tdev_info(&client->dev,\r\n> +\t\t \"setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\\n\",\r\n> +\t\t bsm_dt, val_old,\r\n> +\t\t (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |\r\n> +\t\t bsm_bits | RV3028_BACKUP_FEDE);\r\n> +\r\n> +\t/* Set BSM and always enable FEDE as recommended by datasheet */\r\n> +\treturn rv3028_update_cfg(rv3028, RV3028_BACKUP,\r\n> +\t\t\t\t RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE,\r\n> +\t\t\t\t bsm_bits | RV3028_BACKUP_FEDE);\r\n> +}\r\n> +\r\n>  static int rv3028_probe(struct i2c_client *client)\r\n>  {\r\n>  \tstruct rv3028_data *rv3028;\r\n> @@ -1005,11 +999,14 @@ static int rv3028_probe(struct i2c_client *client)\r\n>  \tif (ret)\r\n>  \t\treturn ret;\r\n>  \r\n> -\tret = rtc_add_group(rv3028->rtc, &rv3028_attr_group);\r\n> +\t/* Configure backup switchover mode from device tree */\r\n> +\tret = rv3028_set_bsm_from_dt(rv3028, client);\r\n>  \tif (ret)\r\n>  \t\treturn ret;\r\n>  \r\n> -\tset_bit(RTC_FEATURE_BACKUP_SWITCH_MODE, rv3028->rtc->features);\r\n> +\tret = rtc_add_group(rv3028->rtc, &rv3028_attr_group);\r\n> +\tif (ret)\r\n> +\t\treturn ret;\r\n>  \r\n>  \trv3028->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;\r\n>  \trv3028->rtc->range_max = RTC_TIMESTAMP_END_2099;\r\n> -- \r\n> 2.34.1\r\n> \r\n\r\n-- \r\nAlexandre Belloni, co-owner and COO, Bootlin\r\nEmbedded Linux and Kernel engineering\r\nhttps://bootlin.com\r\n\r\n",
+      "listType": "LKML",
+      "to": "Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>",
+      "cc": "linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a029943e19db59a",
+      "msgId": "<7ca1914c-8f32-499c-8121-4205044e330c@web.de>",
+      "inReplyTo": "<20260821230217.319418-2-rosenp@gmail.com>",
+      "references": "<20260821230217.319418-2-rosenp@gmail.com>",
+      "title": "Re: [PATCH 1/3] i2c: ibm_iic: ioremap with platform pointer",
+      "updated": "Sat, 22 Aug 2026 15:05:18 +0200",
+      "authorName": "Markus Elfring",
+      "authorEmail": "Markus.Elfring@web.de",
+      "content": "> devm_platform_ioremap_resource only needs a platform_device pointer and\r\n> calling it early allows handling potential -EPROBE_DEFER.\r\n\r\nI find the change description improvable.\r\n\r\nSee also once more:\r\nhttps://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?h=v7.2#n94\r\n\r\nRegards,\r\nMarkus\r\n\r\n",
+      "listType": "LKML",
+      "to": "Rosen Penev <rosenp@gmail.com>, linux-i2c@vger.kernel.org",
+      "cc": "LKML <linux-kernel@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>"
+    },
+    {
+      "id": "1a029939cfd890c8",
+      "msgId": "<ecb70415-05c9-40bd-8ddb-173267a7a30d@amd.com>",
+      "inReplyTo": "<20260814015647.3370124-2-praan@google.com>",
+      "references": "<20260814015647.3370124-1-praan@google.com> <20260814015647.3370124-2-praan@google.com>",
+      "title": "Re: [PATCH v2 1/5] iommu/amd: Refactor device probe and capability initialization",
+      "updated": "Sat, 22 Aug 2026 18:34:42 +0530",
+      "authorName": "Vasant Hegde",
+      "authorEmail": "vasant.hegde@amd.com",
+      "content": "Pranjal,\r\n\r\n\r\nOn 8/14/2026 7:26 AM, Pranjal Shrivastava wrote:\r\n> Restructure the device probe path to improve readability and prepare for\r\n> cleaner error handling. Refactor check_device() into iommu_lookup_device\r\n> to explicitly validate and return the amd_iommu ptr & devid. Refactor\r\n> iommu_init_device() to return the allocated dev_data. Consolidate all\r\n> PCI cap inits (MSI domains, PASID, ATS) into a new helper:\r\n> iommu_init_device_caps().\r\n> \r\n> Suggested-by: Vasant Hegde <vasant.hegde@amd.com>\r\n> Signed-off-by: Pranjal Shrivastava <praan@google.com>\r\n> ---\r\n>  drivers/iommu/amd/iommu.c | 114 +++++++++++++++++++-------------------\r\n>  1 file changed, 56 insertions(+), 58 deletions(-)\r\n> \r\n> diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c\r\n> index 4c31294fabc5..9b8ad131ba79 100644\r\n> --- a/drivers/iommu/amd/iommu.c\r\n> +++ b/drivers/iommu/amd/iommu.c\r\n> @@ -675,7 +675,8 @@ static void pdev_disable_caps(struct pci_dev *pdev)\r\n\r\n\r\n.../...\r\n\r\n> -\tamd_iommu_set_pci_msi_domain(dev, iommu);\r\n> +\tiommu_init_device_caps(dev_data, dev, iommu);\r\n>  \tiommu_dev = &iommu->iommu;\r\n>  \r\n> -\t/*\r\n> -\t * If IOMMU and device supports PASID then it will contain max\r\n> -\t * supported PASIDs, else it will be zero.\r\n> -\t */\r\n> -\tdev_data = dev_iommu_priv_get(dev);\r\n> -\tif (amd_iommu_pasid_supported() && dev_is_pci(dev) &&\r\n> -\t    pdev_pasid_supported(dev_data)) {\r\n> -\t\tdev_data->max_pasids = min_t(u32, iommu->iommu.max_pasids,\r\n> -\t\t\t\t\t     pci_max_pasids(to_pci_dev(dev)));\r\n> -\t}\r\n> -\r\n\r\nCan you add something like below comment so that we know why we are not calling\r\niommu_ignore_device in error path.\r\n\r\n+        * When DMA translation is unavailable return error so the iommu core\r\n+        * won't attempt domain attach for this device. But interrupt-remap\r\n+        * is still supported. Hence do not ignore the device.\r\n\r\n-Vasant\r\n\r\n>  \tif (amd_iommu_pgtable == PD_MODE_NONE) {\r\n>  \t\tpr_warn_once(\"%s: DMA translation not supported by iommu.\\n\",\r\n>  \t\t\t     __func__);\r\n> @@ -2527,16 +2535,6 @@ static struct iommu_device *amd_iommu_probe_device(struct device *dev)\r\n>  \t\tgoto out_err;\r\n>  \t}\r\n>  \r\n> -\tiommu_completion_wait(iommu);\r\n> -\r\n> -\tif (FEATURE_NUM_INT_REMAP_SUP_2K(amd_iommu_efr2))\r\n> -\t\tdev_data->max_irqs = MAX_IRQS_PER_TABLE_2K;\r\n> -\telse\r\n> -\t\tdev_data->max_irqs = MAX_IRQS_PER_TABLE_512;\r\n> -\r\n> -\tif (dev_is_pci(dev))\r\n> -\t\tpci_prepare_ats(to_pci_dev(dev), PAGE_SHIFT);\r\n> -\r\n>  out_err:\r\n>  \treturn iommu_dev;\r\n>  }\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Pranjal Shrivastava <praan@google.com>, iommu@lists.linux.dev, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org",
+      "cc": "Joerg Roedel <joro@8bytes.org>, Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>, Ankit Soni <ankit.soni@amd.com>, Jason Gunthorpe <jgg@nvidia.com>, Bjorn Helgaas <bhelgaas@google.com>, Samiullah Khawaja <skhawaja@google.com>"
+    },
+    {
+      "id": "1a029928cc432822",
+      "msgId": "<tencent_6A66F77626CA5371C36D2968E3AEC4409705@qq.com>",
+      "inReplyTo": "<2026082209-vacancy-duly-c136@gregkh>",
+      "references": "<2026082209-vacancy-duly-c136@gregkh>",
+      "title": "Re: [PATCH v4] hwmon: (aquacomputer_d5next) valid the data size before reading the sensor data",
+      "updated": "Sat, 22 Aug 2026 21:03:52 +0800",
+      "authorName": "Edward Adam Davis",
+      "authorEmail": "eadavis@qq.com",
+      "content": "On Sat, 22 Aug 2026 14:45:27 +0200, Greg KH wrote:\r\n> On Sat, Aug 22, 2026 at 08:23:35PM +0800, Edward Adam Davis wrote:\r\n> > On Sat, 22 Aug 2026 13:55:35 +0200, Greg KH wrote:\r\n> > > On Sat, Aug 22, 2026 at 07:34:35PM +0800, Edward Adam Davis wrote:\r\n> > > > The user-forged sensor data is only 65 bytes long; however, aqc_raw_event()\r\n> > > > fails to handle cases where the sensor data length is too small when reading\r\n> > > > the data, resulting in [1] during the read process.\r\n> > >\r\n> > > What is \"user-forged sensor data\"?\r\n> > It is the data constructed within the reproducer.\r\n> \r\n> What \"reproducer\"?\r\nThe complete reproducer:\r\nhttps://syzkaller.appspot.com/x/repro.c?x=15a22549580000\r\n\r\nCode for constructing the data:\r\n   memcpy((void*)0x200000000500, \r\n           \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\r\n           \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\r\n           \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\r\n           \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\",\r\n           65);\r\n    syz_usb_ep_write(/*fd=*/r[0], /*ep=*/0x81, /*len=*/0x41,\r\n                     /*data=*/0x200000000500);\r\n> \r\n> > > > Fixes: 0e35f63f7f4e (\"hwmon: add driver for Aquacomputer D5 Next\")\r\n> > > > Reported-by: syzbot+9ee5f5dc18673d6b2f37@syzkaller.appspotmail.com\r\n> > > > Closes: https://syzkaller.appspot.com/bug?extid=9ee5f5dc18673d6b2f37\r\n> > > > Tested-by: syzbot+9ee5f5dc18673d6b2f37@syzkaller.appspotmail.com\r\n> > > > Signed-off-by: Edward Adam Davis <eadavis@qq.com>\r\n> > > > ---\r\n> > >\r\n> > > Was the Assisted-by: tag forgotten?\r\n> > No one has assisted me so far; also, I haven't used this type of tag before.\r\n> \r\n> No LLM was used?\r\nNo.\r\n> \r\n> > > > +/* aqc_raw_data_valid()\r\n> > > > + * Does not support special-case sensor readings data size check\r\n> > >\r\n> > > Why not?\r\n> > It would be more appropriate for the maintainers of these sensors to add\r\n> > the relevant checks.\r\n> \r\n> Why?  Shouldn't that be covered here?\r\nPerhaps I didn't express myself clearly enough; it should be included here,\r\nbut it would be best if someone familiar with Special-case sensors followed\r\nup to add the details.\r\n> \r\n> > > > + */\r\n> > > > +static bool aqc_raw_data_valid(struct aqc_data *priv, int size)\r\n> > > > +{\r\n> > > > +\tint off, fan_off, i;\r\n> > > > +\tchar *msg;\r\n> > > > +\r\n> > > > +\tif (!priv)\r\n> > > > +\t\treturn false;\r\n> > > > +\r\n> > > > +\t/* +1 for get_unaligned_be16(), it reads 2 bytes */\r\n> > > > +\toff = priv->serial_number_start_offset + SERIAL_PART_OFFSET + 1;\r\n> > > > +\tif (off >= size) {\r\n> > > > +\t\tmsg = \"serial number start offset\";\r\n> > >\r\n> > > That's a lot of debugging code being added, why?  Who is going to use\r\n> > > that?\r\n> > I am not certain that these debug messages are definitely useful;\r\n> > I simply included them because I felt they might be helpful.\r\n> \r\n> If you didn't use them when debugging this code, why would it be needed\r\n> by anyone else?\r\nThat makes perfect sense; I will remove them.\r\n\r\nBR,\r\nEdward\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "gregkh@linuxfoundation.org",
+      "cc": "eadavis@qq.com, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, me@jackdoan.com, sashiko-bot@kernel.org, sashiko-reviews@lists.linux.dev, savicaleksa83@gmail.com, syzkaller-bugs@googlegroups.com"
+    },
     {
       "id": "1a02981a564f8614",
       "msgId": "<20260822124531.644834-1-sammiee5311@gmail.com>",
@@ -13876,20 +13946,6 @@
       "cc": "linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
     },
     {
-      "id": "1a024f37d4bb9ca1",
-      "msgId": "<aohvcP8ch-Zn6tV-@sirena.org.uk>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "linux-next: Tree for Aug 21",
-      "updated": "Fri, 21 Aug 2026 16:32:00 +0100",
-      "authorName": "Mark Brown",
-      "authorEmail": "broonie@kernel.org",
-      "content": "Hi all,\r\n\r\nChanges since 20260820:\r\n\r\nNone.\r\n\r\nNon-merge commits (relative to Linus' tree): 7073\r\n 5989 files changed, 509370 insertions(+), 156446 deletions(-)\r\n\r\n----------------------------------------------------------------------------\r\n\r\nI have created today's linux-next tree at\r\nhttps://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git\r\n(patches at https://www.kernel.org/pub/linux/kernel/next/ ).  If you\r\nare tracking the linux-next tree using git, you should not use \"git pull\"\r\nto do so as that will try to merge the new linux-next release with the\r\nold one.  You should use \"git fetch\" and checkout or reset to the new\r\nmaster.\r\n\r\nYou can see which trees have been included by looking in the Next/Trees\r\nfile in the source.  There is also the merge.log file in the Next\r\ndirectory.  Between each merge, the tree was built with a defconfig\r\nfor arm64, an allmodconfig for x86_64, a multi_v7_defconfig for arm,\r\nan arm64 build of various kselftests, a KUnit build and run on arm64,\r\nand a native build of tools/perf.  After the final fixups (if any), I do\r\nan x86_64 modules_install followed by builds for x86_64 allnoconfig,\r\narm64 allyesconfig, powerpc allnoconfig (32 and 64 bit),\r\nppc44x_defconfig and pseries_le_defconfig and i386, s390, sparc and\r\nsparc64 defconfig and htmldocs.\r\n\r\nBelow is a summary of the state of the merge.\r\n\r\nI am currently merging 429 trees (counting Linus' and 133 trees of bug\r\nfix patches pending for the current release).\r\n\r\nStats about the size of the tree over time can be seen at\r\nhttp://neuling.org/linux-next-size.html .\r\n\r\nThanks to Paul Gortmaker for triage and bug fixes.\r\n",
-      "listType": "LKML",
-      "to": "Linux Next Mailing List <linux-next@vger.kernel.org>",
-      "cc": "Linux Kernel Mailing List <linux-kernel@vger.kernel.org>"
-    },
-    {
       "id": "1a024f8a464c4acd",
       "msgId": "<BA5425C6-1906-4938-AE75-93719AAFA45D@nvidia.com>",
       "inReplyTo": "<20260821161310.28255793@pumpkin>",
@@ -13932,20 +13988,6 @@
       "cc": "Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, \"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
-      "id": "1a024f5bd9e228e8",
-      "msgId": "<aohuTo9QOhzvCkP2@pathway.suse.cz>",
-      "inReplyTo": "<20260812140232.48079-1-x90613@gmail.com>",
-      "references": "<20260812140232.48079-1-x90613@gmail.com>",
-      "title": "Re: [PATCH] livepatch: Fix stack check for aliased old_func",
-      "updated": "Fri, 21 Aug 2026 17:27:10 +0200",
-      "authorName": "Petr Mladek",
-      "authorEmail": "pmladek@suse.com",
-      "content": "On Wed 2026-08-12 22:02:32, Harry Hsu wrote:\r\n> klp_check_stack_func() decides which address range to look for on a\r\n> task's stack by asking whether the func preceding @func on\r\n> ops->func_stack is the original kernel function or another livepatch's\r\n> replacement.  It uses list_is_singular(&ops->func_stack), which only\r\n> tells \"one func on this stack\" from \"more than one\".  That assumes every\r\n> klp_func of a patch gets its own func_stack.\r\n> \r\n> Aliases break the assumption.  Several symbols can share one address:\r\n> \r\n>   ffffffff8ed7fef0 t __do_sys_fork\r\n>   ffffffff8ed7fef0 T __ia32_sys_fork\r\n>   ffffffff8ed7fef0 T __x64_sys_fork\r\n\r\nInteresting. Great catch!\r\n\r\n> klp_find_ops() looks the ops up by func->old_func, i.e. by address, so\r\n> two klp_funcs of the same patch naming two of these symbols resolve to\r\n> the same klp_ops and are both pushed onto one func_stack.\r\n\r\nRight.\r\n\r\n> The stack is then head -> B -> A.  A is the last node and does\r\n> correspond to the original function, but list_is_singular() is false, so\r\n> the \"previously patched function\" branch runs: list_next_entry() applies\r\n> container_of() to &ops->func_stack, treating the list head as a struct\r\n> klp_func, and reads func_addr/func_size from past the object.  Besides\r\n> the out-of-bounds read, the bogus range can keep matching stack entries,\r\n> so tasks that are safe to switch get -EAGAIN forever and the transition\r\n> never completes.\r\n>\r\n> Test whether @func itself is the last entry instead.  The answer is\r\n> derived from @func's position rather than from the list length, so it\r\n> holds however many klp_funcs share a func_stack and never steps onto the\r\n> list head.  A single-entry stack is still trivially last, so existing\r\n> behaviour is unchanged.\r\n\r\nThis might fix klp_check_stack_func() for A. But not for B. B won't\r\nbe the last entry so that klp_check_stack_func() would use\r\nthe list_next_entry() and will check for A on stack instead of\r\nthe original function.\r\n\r\nAnother _big problem_ is in klp_ftrace_handler(). It would use A\r\nin PATCHED state and B in UNPATCHED. But it is not clear whether\r\nA or B should be used in the PATCHED state. And it should use\r\nthe original code in UNPATCHED state.\r\n\r\nIMHO, we must catch this situation when preparing livepatches\r\nand when enabling the livepatch. A single livepatch must never\r\ncreate two entries on any ops->func_stack.\r\n\r\nIMHO, we should catch the duplicate (aliased) entries in\r\nklp_init_object_loaded() and return -EINVAL when they are found.\r\n\r\nI do not see any other solution. We could not decide which\r\nstruct klp_func should be used for the redirection when\r\nmore of them point to the same original function.\r\n\r\nBest Regards,\r\nPetr\r\n\r\n",
-      "listType": "LKML",
-      "to": "Harry Hsu <x90613@gmail.com>",
-      "cc": "jpoimboe@kernel.org, jikos@kernel.org, mbenes@suse.cz, joe.lawrence@redhat.com, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
       "id": "1a024f5fc117a584",
       "msgId": "<cab4d5b8-7813-4f63-900f-e6ef6f93cf72@linux.dev>",
       "inReplyTo": "<20260816022619.3629422-1-shuangpeng.kernel@gmail.com>",
@@ -13958,48 +14000,6 @@
       "listType": "LKML",
       "to": "Shuangpeng Bai <shuangpeng.kernel@gmail.com>, jgg@ziepe.ca, leon@kernel.org",
       "cc": "linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
-    },
-    {
-      "id": "1a024f4f01905b34",
-      "msgId": "<20260821152614.2202196-3-bigeasy@linutronix.de>",
-      "inReplyTo": "<20260821152614.2202196-1-bigeasy@linutronix.de>",
-      "references": "<20260821152614.2202196-1-bigeasy@linutronix.de>",
-      "title": "[PATCH v2 2/2] kallsyms: Document why unresolved symbols are revealed",
-      "updated": "Fri, 21 Aug 2026 17:26:14 +0200",
-      "authorName": "Sebastian Andrzej Siewior",
-      "authorEmail": "bigeasy@linutronix.de",
-      "content": "__sprint_symbol() is supposed to resolve the passed address to a symbol\r\nname. If the symbol can not be resolved it will print the actual pointer\r\nthat was passed. The pointer policy is to not reveal actual pointer\r\nvalues. However for post-mortem analysis of crashes it is helpful to see\r\nthe raw pointer if it is a corrupted pointer.\r\n\r\nDocument why raw unresolved pointers are printed.\r\n\r\nSigned-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>\r\n---\r\n kernel/kallsyms.c | 7 ++++++-\r\n 1 file changed, 6 insertions(+), 1 deletion(-)\r\n\r\ndiff --git a/kernel/kallsyms.c b/kernel/kallsyms.c\r\nindex aec2f06858afd..983eae8d66f88 100644\r\n--- a/kernel/kallsyms.c\r\n+++ b/kernel/kallsyms.c\r\n@@ -482,8 +482,13 @@ static int __sprint_symbol(char *buffer, unsigned long address,\r\n \taddress += symbol_offset;\r\n \tlen = kallsyms_lookup_buildid(address, &size, &offset, &modname, &buildid,\r\n \t\t\t\t       buffer);\r\n-\tif (!len)\r\n+\tif (!len) {\r\n+\t\t/*\r\n+\t\t * Print the raw pointer to allow post-mortem analysis of corrupted\r\n+\t\t * pointer in backtraces.\r\n+\t\t */\r\n \t\treturn sprintf(buffer, \"0x%lx\", address - symbol_offset);\r\n+\t}\r\n \r\n \toffset -= symbol_offset;\r\n \r\n-- \r\n2.55.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org",
-      "cc": "Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kees Cook <kees@kernel.org>, Petr Mladek <pmladek@suse.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sergey Senozhatsky <senozhatsky@chromium.org>, Steven Rostedt <rostedt@goodmis.org>, Tycho Andersen <tycho@tycho.pizza>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>"
-    },
-    {
-      "id": "1a024f4408338d71",
-      "msgId": "<CFAC3196-972C-4AC2-A08E-EC8DEC125610@contoso.com>",
-      "inReplyTo": "<<20260815232604.3730754-25-cristian.marussi@arm.com>>",
-      "references": "",
-      "title": "Re: [PATCH v10 24/24] [RFC] tools/scmi: Add SCMI Telemetry testing tool",
-      "updated": "Fri, 21 Aug 2026 15:24:57 +0000",
-      "authorName": "Fayssal Benmlih",
-      "authorEmail": "Fayssal.Benmlih@arm.com",
-      "content": "Hi Cristian,\r\n\r\nThe main test-tool issues reported on V7 still appear present in V10.\r\n\r\nopen_session() allocates struct tlm_state using malloc() without\r\ninitializing it. Optional members such as grps and shmtis can therefore\r\ncontain arbitrary pointers when the corresponding resource count is zero.\r\nPlease use calloc() or initialize the complete object.\r\n\r\nZero-resource handling is still incomplete. gather_tlm_state() always calls\r\nenumerate_intervals() for the instance, and enumerate_groups() calls it even\r\nwhen a group reports zero intervals. Display and SHMTI command paths also\r\ndereference optional pointers without consistently checking both the count\r\nand pointer.\r\n\r\nPlease avoid zero-sized enumerations and make every consumer tolerate a NULL\r\noptional resource.\r\n\r\ndump_shmti() and shmti_check() still map only shmti->len bytes before adding\r\nshmti->offset. The mapping needs to cover PAGE_ALIGN(offset + len), and its\r\noriginal base and complete length must be retained for munmap().\r\n\r\nThe write loop also still adds write() directly to the cumulative byte\r\ncount:\r\n\r\n        bytes += write(...);\r\n\r\nA -1 result after an earlier successful write can leave bytes nonnegative,\r\nand a zero result can loop indefinitely. Please store the result separately,\r\nhandle values less than or equal to zero, and unmap on every exit.\r\n\r\nbatch_read() allocates space for st->info.num_des entries and then replaces\r\nbatch->num_items with args->cnt before writing that many samples. More\r\ncommand-line IDs than platform DEs therefore write past the allocation.\r\nPlease allocate using the validated argument count or reject excessive\r\narguments before populating the array.\r\n\r\nbatch_buffer_alloc() still uses unchecked multiplications. If status\r\nallocation fails, the previously allocated item array and wrapper are also\r\nleaked. Please use checked size arithmetic and one unwind path.\r\n\r\nMore generally, the tool still has no complete session cleanup. The main\r\ndevice fd, returned SHMTI fds, mappings, interval arrays, DE/group\r\ndescriptors, batch buffers and nested allocations remain open or allocated\r\non normal and error exits.\r\n\r\nPlease add a session cleanup function and route all exits through it. Apart\r\nfrom fixing the leaks, that will provide a useful executable example of the\r\nintended UAPI lifetime rules.\r\n\r\nThanks,\r\nFayçal\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Cristian Marussi <Cristian.Marussi@arm.com>",
-      "cc": "\"arm-scmi@vger.kernel.org\" <arm-scmi@vger.kernel.org>, \"d-gole@ti.com\" <d-gole@ti.com>, \"david@kernel.org\" <david@kernel.org>, Elif Topuz <Elif.Topuz@arm.com>, \"etienne.carriere@st.com\" <etienne.carriere@st.com>, \"f.fainelli@gmail.com\" <f.fainelli@gmail.com>, \"james.quinlan@broadcom.com\" <james.quinlan@broadcom.com>, \"jic23@kernel.org\" <jic23@kernel.org>, \"kas@kernel.org\" <kas@kernel.org>, \"kernel-team@meta.com\" <kernel-team@meta.com>, \"leitao@kernel.org\" <leitao@kernel.org>, \"linux-arm-kernel@lists.infradead.org\" <linux-arm-kernel@lists.infradead.org>, \"linux-doc@vger.kernel.org\" <linux-doc@vger.kernel.org>, \"linux-kernel@vger.kernel.org\" <linux-kernel@vger.kernel.org>, Lukasz Luba <Lukasz.Luba@arm.com>, \"michal.simek@amd.com\" <michal.simek@amd.com>, \"peng.fan@oss.nxp.com\" <peng.fan@oss.nxp.com>, Philip Radford <Philip.Radford@arm.com>, \"puranjay@kernel.org\" <puranjay@kernel.org>, Souvik Chakravarty <Souvik.Chakravarty@arm.com>, \"sudeep.holla@kernel.org\" <sudeep.holla@kernel.org>, \"usama.arif@linux.dev\" <usama.arif@linux.dev>, \"vincent.guittot@linaro.org\" <vincent.guittot@linaro.org>"
-    },
-    {
-      "id": "1a024f5c47258c11",
-      "msgId": "<E24DC6AD-01E4-4F8E-B564-CAA3A0A032D2@contoso.com>",
-      "inReplyTo": "<<20260815232604.3730754-17-cristian.marussi@arm.com>>",
-      "references": "",
-      "title": "Re: [PATCH v10 16/24] firmware: arm_scmi: Add Telemetry debugfs SHMTI dump support",
-      "updated": "Fri, 21 Aug 2026 15:22:03 +0000",
-      "authorName": "Fayssal Benmlih",
-      "authorEmail": "Fayssal.Benmlih@arm.com",
-      "content": "Hi Cristian,\r\n\r\nThe two V7 debugfs issues appear to remain.\r\n\r\nFirst, scmi_telemetry_dbg_shmti_open() stores a pointer to the devm-owned\r\ntelemetry_shmti descriptor and its devm mapping. An open debugfs fd can\r\noutlive debugfs removal and protocol teardown, but the open/release path\r\ndoes not pin the SCMI device or protocol.\r\n\r\nThe file_operations owner pins the module, not the protocol instance or\r\nthe devm-managed SHMTI state. A later read from an already open fd can\r\ntherefore access released state.\r\n\r\nPlease use the debugfs file-lifetime helpers or explicitly pin the owning\r\nSCMI instance from open until release, and reject reads after teardown has\r\nstarted.\r\n\r\nSecond, files are still named using the enumeration index:\r\n\r\n        snprintf(id, 16, \"%u\", i);\r\n\r\nwhile the ABI documentation says they are named using the firmware SHMTI\r\nID. Please use ti->shmti[i].info.sid, or change the ABI documentation to\r\ndefine the filename as an enumeration index.\r\n\r\nThanks,\r\nFayçal\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Cristian Marussi <Cristian.Marussi@arm.com>",
-      "cc": "\"arm-scmi@vger.kernel.org\" <arm-scmi@vger.kernel.org>, \"d-gole@ti.com\" <d-gole@ti.com>, \"david@kernel.org\" <david@kernel.org>, Elif Topuz <Elif.Topuz@arm.com>, \"etienne.carriere@st.com\" <etienne.carriere@st.com>, \"f.fainelli@gmail.com\" <f.fainelli@gmail.com>, \"james.quinlan@broadcom.com\" <james.quinlan@broadcom.com>, \"jic23@kernel.org\" <jic23@kernel.org>, \"kas@kernel.org\" <kas@kernel.org>, \"kernel-team@meta.com\" <kernel-team@meta.com>, \"leitao@kernel.org\" <leitao@kernel.org>, \"linux-arm-kernel@lists.infradead.org\" <linux-arm-kernel@lists.infradead.org>, \"linux-doc@vger.kernel.org\" <linux-doc@vger.kernel.org>, \"linux-kernel@vger.kernel.org\" <linux-kernel@vger.kernel.org>, Lukasz Luba <Lukasz.Luba@arm.com>, \"michal.simek@amd.com\" <michal.simek@amd.com>, \"peng.fan@oss.nxp.com\" <peng.fan@oss.nxp.com>, Philip Radford <Philip.Radford@arm.com>, \"puranjay@kernel.org\" <puranjay@kernel.org>, Souvik Chakravarty <Souvik.Chakravarty@arm.com>, \"sudeep.holla@kernel.org\" <sudeep.holla@kernel.org>, \"usama.arif@linux.dev\" <usama.arif@linux.dev>, \"vincent.guittot@linaro.org\" <vincent.guittot@linaro.org>"
     }
   ]
 }
