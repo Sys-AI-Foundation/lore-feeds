@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-08-23T04:18:37.325Z",
+  "timestamp": "2026-08-23T04:34:23.911Z",
   "entries": [
+    {
+      "id": "1a02cdf51f7617e8",
+      "msgId": "<21b29db0-06c0-4881-9750-d38b3bc931c3@roeck-us.net>",
+      "inReplyTo": "<20260823013841.2884472-1-hanzhijian1991@gmail.com>",
+      "references": "<20260821115720.2017516-1-hanzhijian1991@gmail.com> <20260823013841.2884472-1-hanzhijian1991@gmail.com>",
+      "title": "Re: [PATCH v2] hwmon: (yogafan) fix non-kernel-doc comment",
+      "updated": "Sat, 22 Aug 2026 21:26:46 -0700",
+      "authorName": "Guenter Roeck",
+      "authorEmail": "linux@roeck-us.net",
+      "content": "On 8/22/26 18:38, hanzhijian wrote:\r\n> The file description comment starts with \"/**\", which is reserved for\r\n> kernel-doc comments.  scripts/kernel-doc then warns when building the\r\n> documentation:\r\n> \r\n>    Warning: drivers/hwmon/yogafan.c:2 This comment starts with '/**',\r\n>    but isn't a kernel-doc comment. Refer to\r\n>    Documentation/doc-guide/kernel-doc.rst\r\n> \r\n> Change it to a plain \"/*\" comment since it does not document any\r\n> function or struct.\r\n> \r\n> Signed-off-by: hanzhijian <hanzhijian1991@gmail.com>\r\n\r\nNo change log, no change other than the commit message, that change\r\ndoes not add any value, and I already applied this patch and sent\r\nout a note that I did.\r\n\r\nAre you playing with me ? I am inclined to drop this patch.\r\n\r\nGuenter\r\n\r\n> ---\r\n>   drivers/hwmon/yogafan.c | 2 +-\r\n>   1 file changed, 1 insertion(+), 1 deletion(-)\r\n> \r\n> diff --git a/drivers/hwmon/yogafan.c b/drivers/hwmon/yogafan.c\r\n> index 48fa5148d..278cb089b 100644\r\n> --- a/drivers/hwmon/yogafan.c\r\n> +++ b/drivers/hwmon/yogafan.c\r\n> @@ -1,5 +1,5 @@\r\n>   // SPDX-License-Identifier: GPL-2.0-only\r\n> -/**\r\n> +/*\r\n>    * yoga_fan.c - Lenovo Yoga/Legion Fan Hardware Monitoring Driver\r\n>    *\r\n>    * Provides fan speed monitoring for Lenovo Yoga, Legion, and IdeaPad\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "hanzhijian <hanzhijian1991@gmail.com>",
+      "cc": "linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a02cdbd6d75ac78",
+      "msgId": "<20260823042300.24308-1-salah.triki@gmail.com>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH v2] iio: temperature: tmp117: fix calibbias cache update on I2C write failure",
+      "updated": "Sun, 23 Aug 2026 05:23:00 +0100",
+      "authorName": "Salah Triki",
+      "authorEmail": "salah.triki@gmail.com",
+      "content": "The calibbias cache (data->calibbias) was updated before the I2C\r\nwrite to TMP117_REG_TEMP_OFFSET was known to succeed. If the write\r\nfailed, the function correctly returned an error, but the driver's\r\ninternal cache had already been updated to the new value.\r\n\r\nThis causes the cache and the actual hardware register to go out of\r\nsync: a subsequent write of the same value would be silently\r\nskipped by the early \"if (off == data->calibbias) return 0;\" check,\r\nsince the cache matches even though the register was never\r\nsuccessfully updated.\r\n\r\nUpdate data->calibbias only after confirming the I2C write\r\nsucceeded, so the cache always reflects the actual state of the\r\ndevice.\r\n\r\nFound by code inspection.\r\n\r\nFixes: df041e737a38 (\"iio: temperature: add driver support for ti tmp117\")\r\nSigned-off-by: Salah Triki <salah.triki@gmail.com>\r\n---\r\nChanges since v2:\r\n- Fixed formatting around ret assignment and check (Joshua Crofts).\r\n- Mentioned in commit description that the issue was found by code inspection (David Lechner).\r\n\r\n drivers/iio/temperature/tmp117.c | 9 +++++++--\r\n 1 file changed, 7 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/iio/temperature/tmp117.c b/drivers/iio/temperature/tmp117.c\r\nindex 6bc18616ad15..a07028d560ba 100644\r\n--- a/drivers/iio/temperature/tmp117.c\r\n+++ b/drivers/iio/temperature/tmp117.c\r\n@@ -95,15 +95,20 @@ static int tmp117_write_raw(struct iio_dev *indio_dev, struct iio_chan_spec\r\n {\r\n \tstruct tmp117_data *data = iio_priv(indio_dev);\r\n \ts16 off;\r\n+\tint ret;\r\n \r\n \tswitch (mask) {\r\n \tcase IIO_CHAN_INFO_CALIBBIAS:\r\n \t\toff = clamp_t(int, val, S16_MIN, S16_MAX);\r\n \t\tif (off == data->calibbias)\r\n \t\t\treturn 0;\r\n+\r\n+\t\tret = i2c_smbus_write_word_swapped(data->client, TMP117_REG_TEMP_OFFSET, off);\r\n+\t\tif (ret)\r\n+\t\t\treturn ret;\r\n+\r\n \t\tdata->calibbias = off;\r\n-\t\treturn i2c_smbus_write_word_swapped(data->client,\r\n-\t\t\t\t\t\tTMP117_REG_TEMP_OFFSET, off);\r\n+\t\treturn 0;\r\n \r\n \tdefault:\r\n \t\treturn -EINVAL;\r\n-- \r\n2.43.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Joshua Crofts <joshua.crofts1@gmail.com>, Puranjay Mohan <puranjay@kernel.org>, Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>",
+      "cc": "linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Salah Triki <salah.triki@gmail.com>"
+    },
     {
       "id": "1a02ccf54b9a8f7f",
       "msgId": "<20260823040926.23860-1-salah.triki@gmail.com>",
@@ -13972,34 +14000,6 @@
       "listType": "LKML",
       "to": "\"Mickaël Salaün\" <mic@digikod.net>",
       "cc": "Linus Torvalds <torvalds@linux-foundation.org>, \"Mickaël Salaün\" <mic@digikod.net>, Christian Brauner <brauner@kernel.org>, Doehyun Baek <doehyunbaek@gmail.com>, \"Günther Noack\" <gnoack3000@gmail.com>, \"Günther Noack\" <gnoack@google.com>, Justin Suess <utilityemal77@gmail.com>, Tingmao Wang <m@maowtm.org>, Wang Yan <wangyan01@kylinos.cn>, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org"
-    },
-    {
-      "id": "1a025ffe14e7922a",
-      "msgId": "<9cd5d894-6a70-4d23-a477-71568c032562@roeck-us.net>",
-      "inReplyTo": "<20260817023838.6459-1-ot_zexin.wang@mediatek.com>",
-      "references": "<20260817023838.6459-1-ot_zexin.wang@mediatek.com>",
-      "title": "Re: [PATCH v4] watchdog: sbsa_gwdt: add early_enable module parameter",
-      "updated": "Fri, 21 Aug 2026 13:24:59 -0700",
-      "authorName": "Guenter Roeck",
-      "authorEmail": "linux@roeck-us.net",
-      "content": "On Mon, Aug 17, 2026 at 10:37:49AM +0800, Zexin Wang wrote:\r\n> On SBSA platforms using standard UEFI firmware (such as EDK II), the\r\n> watchdog timer is often enabled during early boot stages but explicitly\r\n> disabled by the firmware before handing over control to the OS (e.g.,\r\n> during ExitBootServices). This is done to prevent unintended resets\r\n> while the OS is loading, assuming the OS watchdog driver will take over.\r\n> \r\n> However, this leaves a protection gap. If the system hangs between the\r\n> firmware handover and the userspace watchdog daemon startup, the hardware\r\n> watchdog will not fire to recover the system. For safety-critical systems\r\n> that require continuous hardware watchdog protection from the earliest\r\n> possible moment, this gap is problematic.\r\n> \r\n> Add an 'early_enable' module parameter to allow the kernel driver to\r\n> re-enable the watchdog immediately during probe if it was left disabled\r\n> by the firmware. By setting the WDOG_HW_RUNNING status bit, the watchdog\r\n> core is instructed that the hardware is active. As a result, the core's\r\n> pre-userspace handler (controlled by 'handle_boot_enabled') will\r\n> automatically issue periodic keepalives until userspace opens the device.\r\n> \r\n> This bridges the protection gap seamlessly without requiring firmware\r\n> modifications and without risking unintended resets during kernel boot.\r\n> \r\n> The parameter defaults to false to preserve the traditional behavior.\r\n> \r\n> Signed-off-by: Zexin Wang <ot_zexin.wang@mediatek.com>\r\n\r\nApplied.\r\n\r\nThanks,\r\nGuenter\r\n\r\n",
-      "listType": "LKML",
-      "to": "Zexin Wang <ot_zexin.wang@mediatek.com>",
-      "cc": "Wim Van Sebroeck <wim@linux-watchdog.org>, Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, light.chen@mediatek.com, Fred-WY.Chen@mediatek.com, Yt.Hsieh@mediatek.com, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org"
-    },
-    {
-      "id": "1a0260117511b76d",
-      "msgId": "<aoisfLPgD33M0sRt@levanger>",
-      "inReplyTo": "<20260821190701.GA3030879@ax162>",
-      "references": "<20260820190200.203185-1-ferran.duarri@me.com> <20260821190701.GA3030879@ax162>",
-      "title": "Re: [PATCH] kbuild: ubsan: skip UBSAN for external modules by default",
-      "updated": "Fri, 21 Aug 2026 21:52:28 +0200",
-      "authorName": "Nicolas Schier",
-      "authorEmail": "nsc@kernel.org",
-      "content": "On Fri, Aug 21, 2026 at 12:07:01PM -0700, Nathan Chancellor wrote:\r\n> + Kees and linux-hardening@ for visibility\r\n> \r\n> On Thu, Aug 20, 2026 at 09:01:58PM +0200, Ferran Duarri wrote:\r\n> > External modules built with KBUILD_EXTMOD set inherit UBSAN sanitizer\r\n> > flags from the kernel's KBUILD_CFLAGS because is-kernel-object is 'y'\r\n> > for any obj-m object. This silently breaks third-party modules whose\r\n> > source code (e.g. VMware vmnet/vmmon) triggers UBSAN UB checks at\r\n> > runtime, causing packet-forwarding failures and VM instability while\r\n> > the module itself loads successfully.\r\n> > \r\n> > Make UBSAN opt-in for external modules: skip the is-kernel-object 'y'\r\n> > fallback when KBUILD_EXTMOD is set. External modules that explicitly\r\n> > need UBSAN can still opt in by setting UBSAN_SANITIZE := y.\r\n> > \r\n> > In-kernel module builds are not affected.\r\n> > Signed-off-by: Ferran Duarri <ferran.duarri@me.com>\r\n> \r\n> I am open to other opinions but I am not inclined to apply this change.\r\n> If an external module has issues with these checks, it should either be\r\n> fixed or 'UBSAN_SANITIZE := n' can be added to the module's Makefile,\r\n> rather than making the default worse for everyone else, especially given\r\n> the importance of UBSAN_BOUNDS for avoiding out of bounds accesses and\r\n> writes.\r\n\r\nYes, I second that.\r\n\r\n-- \r\nNicolas\r\n\r\n",
-      "listType": "LKML",
-      "to": "Nathan Chancellor <nathan@kernel.org>",
-      "cc": "Ferran Duarri <ferran.duarri@me.com>, linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org"
     }
   ]
 }
