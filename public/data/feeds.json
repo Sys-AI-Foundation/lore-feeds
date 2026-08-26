@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-26T04:20:05.172Z",
+  "timestamp": "2026-08-26T04:37:41.487Z",
   "entries": [
+    {
+      "id": "1a03c53dbba6197f",
+      "msgId": "<193d407f-171e-4625-aee2-ad49e281a6ce@paulmck-laptop>",
+      "inReplyTo": "<CAN_Opa_=_S=mjDW4_b6Q_4x3LQ3WSV3iVZkT3ZSebZaFRkm8Jw@mail.gmail.com>",
+      "references": "<20260821032210.792451-1-kunwu.chan@linux.dev> <d26ec36e92e8f5aa244e2a22de5d167d14b36597.camel@infradead.org> <42ba6de7-3281-42c9-8d7b-f7dc62c10f62@paulmck-laptop> <ef7c880f59eedf0cd2f2b26842016bbbc2b68a06@linux.dev> <d2bc6a2e-37da-495b-b27a-30324f327b9d@paulmck-laptop> <CAN_Opa_=_S=mjDW4_b6Q_4x3LQ3WSV3iVZkT3ZSebZaFRkm8Jw@mail.gmail.com>",
+      "title": "Re: [PATCH] srcu: Add try_synchronize_srcu() for callers which can prove readers absent",
+      "updated": "Tue, 25 Aug 2026 21:28:37 -0700",
+      "authorName": "\"Paul E. McKenney\"",
+      "authorEmail": "paulmck@kernel.org",
+      "content": "On Wed, Aug 26, 2026 at 12:19:58PM +0800, KunWu Chan wrote:\r\n> On Wed, Aug 26, 2026 at 11:53 AM Paul E. McKenney <paulmck@kernel.org> wrote:\r\n> >\r\n> > On Wed, Aug 26, 2026 at 03:26:18AM +0000, Kunwu Chan wrote:\r\n> > > Hi Paul,\r\n> > >\r\n> > > I'd be interested in helping with one of these. Are there any items\r\n> > > that are not already being worked on and would be useful for me to\r\n> > > take on? I'm particularly interested in the Tree\r\n> > > `synchronize_srcu_atomic()` fastpath, if that part is still open.\r\n> >\r\n> > Please feel free to give it a shot.  The similar fastpath in Tiny SRCU\r\n> > is a partial guide.  The trick is that get_state_synchronize_srcu()\r\n> > and poll_state_synchronize_srcu() need to keep working.\r\n> >\r\n> > The commit that I just pushed to -rcu on branch \"dev\" seems to have a\r\n> > working rcutorture.  Seems.  ;-)\r\n> >\r\n> >                                                         Thanx, Paul\r\n> \r\n> Thanks Paul,\r\n> \r\n> I'll start by looking at the Tiny fastpath and how the state-based\r\n> synchronization APIs depend on the SRCU index, then work through\r\n> the corresponding Tree fastpath.\r\n\r\nVery good!  And please do not forget memory-ordering issues.\r\n\r\n\t\t\t\t\t\t\tThanx, Paul\r\n\r\n> Thanks,\r\n> Kunwu\r\n> \r\n> \r\n> > > Thanks,\r\n> > > Kunwu\r\n> > >\r\n> > >\r\n> > > August 26, 2026 at 7:49 AM, \"Paul E. McKenney\" <paulmck@kernel.org mailto:paulmck@kernel.org?to=%22Paul%20E.%20McKenney%22%20%3Cpaulmck%40kernel.org%3E > wrote:\r\n> > >\r\n> > >\r\n> > > >\r\n> > > > On Fri, Aug 21, 2026 at 12:53:22PM +0100, David Woodhouse wrote:\r\n> > > >\r\n> > > > >\r\n> > > > > On Fri, 2026-08-21 at 11:22 +0800, Kunwu Chan wrote:\r\n> > > > >\r\n> > > > [ . . . ]\r\n> > > >\r\n> > > > >\r\n> > > > > When applying this to current rcu/dev, the patch also needs to account\r\n> > > > >  for the additional bool is_atomic argument to\r\n> > > > >  check_init_srcu_struct(). Please rebase accordingly.\r\n> > > > >\r\n> > > > >  Ooh, shiny, I hadn't spotted that the atomic thing had landed. Maybe I\r\n> > > > >  should retract my 'if we get that' above... but let's see how it\r\n> > > > >  survives.\r\n> > > > >\r\n> > > > It is starting to shape up. Here is what is left, that I know of, anyway:\r\n> > > >\r\n> > > > o A bit more work to get rcutorture to put up with atomic SRCU.\r\n> > > >\r\n> > > > o Tree synchronize_srcu_atomic() fastpath.\r\n> > > >\r\n> > > > o Disable preemption.\r\n> > > >\r\n> > > > o Reorganize commits to fix the Tiny hunks that got applied\r\n> > > >  in Tree commits, and likely other similar issues.\r\n> > > >\r\n> > > > o More work on error checking for use of banned primitives\r\n> > > >  with atomic SRCU.\r\n> > > >\r\n> > > > o Update documentation.\r\n> > > >\r\n> > > > Not that it matters, but atomic Tiny SRCU seems to be doing quite well.\r\n> > > >\r\n> > > > >\r\n> > > > > I also have more than just this patch to rebase onto rcu/dev — unlike\r\n> > > > >  some, I'm not just hacking RCU for the fun of it; I get my jollies\r\n> > > > >  elsewhere :)\r\n> > > > >\r\n> > > > >  Btw, the current commit c68271c3f83a message says \"no index flip, no\r\n> > > > >  grace-period sequence update\" but that isn't true of the implementation\r\n> > > > >  any more, is it? In fact, it *always* does those things, and doesn't\r\n> > > > >  take the try-path optimisation by counting both epochs, that I'm doing\r\n> > > > >  here?\r\n> > > > >\r\n> > > > The current \"dev\" branch is here:\r\n> > > >\r\n> > > > dc5bf5c8fb26 (\"fixup! srcutree: Add an atomic Tree SRCU\").\r\n> > > >\r\n> > > > Tree SRCU always does an index flip, though a single index flip can\r\n> > > > serve multiple concurrent calls to synchronze_srcu_atomic().\r\n> > > >\r\n> > > > Tiny SRCU has the fast path, but must advance the index anyway for the\r\n> > > > benefit of get_state_synchronize_srcu() and friends. It just bumps it\r\n> > > > in one shot.\r\n> > > >\r\n> > > > Tree SRCU will also have to bump the index, but will be able to\r\n> > > > do so manually, without doing all the grace-period processing.\r\n> > > >\r\n> > > > >\r\n> > > > > Thanks for the careful review.\r\n> > > > >\r\n> > > > What David said! ;-)\r\n> > > >\r\n> > > >  Thanx, Paul\r\n> > > >\r\n\r\n",
+      "listType": "LKML",
+      "to": "KunWu Chan <kunwu.chan@gmail.com>",
+      "cc": "Kunwu Chan <kunwu.chan@linux.dev>, David Woodhouse <dwmw2@infradead.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Boqun Feng <boqun.feng@gmail.com>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>, Uladzislau Rezki <urezki@gmail.com>, Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, rcu@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a03c4e7f0cd2f8c",
+      "msgId": "<b451b5af-adf4-4b2b-9056-641ae26158c9@dev.snart.me>",
+      "inReplyTo": "<87ecfmrfb9.fsf@mail.parknet.co.jp>",
+      "references": "<20260822173732.10230-1-dxdt@dev.snart.me> <871pbn6edz.fsf@mail.parknet.co.jp> <787aea79-beb0-4f29-bb67-ee57f6c654c4@dev.snart.me> <87ecfmrfb9.fsf@mail.parknet.co.jp>",
+      "title": "Re: [RFC PATCH] fat: add noflush mount option",
+      "updated": "Wed, 26 Aug 2026 13:22:32 +0900",
+      "authorName": "David Timber",
+      "authorEmail": "dxdt@dev.snart.me",
+      "content": "On 8/25/26 13:31, OGAWA Hirofumi wrote:\r\n> Well, with a your patch, just remounting without \"flush\" option doesn't\r\n> remove flush?\r\nfat_parse_param() doesn't behave like other fs. The current\r\nimplementation only accepts rw and ro for reconfig. So the option cannot\r\nbe flipped up and down at will.\r\n\r\n> And this is a user visible change more or less, so if\r\n> there is an objection from users, then it will be dropped.\r\nNo worries at all. I'll just sit on the patch for now and see if anyone\r\ncomes to say they have a problem with it.\r\n\r\nDavo\r\n\r\n",
+      "listType": "LKML",
+      "to": "OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>",
+      "cc": "linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org"
+    },
+    {
+      "id": "1a03c4c7e611ff7c",
+      "msgId": "<CAN_Opa_=_S=mjDW4_b6Q_4x3LQ3WSV3iVZkT3ZSebZaFRkm8Jw@mail.gmail.com>",
+      "inReplyTo": "<d2bc6a2e-37da-495b-b27a-30324f327b9d@paulmck-laptop>",
+      "references": "<20260821032210.792451-1-kunwu.chan@linux.dev> <d26ec36e92e8f5aa244e2a22de5d167d14b36597.camel@infradead.org> <42ba6de7-3281-42c9-8d7b-f7dc62c10f62@paulmck-laptop> <ef7c880f59eedf0cd2f2b26842016bbbc2b68a06@linux.dev> <d2bc6a2e-37da-495b-b27a-30324f327b9d@paulmck-laptop>",
+      "title": "Re: [PATCH] srcu: Add try_synchronize_srcu() for callers which can prove readers absent",
+      "updated": "Wed, 26 Aug 2026 12:19:58 +0800",
+      "authorName": "KunWu Chan",
+      "authorEmail": "kunwu.chan@gmail.com",
+      "content": "On Wed, Aug 26, 2026 at 11:53 AM Paul E. McKenney <paulmck@kernel.org> wrote:\r\n>\r\n> On Wed, Aug 26, 2026 at 03:26:18AM +0000, Kunwu Chan wrote:\r\n> > Hi Paul,\r\n> >\r\n> > I'd be interested in helping with one of these. Are there any items\r\n> > that are not already being worked on and would be useful for me to\r\n> > take on? I'm particularly interested in the Tree\r\n> > `synchronize_srcu_atomic()` fastpath, if that part is still open.\r\n>\r\n> Please feel free to give it a shot.  The similar fastpath in Tiny SRCU\r\n> is a partial guide.  The trick is that get_state_synchronize_srcu()\r\n> and poll_state_synchronize_srcu() need to keep working.\r\n>\r\n> The commit that I just pushed to -rcu on branch \"dev\" seems to have a\r\n> working rcutorture.  Seems.  ;-)\r\n>\r\n>                                                         Thanx, Paul\r\n\r\nThanks Paul,\r\n\r\nI'll start by looking at the Tiny fastpath and how the state-based\r\nsynchronization APIs depend on the SRCU index, then work through\r\nthe corresponding Tree fastpath.\r\n\r\nThanks,\r\nKunwu\r\n\r\n\r\n> > Thanks,\r\n> > Kunwu\r\n> >\r\n> >\r\n> > August 26, 2026 at 7:49 AM, \"Paul E. McKenney\" <paulmck@kernel.org mailto:paulmck@kernel.org?to=%22Paul%20E.%20McKenney%22%20%3Cpaulmck%40kernel.org%3E > wrote:\r\n> >\r\n> >\r\n> > >\r\n> > > On Fri, Aug 21, 2026 at 12:53:22PM +0100, David Woodhouse wrote:\r\n> > >\r\n> > > >\r\n> > > > On Fri, 2026-08-21 at 11:22 +0800, Kunwu Chan wrote:\r\n> > > >\r\n> > > [ . . . ]\r\n> > >\r\n> > > >\r\n> > > > When applying this to current rcu/dev, the patch also needs to account\r\n> > > >  for the additional bool is_atomic argument to\r\n> > > >  check_init_srcu_struct(). Please rebase accordingly.\r\n> > > >\r\n> > > >  Ooh, shiny, I hadn't spotted that the atomic thing had landed. Maybe I\r\n> > > >  should retract my 'if we get that' above... but let's see how it\r\n> > > >  survives.\r\n> > > >\r\n> > > It is starting to shape up. Here is what is left, that I know of, anyway:\r\n> > >\r\n> > > o A bit more work to get rcutorture to put up with atomic SRCU.\r\n> > >\r\n> > > o Tree synchronize_srcu_atomic() fastpath.\r\n> > >\r\n> > > o Disable preemption.\r\n> > >\r\n> > > o Reorganize commits to fix the Tiny hunks that got applied\r\n> > >  in Tree commits, and likely other similar issues.\r\n> > >\r\n> > > o More work on error checking for use of banned primitives\r\n> > >  with atomic SRCU.\r\n> > >\r\n> > > o Update documentation.\r\n> > >\r\n> > > Not that it matters, but atomic Tiny SRCU seems to be doing quite well.\r\n> > >\r\n> > > >\r\n> > > > I also have more than just this patch to rebase onto rcu/dev — unlike\r\n> > > >  some, I'm not just hacking RCU for the fun of it; I get my jollies\r\n> > > >  elsewhere :)\r\n> > > >\r\n> > > >  Btw, the current commit c68271c3f83a message says \"no index flip, no\r\n> > > >  grace-period sequence update\" but that isn't true of the implementation\r\n> > > >  any more, is it? In fact, it *always* does those things, and doesn't\r\n> > > >  take the try-path optimisation by counting both epochs, that I'm doing\r\n> > > >  here?\r\n> > > >\r\n> > > The current \"dev\" branch is here:\r\n> > >\r\n> > > dc5bf5c8fb26 (\"fixup! srcutree: Add an atomic Tree SRCU\").\r\n> > >\r\n> > > Tree SRCU always does an index flip, though a single index flip can\r\n> > > serve multiple concurrent calls to synchronze_srcu_atomic().\r\n> > >\r\n> > > Tiny SRCU has the fast path, but must advance the index anyway for the\r\n> > > benefit of get_state_synchronize_srcu() and friends. It just bumps it\r\n> > > in one shot.\r\n> > >\r\n> > > Tree SRCU will also have to bump the index, but will be able to\r\n> > > do so manually, without doing all the grace-period processing.\r\n> > >\r\n> > > >\r\n> > > > Thanks for the careful review.\r\n> > > >\r\n> > > What David said! ;-)\r\n> > >\r\n> > >  Thanx, Paul\r\n> > >\r\n\r\n",
+      "listType": "LKML",
+      "to": "paulmck@kernel.org",
+      "cc": "Kunwu Chan <kunwu.chan@linux.dev>, David Woodhouse <dwmw2@infradead.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Boqun Feng <boqun.feng@gmail.com>, Neeraj Upadhyay <neeraj.upadhyay@kernel.org>, Joel Fernandes <joel@joelfernandes.org>, Uladzislau Rezki <urezki@gmail.com>, Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, rcu@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
     {
       "id": "1a03c4af75151bde",
       "msgId": "<c3eaa32a-d55e-c9e8-6047-a37dc82e16ef@oss.qualcomm.com>",
@@ -13610,20 +13652,6 @@
       "cc": "<liuwenliang@huawei.com>, <yangzhuohao1@huawei.com>, <douzhaolei@huawei.com>, <zouyipeng@huawei.com>, <wangbing6@huawei.com>, <nixiaoming@huawei.com>"
     },
     {
-      "id": "1a0392b84774183e",
-      "msgId": "<20260825134323.4181892-2-liuwenliang@huawei.com>",
-      "inReplyTo": "<20260825134323.4181892-1-liuwenliang@huawei.com>",
-      "references": "<20260825134323.4181892-1-liuwenliang@huawei.com>",
-      "title": "[PATCH v2 1/2] RAS: Fix inverted context info bounds check in ARM processor errors",
-      "updated": "Tue, 25 Aug 2026 21:43:22 +0800",
-      "authorName": "Abbott Liu",
-      "authorEmail": "liuwenliang@huawei.com",
-      "content": "Commit 87880af2d24e (\"APEI/GHES: ARM processor Error: don't go past\r\nallocated memory\") added bounds checks for malformed ARM processor\r\nerror records but contained a bug:\r\n\r\n  In log_arm_hw_error(), the ctx_info bounds check is inverted. The\r\n  condition `sz + (long)ctx_info - (long)err >= err->section_length`\r\n  adds ctx_info->size when the context header is already past the end\r\n  of the section instead of when it is within bounds. So change the\r\n  comparison to <=.\r\n\r\nFixes: 87880af2d24e (\"APEI/GHES: ARM processor Error: don't go past allocated memory\")\r\n\r\nSigned-off-by: Abbott Liu <liuwenliang@huawei.com>\r\n---\r\n drivers/ras/ras.c | 2 +-\r\n 1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/ras/ras.c b/drivers/ras/ras.c\r\nindex 03df3db62334..2540538a16a8 100644\r\n--- a/drivers/ras/ras.c\r\n+++ b/drivers/ras/ras.c\r\n@@ -74,7 +74,7 @@ void log_arm_hw_error(struct cper_sec_proc_arm *err, const u8 sev)\r\n \tfor (n = 0; n < err->context_info_num; n++) {\r\n \t\tsz = sizeof(struct cper_arm_ctx_info);\r\n \r\n-\t\tif (sz + (long)ctx_info - (long)err >= err->section_length)\r\n+\t\tif (sz + (long)ctx_info - (long)err <= err->section_length)\r\n \t\t\tsz += ctx_info->size;\r\n \r\n \t\tctx_info = (struct cper_arm_ctx_info *)((long)ctx_info + sz);\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "<tony.luck@intel.com>, <bp@alien8.de>, <jic23@kernel.org>, <ardb@kernel.org>, <rafael.j.wysocki@intel.com>, <guohanjun@huawei.com>, <mchehab+huawei@kernel.org>, <luoshengwei@huawei.com>, <jason@os.amperecomputing.com>, <danielf@os.amperecomputing.com>, <linux-edac@vger.kernel.org>, <linux-kernel@vger.kernel.org>",
-      "cc": "<liuwenliang@huawei.com>, <yangzhuohao1@huawei.com>, <douzhaolei@huawei.com>, <zouyipeng@huawei.com>, <wangbing6@huawei.com>, <nixiaoming@huawei.com>"
-    },
-    {
       "id": "1a03931814d7d980",
       "msgId": "<20260825134323.4181892-1-liuwenliang@huawei.com>",
       "inReplyTo": "",
@@ -13736,20 +13764,6 @@
       "cc": "Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
-      "id": "1a0392e776de6453",
-      "msgId": "<a10c74df79e1db6a9a2448220fe4c4fd6a0e5bdb.camel@surriel.com>",
-      "inReplyTo": "<ao1JwEAeNcP9OyKR@infradead.org>",
-      "references": "<20260811025157.1632867-1-riel@surriel.com>\t <ao1JwEAeNcP9OyKR@infradead.org>",
-      "title": "Re: [RFC PATCH v3 0/8] batch lookups in follow_page_mask()",
-      "updated": "Tue, 25 Aug 2026 09:37:09 -0400",
-      "authorName": "Rik van Riel",
-      "authorEmail": "riel@surriel.com",
-      "content": "On Tue, 2026-08-25 at 00:52 -0700, Christoph Hellwig wrote:\r\n> On Mon, Aug 10, 2026 at 10:51:49PM -0400, Rik van Riel wrote:\r\n> > follow_page_mask() walks the page tables one page at a time, even\r\n> > when the\r\n> > caller asked for a whole run of contiguous pages. Every page of a\r\n> > large folio\r\n> > re-enters the pmd/pud/pte walk and re-takes the page table lock.\r\n> > \r\n> > This series changes follow_page_mask() to return a page count and a\r\n> > fill an\r\n> > array of pages, instead of a single struct page, so a walker can\r\n> > hand back\r\n> > more than one page per call.\r\n> \r\n> And what many including the most performance critical callers want\r\n> instead is really a single bio_vec.  Maybe we can go the extra step\r\n> for\r\n> that, as it would reduce the number of calls into gup significantly.\r\n> \r\nWhich code are you referring to here?\r\n\r\nblk_rq_map_user() seems to end up calling pin_user_pages_fast(),\r\nvia iov_iter_extract_user_pages, and it directly fills in the\r\nbio_vec's pages array.\r\n\r\nIs there another performance critical path that goes\r\nthrough the slower get_user_pages() path?\r\n\r\n-- \r\nAll Rights Reversed.\r\n\r\n",
-      "listType": "LKML",
-      "to": "Christoph Hellwig <hch@infradead.org>",
-      "cc": "linux-kernel@vger.kernel.org, kernel-team@meta.com, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org"
-    },
-    {
       "id": "1a03934ea8093c2f",
       "msgId": "<DKY2D3AP6PZG.9RIX8KB3FF7P@garyguo.net>",
       "inReplyTo": "<DKY1WYBNR288.36W5V60TR81MG@kernel.org>",
@@ -13790,20 +13804,6 @@
       "listType": "LKML",
       "to": "Matthew Wilcox <willy@infradead.org>",
       "cc": "Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>"
-    },
-    {
-      "id": "1a0392b79885820b",
-      "msgId": "<87y0dumiga.fsf@geanix.com>",
-      "inReplyTo": "<20260825121704.00004ed3@gmail.com> (Joshua Crofts's message of \"Tue, 25 Aug 2026 12:17:04 +0200\")",
-      "references": "<20260825-mma8452-open-drain-v6-0-9b252804ee80@geanix.com> <20260825-mma8452-open-drain-v6-7-9b252804ee80@geanix.com> <UFc9cC1VeohKw6lxQ8uulsfj9wJ_OqGUgGPTUnTX-zssKZ97aEC0Xi9nsAxv-tcf2DP5e85ElFZ8wPgxwG8l3g==@protonmail.internalid> <20260825121704.00004ed3@gmail.com>",
-      "title": "Re: [PATCH v6 7/9] iio: accel: mma8452: Drop unneeded lock acquire on read",
-      "updated": "Tue, 25 Aug 2026 15:35:17 +0200",
-      "authorName": "Esben Haabendal",
-      "authorEmail": "esben@geanix.com",
-      "content": "\"Joshua Crofts\" <joshua.crofts1@gmail.com> writes:\r\n\r\n> On Tue, 25 Aug 2026 10:27:45 +0200\r\n> Esben Haabendal <esben@geanix.com> wrote:\r\n>\r\n>> There is no need to acquire data->lock when calling mma8452_read(), and\r\n>> dropping that makes it less likely to end up in an AB-BA deadlock\r\n>> situation.\r\n>>\r\n>> Signed-off-by: Esben Haabendal <esben@geanix.com>\r\n>> ---\r\n>>  drivers/iio/accel/mma8452.c | 2 --\r\n>>  1 file changed, 2 deletions(-)\r\n>>\r\n>> diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c\r\n>> index 7ef1a9a91c31..9ae2c3e60576 100644\r\n>> --- a/drivers/iio/accel/mma8452.c\r\n>> +++ b/drivers/iio/accel/mma8452.c\r\n>> @@ -504,9 +504,7 @@ static int mma8452_read_raw(struct iio_dev *indio_dev,\r\n>>  \t\tif (!iio_device_claim_direct(indio_dev))\r\n>>  \t\t\treturn -EBUSY;\r\n>>\r\n>> -\t\tmutex_lock(&data->lock);\r\n>>  \t\tret = mma8452_read(data, buffer);\r\n>> -\t\tmutex_unlock(&data->lock);\r\n>>  \t\tiio_device_release_direct(indio_dev);\r\n>>  \t\tif (ret < 0)\r\n>>  \t\t\treturn ret;\r\n>>\r\n>\r\n> Sashiko has something to say and I tend to agree at the moment:\r\n>\r\n> Could removing this lock expose mma8452_read() to race conditions with PM\r\n> auto-suspend and event configuration?\r\n\r\nYes. I tend to agree as well.\r\n\r\n> mma8452_read() can be interrupted by the PM auto-suspend worker, which puts\r\n> the device in STANDBY and disables regulators while mma8452_drdy() is actively\r\n> polling over I2C. This can lead to I/O timeouts or errors.\r\n\r\nYes, and causing pain for other I2C devices on same bus :(\r\n\r\n> Additionally, concurrent sysfs writes to event configurations invoke\r\n> mma8452_change_config(), which puts the hardware into STANDBY to modify\r\n> registers. The Standby transition flushes the hardware FIFO. If this occurs\r\n> between the mma8452_drdy() check and the i2c_smbus_read_i2c_block_data() in\r\n> mma8452_read(), the block read will fetch flushed or stale data.\r\n\r\nArgh. Yet another level of trouble.\r\n\r\nMaybe we should extend the use of data->lock instead. Holding it\r\n1. whenever doing read-modify-write actions\r\n2. while holding the device in standby mode for changing registers\r\n3. while doing suspend/resume\r\n\r\nI was just adding support for a open-drain mode irq sharing you know.\r\nWhile sashiko-bot definitely is catching lots of valid problems, and\r\nfixing them is a good thing, this is starting to feel like I opened\r\nPandoras box by touching this driver :D\r\n\r\nI will try to wrap up a patch with the above described extended usage of\r\ndata->lock, but hope we can find a way to get the irq sharing and open\r\ndrain mode support merged, without necessarily having to fixing all and every\r\npossible existing bugs as a pre-condition, but maybe delay some work to\r\nlater work.\r\n\r\n/Esben\r\n\r\n",
-      "listType": "LKML",
-      "to": "Joshua Crofts <joshua.crofts1@gmail.com>",
-      "cc": "<linux-iio@vger.kernel.org>, <devicetree@vger.kernel.org>, Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Martin Kepplinger <martink@posteo.de>, Sean Nyekjaer <sean@geanix.com>, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Martin Kepplinger <martin.kepplinger@theobroma-systems.com>, Christoph Muellner <christoph.muellner@theobroma-systems.com>, <linux-kernel@vger.kernel.org>"
     },
     {
       "id": "1a03931c9b974678",
