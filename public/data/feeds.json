@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-29T10:07:06.072Z",
+  "timestamp": "2026-08-29T10:26:32.410Z",
   "entries": [
+    {
+      "id": "1a04d084a58f82fd",
+      "msgId": "<20260829101905.4163730-1-4ncienth@gmail.com>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] exit: hold a reference to thread_pid across proc_flush_pid",
+      "updated": "Sat, 29 Aug 2026 19:19:05 +0900",
+      "authorName": "Daehyeon Ko",
+      "authorEmail": "4ncienth@gmail.com",
+      "content": "release_task() keeps a task's thread_pid across the point where it\r\ndrops tasklist_lock and calls proc_flush_pid().  The commit named in Fixes\r\nremoved the PID reference.  It assumed that the PID cannot go away before\r\nthis release_task() invocation calls free_pids().\r\n\r\nThat assumption does not cover references represented only by PIDTYPE\r\nlinks.  Process B can still use exiting process A's PID as its session and\r\nprocess group ID.  A is reaped with wait4(-1); PID-specific waits take\r\ntheir own PID reference and mask the bug.  After A's reaper drops\r\ntasklist_lock, B can call setsid(), remove the final PIDTYPE links, and\r\nqueue the PID from B's own free_pids() call.  The RCU callback can then\r\nfree the object before the reaper dereferences pid->inodes and pid->lock in\r\nproc_flush_pid().\r\n\r\nA timing-only diagnostic forced this legal ordering on final v7.2.  It only\r\ngated the real setsid(), RCU callback, and proc_flush_pid() operations; it\r\ndid not change PID links or reference counts.  Three of three fresh KASAN\r\nboots reported:\r\n\r\n    BUG: KASAN: slab-use-after-free in\r\n    proc_invalidate_siblings_dcache+0x3e2/0x3f0\r\n    Read of size 8 by task h7_pid_reaper/1921\r\n    CPU: 0 UID: 65534 PID: 1921 Comm: h7_pid_reaper\r\n\r\n    Call Trace:\r\n     proc_invalidate_siblings_dcache\r\n     release_task\r\n     wait_consider_task\r\n     __do_wait\r\n     do_wait\r\n     kernel_wait4\r\n\r\n    Freed by task 0:\r\n     kmem_cache_free\r\n     put_pid\r\n     delayed_put_pid\r\n     rcu_core\r\n\r\n    Last potentially related work creation:\r\n     __call_rcu_common\r\n     free_pids\r\n     ksys_setsid\r\n\r\nKASAN identified a 144-byte object from the pid cache and located the bad\r\nread 80 bytes into the freed object, matching pid->inodes.  Restoring the\r\nbalanced PID reference completed without a KASAN report on three of three\r\nfresh boots: the concurrent RCU callback reduced the count from two to one,\r\nproc_flush_pid() completed, and the balancing put_pid() performed the final\r\nfree.\r\n\r\nPublic syzbot reports have independently observed proc_flush_pid() reading\r\na freed pid-cache object, including a last reference released by a proc\r\ninode callback.  Pin thread_pid explicitly so every last-reference path is\r\nexcluded until proc_flush_pid() completes.\r\n\r\nA tested source reproducer is available privately on request.  No\r\ncontrolled read or write, information leak, or privilege escalation is\r\nclaimed.  The mainline patch applies directly to v6.19.y and newer;\r\nv6.16.y through v6.18.y need a context-adjusted backport.\r\n\r\nFixes: 0a36bad01731 (\"release_task: kill the no longer needed get/put_pid(thread_pid)\")\r\nReported-by: syzbot+0aee5e8066eddbbe7397@syzkaller.appspotmail.com\r\nCloses: https://syzkaller.appspot.com/bug?extid=0aee5e8066eddbbe7397\r\nReported-by: syzbot+e8b3520b53e78e90034e@syzkaller.appspotmail.com\r\nLink: https://syzkaller.appspot.com/bug?extid=e8b3520b53e78e90034e\r\nCc: <stable@vger.kernel.org> # see patch description, needs adjustments for 6.16.y-6.18.y\r\nAssisted-by: LLM\r\nSigned-off-by: Daehyeon Ko <4ncienth@gmail.com>\r\n---\r\n kernel/exit.c | 6 +++---\r\n 1 file changed, 3 insertions(+), 3 deletions(-)\r\n\r\ndiff --git a/kernel/exit.c b/kernel/exit.c\r\nindex 97686af895013b..461e2834fcb45f 100644\r\n--- a/kernel/exit.c\r\n+++ b/kernel/exit.c\r\n@@ -261,8 +261,8 @@ void release_task(struct task_struct *p)\r\n \tpidfs_exit(p);\r\n \tcgroup_task_release(p);\r\n \r\n-\t/* Retrieve @thread_pid before __unhash_process() may set it to NULL. */\r\n-\tthread_pid = task_pid(p);\r\n+\t/* Pin @thread_pid before __unhash_process() may set it to NULL. */\r\n+\tthread_pid = get_pid(task_pid(p));\r\n \r\n \twrite_lock_irq(&tasklist_lock);\r\n \tptrace_release_task(p);\r\n@@ -291,8 +291,8 @@ void release_task(struct task_struct *p)\r\n \t}\r\n \r\n \twrite_unlock_irq(&tasklist_lock);\r\n-\t/* @thread_pid can't go away until free_pids() below */\r\n \tproc_flush_pid(thread_pid);\r\n+\tput_pid(thread_pid);\r\n \texit_cred_namespaces(p);\r\n \tadd_device_randomness(&p->se.sum_exec_runtime,\r\n \t\t\t      sizeof(p->se.sum_exec_runtime));\r\n\r\nbase-commit: cf72cbb39da84b6f02f90c07f33b102fc10b16f0\r\n-- \r\n2.54.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Oleg Nesterov <oleg@redhat.com>",
+      "cc": "Mateusz Guzik <mjguzik@gmail.com>, Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, syzbot+0aee5e8066eddbbe7397@syzkaller.appspotmail.com, syzbot+e8b3520b53e78e90034e@syzkaller.appspotmail.com"
+    },
+    {
+      "id": "1a04d04ac19be3f4",
+      "msgId": "<20260829101509.138284-1-paul@crapouillou.net>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH v2] ARM: dts: samsung: exynos4210-i9100: Enable RTS/CTS in Bluetooth node",
+      "updated": "Sat, 29 Aug 2026 12:15:09 +0200",
+      "authorName": "Paul Cercueil",
+      "authorEmail": "paul@crapouillou.net",
+      "content": "The BCM4330 is connected using CTS/RTS too, so add the 'uart-has-rtscts'\r\nproperty.\r\n\r\nSigned-off-by: Paul Cercueil <paul@crapouillou.net>\r\n---\r\n\r\nNotes:\r\n    Changes:\r\n    \r\n    V1 was: \"ARM: dts: samsung: exynos4210-i9100: Fix Bluetooth node\"\r\n    \r\n    -v2: Drop max-speed property. It's only supposed to be used in some\r\n         cases, which don't apply here. As this was the \"fix\" for getting\r\n         Bluetooth to work on my device, which will be applied to the\r\n         driver instead, the Fixes: tag was removed.\r\n\r\n arch/arm/boot/dts/samsung/exynos4210-i9100.dts | 1 +\r\n 1 file changed, 1 insertion(+)\r\n\r\ndiff --git a/arch/arm/boot/dts/samsung/exynos4210-i9100.dts b/arch/arm/boot/dts/samsung/exynos4210-i9100.dts\r\nindex 8a635bee59fa..95964be7daa8 100644\r\n--- a/arch/arm/boot/dts/samsung/exynos4210-i9100.dts\r\n+++ b/arch/arm/boot/dts/samsung/exynos4210-i9100.dts\r\n@@ -875,6 +875,7 @@ &serial_0 {\r\n \tstatus = \"okay\";\r\n \r\n \tpinctrl-names = \"default\";\r\n+\tuart-has-rtscts;\r\n \tpinctrl-0 = <&bt_en>, <&bt_res>, <&uart0_data>, <&uart0_fctl>;\r\n \r\n \tbluetooth {\r\n-- \r\n2.53.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>",
+      "cc": "devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>"
+    },
+    {
+      "id": "1a04cfbc56031570",
+      "msgId": "<CAGsJ_4wU7B_Lnz_fbKOUsb+2fs1D3GrMcPq7FBLN4n4M7LLwBg@mail.gmail.com>",
+      "inReplyTo": "<20260826-mglru-flags-cleanup-v3-4-d9f1c75549c8@tencent.com>",
+      "references": "<20260826-mglru-flags-cleanup-v3-0-d9f1c75549c8@tencent.com> <20260826-mglru-flags-cleanup-v3-4-d9f1c75549c8@tencent.com>",
+      "title": "Re: [PATCH v3 4/6] mm/mglru: move max_seq read into walk_update_folio",
+      "updated": "Sat, 29 Aug 2026 18:04:48 +0800",
+      "authorName": "Barry Song",
+      "authorEmail": "baohua@kernel.org",
+      "content": "On Wed, Aug 26, 2026 at 1:53 AM Kairui Song via B4 Relay\r\n<devnull+kasong.tencent.com@kernel.org> wrote:\r\n>\r\n> From: Kairui Song <kasong@tencent.com>\r\n>\r\n> walk_pte_range(), walk_pmd_range_locked(), and lru_gen_look_around()\r\n> each read lrugen->max_seq to compute the target generation used by\r\n> walk_update_folio(), then pass it as a parameter. Move the read into\r\n> walk_update_folio() itself so the callers no longer need to compute\r\n> or pass the value.\r\n>\r\n> The max_seq read now happens once per folio update rather than once\r\n> per walk range, so folios always get promoted to the current youngest\r\n> generation.\r\n>\r\n> Reviewed-by: Baoquan He <baoquan.he@linux.dev>\r\n> Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>\r\n> Reviewed-by: Ridong Chen <ridong.chen@linux.dev>\r\n> Signed-off-by: Kairui Song <kasong@tencent.com>\r\n> ---\r\n\r\nReviewed-by: Barry Song <baohua@kernel.org>\r\n\r\n",
+      "listType": "LKML",
+      "to": "kasong@tencent.com",
+      "cc": "linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Baoquan He <baoquan.he@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, Johannes Weiner <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, Roman Gushchin <roman.gushchin@linux.dev>, Muchun Song <muchun.song@linux.dev>, Chris Li <chrisl@kernel.org>, Baolin Wang <baolin.wang@linux.alibaba.com>, Ridong Chen <ridong.chen@linux.dev>, David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, \"Liam R. Howlett\" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Yu Zhao <yuzhao@google.com>, Zi Yan <ziy@nvidia.com>, Qi Zheng <qi.zheng@linux.dev>, cgroups@vger.kernel.org, linux-kernel@vger.kernel.org, Kairui Song <ryncsn@gmail.com>"
+    },
     {
       "id": "1a04cfa5f7078614",
       "msgId": "<20260829100333.32933-2-i.bahloul01@gmail.com>",
@@ -13916,48 +13958,6 @@
       "listType": "LKML",
       "to": "Qingfang Deng <qingfang.deng@linux.dev>",
       "cc": "Andrew Lunn <andrew+netdev@lunn.ch>, \"David S. Miller\" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Kees Cook <kees@kernel.org>, \"Jiri Slaby (SUSE)\" <jirislaby@kernel.org>, linux-ppp@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot+8e808eb853386f575d86@syzkaller.appspotmail.com"
-    },
-    {
-      "id": "1a048ca86fd6d223",
-      "msgId": "<apGcOAUpb6XZ2Iud@DESKTOP-TIT0J8O.localdomain>",
-      "inReplyTo": "<20260828-adorable-bug-from-arcadia-fcad00@quoll>",
-      "references": "<cover.1786262697.git.naseefkm@gmail.com> <7e6150b186c2d16820d7382bce065596a0854a47.1786262697.git.naseefkm@gmail.com> <20260828-adorable-bug-from-arcadia-fcad00@quoll>",
-      "title": "Re: [PATCH 2/3] dt-bindings: pinctrl: Add EcoNet EN7528 pin controller",
-      "updated": "Fri, 28 Aug 2026 18:33:28 +0400",
-      "authorName": "Ahmed Naseef",
-      "authorEmail": "naseefkm@gmail.com",
-      "content": "On Fri, Aug 28, 2026 at 08:59:57AM +0200, Krzysztof Kozlowski wrote:\r\n> On Sun, Aug 09, 2026 at 12:04:59PM +0400, Ahmed Naseef wrote:\r\n> > +maintainers:\r\n> > +  - Lorenzo Bianconi <lorenzo@kernel.org>\r\n> > +\r\n> > +description:\r\n> > +  The EcoNet EN7528 pin controller is used to control SoC pins. It shares the\r\n> > +  IP with the Airoha pin controllers, but its IOMUX and pin configuration\r\n> > +  registers have a different layout.\r\n> > +\r\n> > +properties:\r\n> > +  compatible:\r\n> > +    const: econet,en7528-pinctrl\r\n> > +\r\n> > +  airoha,chip-scu:\r\n> > +    description: phandle to the chip SCU syscon\r\n> > +    $ref: /schemas/types.yaml#/definitions/phandle\r\n> \r\n> If the entire address space is part of the SCU, then this device should\r\n> be part of the SCU, e.g. its subnode.\r\n\r\nIt is not: the registers are split over two blocks. The GPIO, interrupt\r\nand PWM flash-mode registers are in the block the node sits under, and\r\nthe IOMUX and pin configuration registers are in the SCU. Both are\r\nneeded, so whichever of the two is the parent, the other one has to come\r\nin by phandle.\r\n\r\n> \r\n> > +\r\n> > +  interrupts:\r\n> > +    maxItems: 1\r\n> > +\r\n> > +  gpio-controller: true\r\n> > +\r\n> > +  '#gpio-cells':\r\n> > +    const: 2\r\n> > +\r\n> > +  gpio-ranges:\r\n> > +    maxItems: 1\r\n> > +\r\n> > +  interrupt-controller: true\r\n> > +\r\n> > +  '#interrupt-cells':\r\n> > +    const: 2\r\n> > +\r\n> > +allOf:\r\n> \r\n> This goes to the end of the file, before the additionalProperties.\r\n> \r\nWill address in v2.\r\n\r\n> > +  - $ref: pinctrl.yaml#\r\n> > +\r\n> > +required:\r\n> > +  - compatible\r\n> > +  - airoha,chip-scu\r\n> > +  - interrupts\r\n> > +  - gpio-controller\r\n> > +  - gpio-ranges\r\n> > +  - \"#gpio-cells\"\r\n> > +  - interrupt-controller\r\n> > +  - \"#interrupt-cells\"\r\n> > +\r\n> > +patternProperties:\r\n> > +  '-pins$':\r\n> > +    type: object\r\n> \r\n> \"patternProperties\" should follow \"properties\"\r\n> \r\n\r\nWill address in v2.\r\n\r\nThanks for the review!\r\n\r\nAhmed\r\n> > +\r\n> > +    patternProperties:\r\n> > +      '^mux(-|$)':\r\n> > +        type: object\r\n> > +\r\n> > +        description:\r\n> > +          pinmux configuration nodes.\r\n> > +\r\n> > +        $ref: /schemas/pinctrl/pinmux-node.yaml\r\n> > +\r\n> > +        properties:\r\n> > +          function:\r\n> > +            description:\r\n> > +              A string containing the name of the function to mux to the group.\r\n> > +            enum: [gpio, jtag, pcie_reset, pcm, pcm_spi, phy1_led0,\r\n> > +                   phy1_led1, phy2_led0, phy2_led1, phy3_led0, phy3_led1,\r\n> > +                   phy4_led0, phy4_led1, pnand, pon, pwm, sipo, spi, uart]\r\n> \r\n> Best regards,\r\n> Krzysztof\r\n\r\n",
-      "listType": "LKML",
-      "to": "Krzysztof Kozlowski <krzk@kernel.org>",
-      "cc": "Ahmed Naseef <naseefkm@gmail.com>, linux-gpio@vger.kernel.org, Benjamin Larsson <benjamin.larsson@genexis.eu>, Christian Marangi <ansuelsmth@gmail.com>, Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, Lorenzo Bianconi <lorenzo@kernel.org>, Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org"
-    },
-    {
-      "id": "1a048ca14b2978e6",
-      "msgId": "<20260828103328.633bbfbc@gandalf.local.home>",
-      "inReplyTo": "<20260828124758.GP687043@noisy.programming.kicks-ass.net>",
-      "references": "<20260827232948.2520558-1-stevensd@google.com> <20260828124758.GP687043@noisy.programming.kicks-ass.net>",
-      "title": "Re: [RFC 00/10] Reclaimable kernel stacks",
-      "updated": "Fri, 28 Aug 2026 10:33:28 -0400",
-      "authorName": "Steven Rostedt",
-      "authorEmail": "rostedt@goodmis.org",
-      "content": "On Fri, 28 Aug 2026 14:47:58 +0200\r\nPeter Zijlstra <peterz@infradead.org> wrote:\r\n\r\n> > On Android, system processes typically have 2000-3000 threads. App\r\n> > processes add 1000s more threads on top of this.  \r\n> \r\n> WTF ?!? Why does that all spawn *that* many threads? Perhaps work on\r\n> reducing that some?\r\n\r\nI guess you never ran Java ;-)\r\n\r\n-- Steve\r\n\r\n",
-      "listType": "LKML",
-      "to": "Peter Zijlstra <peterz@infradead.org>",
-      "cc": "David Stevens <stevensd@google.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, \"H . Peter Anvin\" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Dave Chinner <david@fromorbit.com>, Qi Zheng <qi.zheng@linux.dev>, Roman Gushchin <roman.gushchin@linux.dev>, Muchun Song <muchun.song@linux.dev>, Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak <kprateek.nayak@amd.com>, Uladzislau Rezki <urezki@gmail.com>, David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, \"Liam R . Howlett\" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Kees Cook <kees@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Clark Williams <clrkwllms@kernel.org>, suleiman@google.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org, linux-rt-devel@lists.linux.dev, jstultz@google.com"
-    },
-    {
-      "id": "1a048ca596baa062",
-      "msgId": "<20260828-serial-qcom-geni-fix-unbalanced-rpm-resume-v1-1-af3e5aef17a6@oss.qualcomm.com>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH] serial: qcom-geni: Fix unbalanced runtime PM resume for no_console_suspend",
-      "updated": "Fri, 28 Aug 2026 17:32:17 +0300",
-      "authorName": "Abel Vesa",
-      "authorEmail": "abel.vesa@oss.qualcomm.com",
-      "content": "When no_console_suspend is set for the serial console, the system\r\nsuspend callback skips pm_runtime_force_suspend() to keep the console\r\nactive. The resume callback still unconditionally calls\r\npm_runtime_force_resume(), which triggers an \"Unbalanced\r\npm_runtime_enable!\" warning.\r\n\r\nOnly force resume when the suspend callback force suspended the device.\r\n\r\nFixes: d0cd9c8d0fd5 (\"serial: qcom-geni: add force suspend/resume to system sleep callbacks\")\r\nSigned-off-by: Abel Vesa <abel.vesa@oss.qualcomm.com>\r\n---\r\n drivers/tty/serial/qcom_geni_serial.c | 8 +++++---\r\n 1 file changed, 5 insertions(+), 3 deletions(-)\r\n\r\ndiff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c\r\nindex 3633723acef8..a180a00c9e23 100644\r\n--- a/drivers/tty/serial/qcom_geni_serial.c\r\n+++ b/drivers/tty/serial/qcom_geni_serial.c\r\n@@ -2099,9 +2099,11 @@ static int qcom_geni_serial_resume(struct device *dev)\r\n \tstruct uart_port *uport = &port->uport;\r\n \tstruct qcom_geni_private_data *private_data = uport->private_data;\r\n \r\n-\tret = pm_runtime_force_resume(dev);\r\n-\tif (ret)\r\n-\t\treturn ret;\r\n+\tif (console_suspend_enabled || !uart_console(uport)) {\r\n+\t\tret = pm_runtime_force_resume(dev);\r\n+\t\tif (ret)\r\n+\t\t\treturn ret;\r\n+\t}\r\n \r\n \tret = uart_resume_port(private_data->drv, uport);\r\n \tif (uart_console(uport)) {\r\n\r\n---\r\nbase-commit: 3d83758432b5e6ed9507500a57efb0f3af41ee7d\r\nchange-id: 20260828-serial-qcom-geni-fix-unbalanced-rpm-resume-814e630326b9\r\n\r\nBest regards,\r\n--  \r\nAbel Vesa <abel.vesa@oss.qualcomm.com>\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, Praveen Talari <praveen.talari@oss.qualcomm.com>",
-      "cc": "linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org, Abel Vesa <abel.vesa@oss.qualcomm.com>"
     },
     {
       "id": "1a049f0bc7a47e22",
