@@ -1,6 +1,34 @@
 {
-  "timestamp": "2026-08-29T13:25:46.849Z",
+  "timestamp": "2026-08-29T13:44:10.357Z",
   "entries": [
+    {
+      "id": "1a04dbb112af2a7e",
+      "msgId": "<20260829133410.1708684-1-runyu.xiao@seu.edu.cn>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] crypto: ccp: Initialize DBC ioctl mutex before registering device",
+      "updated": "Sat, 29 Aug 2026 21:34:10 +0800",
+      "authorName": "Runyu Xiao",
+      "authorEmail": "runyu.xiao@seu.edu.cn",
+      "content": "dbc_dev_init() registers the DBC misc device before initializing\r\nioctl_mutex. Once misc_register() publishes the device, userspace can\r\nopen it and invoke dbc_ioctl() while the mutex is still uninitialized.\r\n\r\nInitialize ioctl_mutex before calling misc_register() so the published\r\nioctl callback always sees an initialized mutex.\r\n\r\nFixes: c04cf9e14f10 (\"crypto: ccp - Add support for fetching a nonce for dynamic boost control\")\r\nCc: stable@vger.kernel.org\r\nSigned-off-by: Runyu Xiao <runyu.xiao@seu.edu.cn>\r\nAssisted-by: Codex:GPT-5\r\n---\r\n drivers/crypto/ccp/dbc.c | 4 ++--\r\n 1 file changed, 2 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/crypto/ccp/dbc.c b/drivers/crypto/ccp/dbc.c\r\nindex 410084a90..00c864413 100644\r\n--- a/drivers/crypto/ccp/dbc.c\r\n+++ b/drivers/crypto/ccp/dbc.c\r\n@@ -240,12 +240,12 @@ int dbc_dev_init(struct psp_device *psp)\r\n \tdbc_dev->char_dev.name = \"dbc\";\r\n \tdbc_dev->char_dev.fops = &dbc_fops;\r\n \tdbc_dev->char_dev.mode = 0600;\r\n+\tmutex_init(&dbc_dev->ioctl_mutex);\r\n+\r\n \tret = misc_register(&dbc_dev->char_dev);\r\n \tif (ret)\r\n \t\tgoto cleanup_mbox;\r\n \r\n-\tmutex_init(&dbc_dev->ioctl_mutex);\r\n-\r\n \treturn 0;\r\n \r\n cleanup_mbox:\r\n\r\n",
+      "listType": "LKML",
+      "to": "mario.limonciello@amd.com",
+      "cc": "runyu.xiao@seu.edu.cn, jianhao.xu@seu.edu.cn, thomas.lendacky@amd.com, john.allen@amd.com, herbert@gondor.apana.org.au, davem@davemloft.net, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
+    },
+    {
+      "id": "1a04dba710f682a0",
+      "msgId": "<apLfx9oqYaa36oyn@MAC.fritz.box>",
+      "inReplyTo": "<2026082934-irrigate-tastiness-c4ff@gregkh>",
+      "references": "<apCEDM2sWv_M354-@MAC.fritz.box> <apCGKUotSUZLvngV@MAC.fritz.box> <2026082934-irrigate-tastiness-c4ff@gregkh>",
+      "title": "Re: [Patch 3/9]: Replace scr_readw/writew by scr_readg/writeg, etc",
+      "updated": "Sat, 29 Aug 2026 13:33:59 +0000",
+      "authorName": "Alan Mackenzie",
+      "authorEmail": "acm@muc.de",
+      "content": "On Sat, Aug 29, 2026 at 14:11:00 +0200, Greg Kroah-Hartman wrote:\r\n> On Thu, Aug 27, 2026 at 06:47:05PM +0000, Alan Mackenzie wrote:\r\n\r\n> > vt: 32b glyph: 3. replace scr_readw/writew by scr_readg/writeg, etc.\r\n\r\n> I don't understand these lines in your patches, where are they from and\r\n> what are they for?\r\n\r\nscr_readg and scr_writeg read and write an entire glyph, regardless of\r\nwhether that glyph is 16-bit or 32-bit.  The latter is determined by the\r\nsetting of CONFIG_FB_GLYPH_21BIT.\r\n\r\nThis is the main complication in these patches; having to cope with both\r\nsizes of glyph, for backward compatibility, rather than just switching\r\nto 32-bit glyphs.\r\n\r\n> thanks,\r\n\r\n> greg k-h\r\n\r\n-- \r\nAlan Mackenzie (Nuremberg, Germany).\r\n\r\n",
+      "listType": "LKML",
+      "to": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+      "cc": "Jiri Slaby <jirislaby@kernel.org>, Simona Vetter <simona@ffwll.ch>, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, Helge Deller <deller@gmx.de>, Thomas Zimmermann <tzimmermann@suse.de>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org"
+    },
     {
       "id": "1a04daf6c6833a9b",
       "msgId": "<nCjqoWI6z141hFVhaIJmJKK83OIBg5hmB1uE_5U_sqbA0B_kIEPUmVzPTuOViWOyT0y-dCy5yDo2BpGGXWO99LeEugNunoW0eVooQGFMxrw=@berg.pm>",
@@ -13904,20 +13932,6 @@
       "cc": "Marek Vasut <marex@nabladev.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, Christophe Roullier <christophe.roullier@foss.st.com>, Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>, Rob Herring <robh@kernel.org>, Yannick Fertre <yannick.fertre@foss.st.com>, devicetree@vger.kernel.org, kernel@dh-electronics.com, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com"
     },
     {
-      "id": "1a048edf42840b5a",
-      "msgId": "<20260828151024.2081478-1-cosmin-gabriel.tanislav.xa@renesas.com>",
-      "inReplyTo": "",
-      "references": "",
-      "title": "[PATCH v2] dmaengine: dmatest: fix race between wait for thread and thread start",
-      "updated": "Fri, 28 Aug 2026 18:10:24 +0300",
-      "authorName": "Cosmin Tanislav",
-      "authorEmail": "cosmin-gabriel.tanislav.xa@renesas.com",
-      "content": "Each dmatest worker thread has a pending and a done flag which describe\r\nthe thread's lifecycle.\r\n\r\npending is initialized to true when the thread is added to the threads\r\nlist. pending is set to false once the thread is actually running. done\r\nis set to true once the thread has finished its testing.\r\n\r\nWhen the wait module parameter is set to true, dmatest_init() waits for\r\nthe !is_threaded_test_run() condition to become true.\r\n\r\nIf the worker thread is not started and running by the time\r\ndmatest_init() waits, the !is_threaded_test_run() condition will be true\r\nand the wait will stop early, before the worker thread is even started.\r\ndmatest_init() exits, defeating the whole purpose of the wait.\r\n\r\nIf then we try to remove the module, kthread_stop() will try to cleanup\r\nthe worker threads, interrupting wait_event_freezable_timeout(), which\r\nwill return -ERESTARTSYS, causing the \"test timed out\" message to be\r\nprinted.\r\n\r\nClear the pending flag once we wake up the worker thread to avoid this\r\nrace.\r\n\r\nFixes: d53513d5dc28 (\"dmaengine: dmatest: Add support for multi channel testing\")\r\nSigned-off-by: Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>\r\n---\r\n\r\nV2:\r\n * move pending = false before wake_up_process() as suggested by Sashiko\r\n\r\n drivers/dma/dmatest.c | 2 +-\r\n 1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c\r\nindex 2ae3469397f3..f654a00e0040 100644\r\n--- a/drivers/dma/dmatest.c\r\n+++ b/drivers/dma/dmatest.c\r\n@@ -610,7 +610,6 @@ static int dmatest_func(void *data)\r\n \tret = -ENOMEM;\r\n \r\n \tsmp_rmb();\r\n-\tthread->pending = false;\r\n \tinfo = thread->info;\r\n \tparams = &info->params;\r\n \tchan = thread->chan;\r\n@@ -1141,6 +1140,7 @@ static void run_pending_tests(struct dmatest_info *info)\r\n \r\n \t\tthread_count = 0;\r\n \t\tlist_for_each_entry(thread, &dtc->threads, node) {\r\n+\t\t\tthread->pending = false;\r\n \t\t\twake_up_process(thread->task);\r\n \t\t\tthread_count++;\r\n \t\t}\r\n-- \r\n2.55.0\r\n\r\n",
-      "listType": "LKML",
-      "to": "Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, Seraj Alijan <seraj.alijan@sondrel.com>",
-      "cc": "dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org, Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>"
-    },
-    {
       "id": "1a048efbf050eea4",
       "msgId": "<20260828150937.174735-2-marex@nabladev.com>",
       "inReplyTo": "<20260828150937.174735-1-marex@nabladev.com>",
@@ -13958,20 +13972,6 @@
       "listType": "LKML",
       "to": "linux-phy@lists.infradead.org",
       "cc": "Pankaj Dev <pankaj.dev@st.com>, Rahul Kumar <rahul.kumar05@st.com>, Fabrice Gasnier <fabrice.gasnier@foss.st.com>, \"Clément Le Goffic\" <clement.legoffic@foss.st.com>, Marek Vasut <marex@nabladev.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, Christian Bruel <christian.bruel@foss.st.com>, Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Manivannan Sadhasivam <mani@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Neil Armstrong <neil.armstrong@linaro.org>, Patrice Chotard <patrice.chotard@foss.st.com>, Rob Herring <robh@kernel.org>, Rosen Penev <rosenp@gmail.com>, Vinod Koul <vkoul@kernel.org>, devicetree@vger.kernel.org, kernel@dh-electronics.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com"
-    },
-    {
-      "id": "1a048ed7f73407ae",
-      "msgId": "<20260828150245.173147-2-marex@nabladev.com>",
-      "inReplyTo": "<20260828150245.173147-1-marex@nabladev.com>",
-      "references": "<20260828150245.173147-1-marex@nabladev.com>",
-      "title": "[PATCH 2/3] ARM: dts: stm32: Use STM32MP13xx compatible string for EHCI USB controller",
-      "updated": "Fri, 28 Aug 2026 17:02:26 +0200",
-      "authorName": "Marek Vasut",
-      "authorEmail": "marex@nabladev.com",
-      "content": "Use accurate STM32MP13xx compatible string for EHCI USB controller in\r\naddition to \"generic-ehci\" fallback compatible string. This is future\r\nproof, and drivers can match on the accurate compatible string in case\r\nthey need to discern this controller from the generic-ehci one.\r\n\r\nSigned-off-by: Marek Vasut <marex@nabladev.com>\r\n---\r\nCc: Alexandre Torgue <alexandre.torgue@foss.st.com>\r\nCc: Conor Dooley <conor+dt@kernel.org>\r\nCc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>\r\nCc: Krzysztof Kozlowski <krzk+dt@kernel.org>\r\nCc: Maxime Coquelin <mcoquelin.stm32@gmail.com>\r\nCc: Rob Herring <robh@kernel.org>\r\nCc: devicetree@vger.kernel.org\r\nCc: linux-arm-kernel@lists.infradead.org\r\nCc: linux-kernel@vger.kernel.org\r\nCc: linux-stm32@st-md-mailman.stormreply.com\r\nCc: linux-usb@vger.kernel.org\r\n---\r\n arch/arm/boot/dts/st/stm32mp131.dtsi | 2 +-\r\n 1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/arch/arm/boot/dts/st/stm32mp131.dtsi b/arch/arm/boot/dts/st/stm32mp131.dtsi\r\nindex d1c5afb5f89aa..ae45c2023afeb 100644\r\n--- a/arch/arm/boot/dts/st/stm32mp131.dtsi\r\n+++ b/arch/arm/boot/dts/st/stm32mp131.dtsi\r\n@@ -1137,7 +1137,7 @@ usbh_ohci: usb@5800c000 {\r\n \t\t};\r\n \r\n \t\tusbh_ehci: usb@5800d000 {\r\n-\t\t\tcompatible = \"generic-ehci\";\r\n+\t\t\tcompatible = \"st,stm32mp13-ehci\", \"generic-ehci\";\r\n \t\t\treg = <0x5800d000 0x1000>;\r\n \t\t\tclocks = <&usbphyc>, <&rcc USBH>;\r\n \t\t\tresets = <&rcc USBH_R>;\r\n-- \r\n2.53.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-arm-kernel@lists.infradead.org",
-      "cc": "Marek Vasut <marex@nabladev.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, Conor Dooley <conor+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-usb@vger.kernel.org"
     },
     {
       "id": "1a048ef5a02ba3a9",
