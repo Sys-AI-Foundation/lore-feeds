@@ -1,6 +1,62 @@
 {
-  "timestamp": "2026-08-30T19:06:16.323Z",
+  "timestamp": "2026-08-30T19:24:19.328Z",
   "entries": [
+    {
+      "id": "1a0541795cbd92e7",
+      "msgId": "<apSAfJARPgsbSDYb@zenone.zhora.eu>",
+      "inReplyTo": "<20260830041303.1934825-1-peda@lysator.liu.se>",
+      "references": "<CA+0ovCij3QDLRzt8CwpjBy-BbJ5Zf5SV9w9QZXz8uD3Agws31g@mail.gmail.com> <20260830041303.1934825-1-peda@lysator.liu.se>",
+      "title": "Re: [PATCH] i2c: mux: avoid WARN on benign symlink creation failures",
+      "updated": "Sun, 30 Aug 2026 21:13:24 +0200",
+      "authorName": "Andi Shyti",
+      "authorEmail": "andi.shyti@kernel.org",
+      "content": "Hi Peter,\r\n\r\nOn Sun, Aug 30, 2026 at 06:13:03AM +0200, Peter Rosin wrote:\r\n> WARN() is a bit harsh and causes a crash for panic-on-warn users. Degrade\r\n> the error reporting to ordinary dev_err() calls.\r\n> \r\n> Reported-by: Farhad Alemi <farhad.alemi@berkeley.edu>\r\n> Link: https://lore.kernel.org/all/CA+0ovCij3QDLRzt8CwpjBy-BbJ5Zf5SV9w9QZXz8uD3Agws31g@mail.gmail.com/\r\n> Signed-off-by: Peter Rosin <peda@lysator.liu.se>\r\n> ---\r\n> \r\n> Hi Farhad,\r\n> \r\n> I assume this patch helps?\r\n\r\nI sent this patch for a quick test:\r\n\r\nhttps://lore.kernel.org/all/20260828135950.454799-1-andi.shyti@kernel.org/\r\n\r\nMaybe they can be taken together, as I agree not to fire a WARN()\r\nthere.\r\n\r\nAndi\r\n\r\n> \r\n> Cheers,\r\n> Peter\r\n> \r\n>  drivers/i2c/i2c-mux.c | 16 ++++++++++------\r\n>  1 file changed, 10 insertions(+), 6 deletions(-)\r\n> \r\n> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c\r\n> index 681a201c239b..52cd8cdf2307 100644\r\n> --- a/drivers/i2c/i2c-mux.c\r\n> +++ b/drivers/i2c/i2c-mux.c\r\n> @@ -393,14 +393,18 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,\r\n>  \t\t}\r\n>  \t}\r\n>  \r\n> -\tWARN(sysfs_create_link(&priv->adap.dev.kobj, &muxc->dev->kobj,\r\n> -\t\t\t       \"mux_device\"),\r\n> -\t     \"can't create symlink to mux device\\n\");\r\n> +\tret = sysfs_create_link(&priv->adap.dev.kobj, &muxc->dev->kobj,\r\n> +\t\t\t\t\"mux_device\");\r\n> +\tif (ret)\r\n> +\t\tdev_err(muxc->dev, \"can't create symlink to mux device\\n\");\r\n>  \r\n>  \tsnprintf(symlink_name, sizeof(symlink_name), \"channel-%u\", chan_id);\r\n> -\tWARN(sysfs_create_link(&muxc->dev->kobj, &priv->adap.dev.kobj,\r\n> -\t\t\t       symlink_name),\r\n> -\t     \"can't create symlink to channel %u\\n\", chan_id);\r\n> +\tret = sysfs_create_link(&muxc->dev->kobj, &priv->adap.dev.kobj,\r\n> +\t\t\t\tsymlink_name);\r\n> +\tif (ret)\r\n> +\t\tdev_err(muxc->dev,\r\n> +\t\t\t\"can't create symlink to channel %u\\n\", chan_id);\r\n> +\r\n>  \tdev_info(&parent->dev, \"Added multiplexed i2c bus %d\\n\",\r\n>  \t\t i2c_adapter_id(&priv->adap));\r\n>  \r\n> -- \r\n> 2.55.0\r\n> \r\n\r\n",
+      "listType": "LKML",
+      "to": "Peter Rosin <peda@lysator.liu.se>",
+      "cc": "Farhad Alemi <farhad.alemi@berkeley.edu>, falemi@asu.edu, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a05411f81ec818a",
+      "msgId": "<20260830190717.1509012-1-lin2530632123@gmail.com>",
+      "inReplyTo": "<d8fd1498-fe73-4f48-9213-6b18ec698a3d@kernel.dk>",
+      "references": "<d8fd1498-fe73-4f48-9213-6b18ec698a3d@kernel.dk>",
+      "title": "Re: [PATCH for-next] io_uring/futex: use GFP_KERNEL_ACCOUNT for futex data allocation",
+      "updated": "Sun, 30 Aug 2026 19:07:15 +0000",
+      "authorName": "Chengfeng Lin",
+      "authorEmail": "lin2530632123@gmail.com",
+      "content": "Hi Jens,\r\n\r\nI tested 6e0d71c288fd against its direct parent on bare metal. In a narrow\r\nio_uring futex WAITV -> WAKE workload, the child was 8.09% slower. A\r\nseparate 424-line standalone reproducer showed a 6.49% slowdown. A matched\r\nscalar WAIT -> WAKE control changed by -0.55%. All compared kernels actually\r\nran with preempt=full.\r\n\r\nThe test system was a Core i7-12700KF with 32 GiB RAM. The workload was pinned\r\nto P-core CPU 2, with the governor and EPP set to performance, Turbo disabled,\r\nand GCC 15.2.0.\r\n\r\n#regzbot introduced: 6e0d71c288fdcf5866f5d0c6cde850a091cc3c55\r\n#regzbot title: io_uring futex WAITV accounted-allocation slowdown\r\n\r\nThis is a focused synthetic microbenchmark, not an application benchmark. It\r\nuses one raw-UAPI ring and eight independent wait vectors. Each vector has\r\neight cacheline-separated private futex words. A timed cycle submits eight\r\nIORING_OP_FUTEX_WAITV requests, wakes element 3 in every vector, and validates\r\nall 16 CQEs. An untimed wake then verifies that the seven remaining waiters in\r\neach vector were removed.\r\n\r\nI used a fresh boot for each point:\r\n\r\n  816095894c0f parent A -> 6e0d71c288fd child -> 816095894c0f parent B\r\n\r\nEach point had 3 warm-up rounds and 15 measured rounds. Every measured round\r\nran 512 cycles, or 4,096 WAITV/wake pairs. Results in ns/pair were:\r\n\r\n  implementation   parent A     child   parent B   child vs midpoint\r\n  formal             1045.687  1128.704   1042.755        +8.091%\r\n  standalone         1040.270  1110.916   1046.198        +6.488%\r\n\r\nThe formal drop-first result was +8.080%, parent drift was -0.280%, and the\r\nmaximum CV was 0.151%. The standalone drop-first result was +6.511%, with\r\n+0.570% parent drift. All 90 WAITV timing rows passed the CQE, returned-value,\r\noverflow, residual-waiter, and CPU checks. Untimed child traces also hit\r\nio_futexv_prep(), io_futexv_wait(), io_futexv_complete(), and the wake path\r\nwith the expected request counts.\r\n\r\nThe exact source change is only GFP_KERNEL -> GFP_KERNEL_ACCOUNT for the\r\nper-WAITV data allocation. I understand the memcg-accounting purpose and am\r\nnot suggesting a revert.\r\n\r\nAs a separate current-baseline diagnostic, I compared unmodified v7.2 against\r\na direct child changing only this allocation back to GFP_KERNEL. The\r\nno-account child was 8.12% and 9.00% faster in the formal and standalone WAITV\r\ntests, while the scalar control changed by +0.09%. These values use a different\r\nbaseline and are not combined with the direct-parent results above.\r\n\r\nIs this per-WAITV cost an expected accounting trade-off, or could the same\r\nmemcg accounting be retained with lower per-request overhead?\r\n\r\nEvidence bundle:\r\n\r\n  https://github.com/lcf0399/linux-regression-evidence/tree/25ed417f566fc83b942e1787a0b53d555ccec291/io-uring-futex-waitv-accounted-allocation\r\n\r\nStandalone reproducer:\r\n\r\n  https://github.com/lcf0399/linux-regression-evidence/tree/25ed417f566fc83b942e1787a0b53d555ccec291/io-uring-futex-waitv-accounted-allocation/reproducer\r\n\r\nThanks,\r\nChengfeng\r\n\r\n",
+      "listType": "LKML",
+      "to": "Jens Axboe <axboe@kernel.dk>",
+      "cc": "io-uring@vger.kernel.org, linux-kernel@vger.kernel.org, regressions@lists.linux.dev"
+    },
+    {
+      "id": "1a05410edcad0f1d",
+      "msgId": "<178811672996.3429557.17540924218456081634.pr-tracker-bot@kernel.org>",
+      "inReplyTo": "<b81556f5-338-ea2a-6a71-5e115e66b84@inria.fr>",
+      "references": "<b81556f5-338-ea2a-6a71-5e115e66b84@inria.fr>",
+      "title": "Re: [GIT PULL] coccinelle changes for v7.3-rc1",
+      "updated": "Sun, 30 Aug 2026 19:05:29 +0000",
+      "authorName": "pr-tracker-bot@kernel.org",
+      "authorEmail": "pr-tracker-bot@kernel.org",
+      "content": "The pull request you sent on Sun, 30 Aug 2026 14:59:16 +0200 (CEST):\r\n\r\n> ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/jlawall/linux.git tags/cocci-7.3-rc1\r\n\r\nhas been merged into torvalds/linux.git:\r\nhttps://git.kernel.org/torvalds/c/eea8bdcb59e02729a33a8666f7b0b5e30e6cb736\r\n\r\nThank you!\r\n\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/prtracker.html\r\n\r\n",
+      "listType": "LKML",
+      "to": "Julia Lawall <julia.lawall@inria.fr>",
+      "cc": "torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, ekffu200098@gmail.com, akira.aiura.bj@hitachi.com"
+    },
+    {
+      "id": "1a0541068eac8ec6",
+      "msgId": "<178811668137.3429557.6420813472078174940.pr-tracker-bot@kernel.org>",
+      "inReplyTo": "<apRF7F65GhuKEF1j@zenone.zhora.eu>",
+      "references": "<apRF7F65GhuKEF1j@zenone.zhora.eu>",
+      "title": "Re: [GIT PULL] i2c fixes for v7.3-rc1",
+      "updated": "Sun, 30 Aug 2026 19:04:41 +0000",
+      "authorName": "pr-tracker-bot@kernel.org",
+      "authorEmail": "pr-tracker-bot@kernel.org",
+      "content": "The pull request you sent on Sun, 30 Aug 2026 17:07:20 +0200:\r\n\r\n> git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.3-rc1\r\n\r\nhas been merged into torvalds/linux.git:\r\nhttps://git.kernel.org/torvalds/c/78bb208b99e7d3314f670710fa9ee0a793682bca\r\n\r\nThank you!\r\n\r\n-- \r\nDeet-doot-dot, I am a bot.\r\nhttps://korg.docs.kernel.org/prtracker.html\r\n\r\n",
+      "listType": "LKML",
+      "to": "Andi Shyti <andi.shyti@kernel.org>",
+      "cc": "Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>"
+    },
     {
       "id": "1a0540d0f5c959c4",
       "msgId": "<CAGdSRjkCaEKCcwvZaE+V_jFXdPATJfa0MAW5fybyKU9+pFHGbQ@mail.gmail.com>",
@@ -13932,20 +13988,6 @@
       "cc": "git@luigi311.com, pavel@ucw.cz, tomm.merciai@gmail.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>, \"Ondřej Jirman\" <megi@xff.cz>"
     },
     {
-      "id": "1a04da17ff6ce1c7",
-      "msgId": "<20260829-imx258-add-reset-gpio-patch-v2-1-bfd27891e225@mainlining.org>",
-      "inReplyTo": "<20260829-imx258-add-reset-gpio-patch-v2-0-bfd27891e225@mainlining.org>",
-      "references": "<20260829-imx258-add-reset-gpio-patch-v2-0-bfd27891e225@mainlining.org>",
-      "title": "[PATCH v2 1/2] media: i2c: imx258: Add wait after enabling",
-      "updated": "Sat, 29 Aug 2026 16:06:33 +0300",
-      "authorName": "Muzaffer Kadir via B4 Relay",
-      "authorEmail": "devnull+muzafferkadir.mainlining.org@kernel.org",
-      "content": "From: Muzaffer Kadir <muzafferkadir@mainlining.org>\r\n\r\nAfter enabling the device, a delay is required before the sensor is\r\nready for CCI access. 0.4ms delay needed between enabling and\r\nreading the ID register over CCI.\r\n\r\nLink: https://lore.kernel.org/phone-devel/apF5oxsCf7MJt1lk@kekkonen.localdomain/T/#md6a0411e81a2e3a563c935348f2fb4f3d52df64f\r\nSigned-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>\r\n---\r\n drivers/media/i2c/imx258.c | 1 +\r\n 1 file changed, 1 insertion(+)\r\n\r\ndiff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c\r\nindex bc9ee449a87c..9c3a6579df0d 100644\r\n--- a/drivers/media/i2c/imx258.c\r\n+++ b/drivers/media/i2c/imx258.c\r\n@@ -1129,6 +1129,7 @@ static int imx258_power_on(struct device *dev)\r\n \t\tdev_err(dev, \"failed to enable clock\\n\");\r\n \t\tregulator_bulk_disable(IMX258_NUM_SUPPLIES, imx258->supplies);\r\n \t}\r\n+\tfsleep(400);\r\n \r\n \treturn ret;\r\n }\r\n\r\n-- \r\n2.54.0\r\n\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@kernel.org>",
-      "cc": "git@luigi311.com, pavel@ucw.cz, tomm.merciai@gmail.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>, \"Ondřej Jirman\" <megi@xff.cz>"
-    },
-    {
       "id": "1a04da18066b6f0c",
       "msgId": "<20260829-imx258-add-reset-gpio-patch-v2-0-bfd27891e225@mainlining.org>",
       "inReplyTo": "",
@@ -13958,48 +14000,6 @@
       "listType": "LKML",
       "to": "Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@kernel.org>",
       "cc": "git@luigi311.com, pavel@ucw.cz, tomm.merciai@gmail.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>, \"Ondřej Jirman\" <megi@xff.cz>"
-    },
-    {
-      "id": "1a04da0d0732f579",
-      "msgId": "<apLZF6b3F39z6bUc@google.com>",
-      "inReplyTo": "<ed99294bd4ac7cd40fa0b2053795aa24b27a632b.1787872237.git.mauriziocasciano7@gmail.com>",
-      "references": "<cover.platform-v2.1787872237.git.mauriziocasciano7@gmail.com> <ed99294bd4ac7cd40fa0b2053795aa24b27a632b.1787872237.git.mauriziocasciano7@gmail.com>",
-      "title": "Re: [PATCH v2 3/3] platform/x86: x86-android-tablets: Add Yoga Book audio GPIOs",
-      "updated": "Sat, 29 Aug 2026 06:06:10 -0700",
-      "authorName": "Dmitry Torokhov",
-      "authorEmail": "dmitry.torokhov@gmail.com",
-      "content": "Hi Maurizio,\r\n\r\nOn Fri, Aug 28, 2026 at 01:17:00AM +0200, Maurizio Casciano wrote:\r\n> The Yoga Book YB1-X91F/L uses two GPIOs provided by the RT5677 codec\r\n> itself. GPIO2 enables the second speaker amplifier and GPIO4 enables the\r\n> headphone path, but ACPI does not map either signal.\r\n> \r\n> Add lookup entries for the codec device so the Yoga Book ASoC machine\r\n> driver can request both controls by function name. Register and remove\r\n> the table with the tablet description lifetime.\r\n> \r\n> Signed-off-by: Maurizio Casciano <mauriziocasciano7@gmail.com>\r\n> Assisted-by: LLM sparse\r\n> ---\r\n>  drivers/platform/x86/x86-android-tablets/lenovo.c | 13 +++++++++++++\r\n>  1 file changed, 13 insertions(+)\r\n> \r\n> diff --git a/drivers/platform/x86/x86-android-tablets/lenovo.c b/drivers/platform/x86/x86-android-tablets/lenovo.c\r\n> index 88693b9a1b01..8a69194a724e 100644\r\n> --- a/drivers/platform/x86/x86-android-tablets/lenovo.c\r\n> +++ b/drivers/platform/x86/x86-android-tablets/lenovo.c\r\n> @@ -345,6 +345,16 @@ static const struct x86_i2c_client_info lenovo_yogabook_x91_i2c_clients[] __init\r\n>  \t},\r\n>  };\r\n>  \r\n> +static struct gpiod_lookup_table lenovo_yb1_x91_rt5677_gpios = {\r\n> +\t.dev_id = \"i2c-10EC5677:00\",\r\n> +\t.table = {\r\n> +\t\t/* GPIO2 drives the second speaker amp; GPIO4 drives headphones. */\r\n> +\t\tGPIO_LOOKUP(\"rt5677\", 2, \"speaker-enable2\", GPIO_ACTIVE_HIGH),\r\n> +\t\tGPIO_LOOKUP(\"rt5677\", 4, \"headphone-enable\", GPIO_ACTIVE_HIGH),\r\n> +\t\t{ }\r\n> +\t},\r\n> +};\r\n> +\r\n\r\nIt would be better if we used software nodes here instead of lookup\r\ntables.\r\n\r\nThanks.\r\n\r\n-- \r\nDmitry\r\n\r\n",
-      "listType": "LKML",
-      "to": "Maurizio Casciano <mauriziocasciano7@gmail.com>",
-      "cc": "Hans de Goede <hansg@kernel.org>, Ilpo Jarvinen <ilpo.jarvinen@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a04d86bacfa1f2a",
-      "msgId": "<20260829123725.86014-1-navonjohnlukose@gmail.com>",
-      "inReplyTo": "<20260829100758.8E8491F000E9@smtp.kernel.org>",
-      "references": "<20260829095437.44716-1-navonjohnlukose@gmail.com> <20260829100758.8E8491F000E9@smtp.kernel.org>",
-      "title": "Re: [PATCH wireless 1/2] wifi: iwlwifi: pcie: arm the product reset at probe",
-      "updated": "Sat, 29 Aug 2026 18:07:25 +0530",
-      "authorName": "Navon John Lukose",
-      "authorEmail": "navonjohnlukose@gmail.com",
-      "content": "Both findings are correct. Please drop this series; a v2 is coming.\r\n\r\nOn the first: arming at probe does leave the mode selected for the\r\nlifetime of the driver, and the disarm in iwl_trans_pcie_removal_wk()\r\ncannot be relied on to undo it, because it fails in exactly the case\r\nthat matters - the DSM is gated on the platform reading the device's\r\nPCI ID out of config space, so it is unavailable once the device is off\r\nthe bus, and set_product_reset() ignores that failure when disarming.\r\n_RST is not gated the same way: it reads the mode variable directly, so\r\na stale selection does execute a full product reset, Bluetooth off/on\r\nincluded, with no BT teardown and with the ME downgrade bypassed.\r\n\r\nI also need to retract something. The cover letter argued for stable on\r\nthe grounds that \"every _RST evaluation is already preceded by\r\nset_product_reset() setting the mode that reset wants, so arming at\r\nprobe cannot alter the behaviour of any later reset\". That is wrong. It\r\nholds only when the disarm succeeds, and the disarm cannot succeed on a\r\ndevice that is gone. The backport rationale as written does not stand.\r\n\r\nOn the second: yes, it logs IWL_ERR on every probe on any platform\r\nwithout this DSM, and the commit message's claim that it is a no-op\r\nthere is wrong. The two neighbouring functions,\r\niwl_trans_pcie_check_product_reset_mode() and _status(), already return\r\nsilently in the same situation, so the asymmetry looks unintended - and\r\nit is what hid the failed disarm above.\r\n\r\nv2 will instead select the mode from the suspend callback and clear it\r\non resume, so it is only selected across the suspend window; guard the\r\n_RST call with pci_device_is_present(), which reads the same config\r\nregister the platform's own gate does; and demote the log.\r\n\r\nUnrelated, but found while checking this: iwl_pcie_recheck_me_status()\r\nreads CSR_HW_IF_CONFIG_REG without a liveness check, so on a device that\r\nis off the bus it sees 0xffffffff, concludes IAMT_UP is set, and marks\r\nME present on a machine that has none - which then downgrades every\r\nlater product reset. I will send that separately.\r\n\r\nPatch 2/2 is substantively unchanged in v2.\r\n\r\nThanks for the review.\r\n\r\nNavon\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-wireless@vger.kernel.org, miriam.rachel.korenblit@intel.com",
-      "cc": "nika@nikableh.moe, emmanuel.grumbach@intel.com, helgaas@kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Navon John Lukose <navonjohnlukose@gmail.com>, stable@vger.kernel.org"
-    },
-    {
-      "id": "1a04d83c2f372a06",
-      "msgId": "<6a92d1c1.1d9ded08.62e62.0108.GAE@google.com>",
-      "inReplyTo": "<6a7a82f8.01d0871a.3a0d52.00b9.GAE@google.com>",
-      "references": "",
-      "title": "Forwarded: [PATCH] usb: gadget: u_serial: fix use-after-free of gs_port on concurrent open",
-      "updated": "Sat, 29 Aug 2026 05:34:09 -0700",
-      "authorName": "syzbot",
-      "authorEmail": "syzbot+bca09f5d8b843bbf7571@syzkaller.appspotmail.com",
-      "content": "For archival purposes, forwarding an incoming command email to\r\nlinux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com.\r\n\r\n***\r\n\r\nSubject: [PATCH] usb: gadget: u_serial: fix use-after-free of gs_port on concurrent open\r\nAuthor: lingrain580@gmail.com\r\n\r\n#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master\r\n\r\ngserial_free_line() frees the gs_port while the tty layer may still be\r\nabout to use the tty_port embedded in it.  gs_tty_driver->ports[] keeps\r\npointing at the freed memory, because tty_unregister_device() only clears\r\ncdevs[] and never touches ports[].\r\n\r\nA concurrent open() then picks up that stale pointer in tty_init_dev():\r\n\r\n\tif (!tty->port)\r\n\t\ttty->port = driver->ports[idx];\r\n\t...\r\n\ttty->port->itty = tty;\r\n\r\ngs_open() does check ports[port_num].port and returns -ENODEV, but that\r\ncheck runs after tty->port has already been assigned, so even the failed\r\nopen dereferences freed memory on its release path:\r\n\r\n  BUG: KASAN: slab-use-after-free in release_tty+0x589/0x5d0\r\n  Write of size 8 at addr ffff88804b450120 by task repro/4930\r\n\r\n  Allocated by task 4929:\r\n   gs_port_alloc\r\n   gserial_alloc_line_no_console\r\n   acm_alloc_instance\r\n   configfs_mkdir\r\n\r\n  Freed by task 4929:\r\n   gserial_free_port\r\n   gserial_free_line\r\n   acm_free_instance\r\n   config_item_cleanup\r\n\r\nThe existing wait_event(port->close_wait, gs_closed(port)) does not help\r\nhere: a failed open never increments port.count, so gs_closed() reports\r\nthe port as closed and the wait returns immediately.\r\n\r\nGive gs_port proper reference counting, the way cdc-acm.c already does on\r\nthe host side.  Add a tty_port_operations::destruct callback that performs\r\nthe kfree(), acquire a reference in a new ->install callback while holding\r\nports[].lock, and release it in ->cleanup.  gserial_free_port() now calls\r\ntty_port_put() instead of freeing directly, so the memory is released only\r\nonce the last user is gone.\r\n\r\nReproduced with the syzbot C reproducer on v7.2-rc6 with KASAN and\r\nPREEMPT_RT enabled; the report is gone after this change and the\r\nWARN_ON(port->itty) in tty_port_destructor() does not trigger, confirming\r\nthe references are balanced.\r\n\r\nReported-by: syzbot+bca09f5d8b843bbf7571@syzkaller.appspotmail.com\r\nCloses: https://syzkaller.appspot.com/bug?extid=bca09f5d8b843bbf7571\r\nCc: stable@vger.kernel.org\r\nSigned-off-by: Tianqi Dong <lingrain580@gmail.com>\r\n---\r\n drivers/usb/gadget/function/u_serial.c | 48 ++++++++++++++++++++++++--\r\n 1 file changed, 46 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c\r\nindex cdd1dfc66..6eabccf9b 100644\r\n--- a/drivers/usb/gadget/function/u_serial.c\r\n+++ b/drivers/usb/gadget/function/u_serial.c\r\n@@ -908,7 +908,51 @@ static int gs_get_icount(struct tty_struct *tty,\r\n \treturn 0;\r\n }\r\n \r\n+static void gs_port_destruct(struct tty_port *port)\r\n+{\r\n+\tstruct gs_port\t*gs = container_of(port, struct gs_port, port);\r\n+\r\n+\tkfree(gs);\r\n+}\r\n+\r\n+static const struct tty_port_operations gs_port_ops = {\r\n+\t.destruct =\t\tgs_port_destruct,\r\n+};\r\n+\r\n+/*\r\n+ * Take a reference to the port before the tty core stores it in tty->port.\r\n+ * Otherwise gserial_free_line() may free the port while a concurrent open()\r\n+ * is about to dereference the stale pointer left in gs_tty_driver->ports[].\r\n+ */\r\n+static int gs_install(struct tty_driver *driver, struct tty_struct *tty)\r\n+{\r\n+\tstruct gs_port\t*port;\r\n+\tint\t\tstatus;\r\n+\r\n+\tmutex_lock(&ports[tty->index].lock);\r\n+\tport = ports[tty->index].port;\r\n+\tif (!port) {\r\n+\t\tmutex_unlock(&ports[tty->index].lock);\r\n+\t\treturn -ENODEV;\r\n+\t}\r\n+\ttty_port_get(&port->port);\r\n+\tmutex_unlock(&ports[tty->index].lock);\r\n+\r\n+\tstatus = tty_port_install(&port->port, driver, tty);\r\n+\tif (status)\r\n+\t\ttty_port_put(&port->port);\r\n+\r\n+\treturn status;\r\n+}\r\n+\r\n+static void gs_cleanup(struct tty_struct *tty)\r\n+{\r\n+\ttty_port_put(tty->port);\r\n+}\r\n+\r\n static const struct tty_operations gs_tty_ops = {\r\n+\t.install =\t\tgs_install,\r\n+\t.cleanup =\t\tgs_cleanup,\r\n \t.open =\t\t\tgs_open,\r\n \t.close =\t\tgs_close,\r\n \t.write =\t\tgs_write,\r\n@@ -1222,6 +1266,7 @@ gs_port_alloc(unsigned port_num, struct usb_cdc_line_coding *coding)\r\n \t}\r\n \r\n \ttty_port_init(&port->port);\r\n+\tport->port.ops = &gs_port_ops;\r\n \tspin_lock_init(&port->port_lock);\r\n \tinit_waitqueue_head(&port->drain_wait);\r\n \tinit_waitqueue_head(&port->close_wait);\r\n@@ -1258,8 +1303,7 @@ static void gserial_free_port(struct gs_port *port)\r\n \t/* wait for old opens to finish */\r\n \twait_event(port->close_wait, gs_closed(port));\r\n \tWARN_ON(port->port_usb != NULL);\r\n-\ttty_port_destroy(&port->port);\r\n-\tkfree(port);\r\n+\ttty_port_put(&port->port);\r\n }\r\n \r\n void gserial_free_line(unsigned char port_num)\r\n-- \r\n2.43.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com",
-      "cc": ""
     }
   ]
 }
