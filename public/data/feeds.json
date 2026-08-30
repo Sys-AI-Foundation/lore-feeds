@@ -1,6 +1,48 @@
 {
-  "timestamp": "2026-08-30T16:27:38.982Z",
+  "timestamp": "2026-08-30T16:43:15.758Z",
   "entries": [
+    {
+      "id": "1a0538b1b3758cdc",
+      "msgId": "<apRczHobjsdUTChR@gourry-fedora-PF4VCD3F>",
+      "inReplyTo": "<20260829161850.db162f9f99deb419f4700c11@linux-foundation.org>",
+      "references": "<20260829015943.1258774-1-gourry@gourry.net> <20260829161850.db162f9f99deb419f4700c11@linux-foundation.org>",
+      "title": "Re: [PATCH 0/2] mm/mempolicy: stop copying state in the interleave paths",
+      "updated": "Sun, 30 Aug 2026 12:39:59 -0400",
+      "authorName": "Gregory Price",
+      "authorEmail": "gourry@gourry.net",
+      "content": "On Sat, Aug 29, 2026 at 04:18:50PM -0700, Andrew Morton wrote:\r\n> On Fri, 28 Aug 2026 21:59:41 -0400 Gregory Price <gourry@gourry.net> wrote:\r\n> \r\n> > The interleave node selectors and bulk allocators take copies of\r\n> > nodemasks and node weights (for weighted interleave) in the fault path.\r\n> > Both of these copies can be entirely eliminated.\r\n> > \r\n> > For node weights, use SRCU to pin the weights in place.  This eliminates\r\n> > a copy and a kmalloc from the bulk allocator path.\r\n> > \r\n> > For nodemasks, we can operate directly on pol->nodes as long as we bounds\r\n> > check the walk.  A concurrent rebind can shrink the mask, or tear the read\r\n> > of it so the mask appears empty.\r\n> > \r\n> >  - The interleave node selectors fall back to numa_node_id() when that\r\n> >    happens, which is what they already did when a copy came back empty.\r\n> > \r\n> >  - The bulk allocator simply returns what it managed to allocate.\r\n> > \r\n> > The node count and weight totals are read separately from the nodemask\r\n> > walk that consumes them - creating a time-of-check / time-of-use race.\r\n> > Just clamp the walk to a single pass (number of nodes), and clamp each\r\n> > bulk allocation chunk to the space left in the request.\r\n> > \r\n> > The cost is distribution accuracy during a rebind.  The copies never\r\n> > corrected for that either - they only kept the code from dividing by\r\n> > zero and overrunning the allocation request.\r\n> \r\n> Not very well, it seems.  Sashiko thinks there's a div-by-zero in\r\n> alloc_pages_bulk_interleave().\r\n> \r\n> \thttps://sashiko.dev/#/patchset/20260829015943.1258774-1-gourry@gourry.net\r\n> \r\n\r\nThat's what this was for :]\r\n\r\nhttps://lore.kernel.org/linux-mm/20260828193111.1023497-1-gourry@gourry.net/\r\n\r\n~Gregory\r\n\r\n",
+      "listType": "LKML",
+      "to": "Andrew Morton <akpm@linux-foundation.org>",
+      "cc": "linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com, david@kernel.org, ziy@nvidia.com, matthew.brost@intel.com, joshua.hahnjy@gmail.com, rakie.kim@sk.com, byungchul@sk.com, ying.huang@linux.alibaba.com, apopple@nvidia.com, urezki@gmail.com, chenwandun@huawei.com"
+    },
+    {
+      "id": "1a05385b23ea83c3",
+      "msgId": "<20260830163358.102281-1-sj@kernel.org>",
+      "inReplyTo": "<20260830051407.50008-2-kiyer@crusoe.ai>",
+      "references": "",
+      "title": "Re: [PATCH 1/6] mm/damon: move damon_hugetlb_mkold() from vaddr to ops-common",
+      "updated": "Sun, 30 Aug 2026 09:33:57 -0700",
+      "authorName": "SJ Park",
+      "authorEmail": "sj@kernel.org",
+      "content": "On Sat, 29 Aug 2026 22:14:02 -0700 Krishna Iyer <kiyer@crusoe.ai> wrote:\r\n\r\n> damon_hugetlb_mkold() clears the accessed bit of a hugetlb-mapping huge\r\n> PTE and propagates the aging to secondary MMUs via\r\n> mmu_notifier_clear_young(), spanning the whole huge page size.  It\r\n> currently lives in vaddr.c, and is thus usable only by the virtual\r\n> address space monitoring operations set.\r\n> \r\n> The physical address space monitoring operations set will need the same\r\n> logic, to support access monitoring of hugetlb-backed memory.  Move the\r\n> function to ops-common as-is, with no behavioral change.  A follow-up\r\n> change will use it from the folio-granular rmap walkers.\r\n\r\nLooks good to me, thank you for this patch!\r\n\r\n> \r\n> Assisted-by: Claude:claude-fable-5\r\n> Signed-off-by: Krishna Iyer <kiyer@crusoe.ai>\r\n\r\nReviewed-by: SJ Park <sj@kernel.org>\r\n\r\n\r\nThanks,\r\nSJ\r\n\r\n[...]\r\n\r\n",
+      "listType": "LKML",
+      "to": "Krishna Iyer <kiyer@crusoe.ai>",
+      "cc": "SJ Park <sj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, damon@lists.linux.dev, linux-mm@kvack.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a053827531a6e88",
+      "msgId": "<0b44f9fe48a6e81a5dbbb61ead46b77b117433b4.camel@rendec.net>",
+      "inReplyTo": "<20260821101039.4037925-5-Zhipeng.wang_1@oss.nxp.com>",
+      "references": "<20260821101039.4037925-1-Zhipeng.wang_1@oss.nxp.com>\t <20260821101039.4037925-5-Zhipeng.wang_1@oss.nxp.com>",
+      "title": "Re: [PATCH v5 4/9] irqchip/imx-irqsteer: Dispose of parent IRQ mappings in remove()",
+      "updated": "Sun, 30 Aug 2026 12:30:26 -0400",
+      "authorName": "Radu Rendec",
+      "authorEmail": "radu@rendec.net",
+      "content": "On Fri, 2026-08-21 at 19:10 +0900, Zhipeng.wang_1@oss.nxp.com wrote:\r\n> From: Zhipeng Wang <zhipeng.wang_1@nxp.com>\r\n> \r\n> probe() maps the parent output interrupts with irq_of_parse_and_map(),\r\n> but remove() only unchains the handlers and never disposes of those\r\n> mappings, leaking them on unbind. The child mappings handed out by the\r\n> domain are freed by their consumers and, together with the domain, are\r\n> now torn down by devres, so remove() only has to dispose of the parent\r\n> mappings it created itself.\r\n> \r\n> Dispose of the parent mappings alongside the chained-handler teardown.\r\n> \r\n> Fixes: 0136afa08967 (\"irqchip: Add driver for imx-irqsteer controller\")\r\n> Signed-off-by: Zhipeng Wang <zhipeng.wang_1@nxp.com>\r\n> Reviewed-by: Frank Li <Frank.Li@nxp.com>\r\n> ---\r\n>  drivers/irqchip/irq-imx-irqsteer.c | 1 +\r\n>  1 file changed, 1 insertion(+)\r\n> \r\n> diff --git a/drivers/irqchip/irq-imx-irqsteer.c b/drivers/irqchip/irq-imx-irqsteer.c\r\n> index 571324de8bd1..071ab1ac1fe9 100644\r\n> --- a/drivers/irqchip/irq-imx-irqsteer.c\r\n> +++ b/drivers/irqchip/irq-imx-irqsteer.c\r\n> @@ -287,6 +287,7 @@ static void imx_irqsteer_remove(struct platform_device *pdev)\r\n>  \r\n>  \t\tirq_set_chained_handler_and_data(irqsteer_data->irq[i],\r\n>  \t\t\t\t\t\t NULL, NULL);\r\n> +\t\tirq_dispose_mapping(irqsteer_data->irq[i]);\r\n>  \t}\r\n>  \r\n>  \tclk_disable_unprepare(irqsteer_data->ipg_clk);\r\n\r\nReviewed-by: Radu Rendec <radu@rendec.net>\r\n\r\n",
+      "listType": "LKML",
+      "to": "Zhipeng.wang_1@oss.nxp.com, Thomas Gleixner <tglx@kernel.org>, Marc Zyngier <maz@kernel.org>, Frank Li <Frank.Li@nxp.com>",
+      "cc": "Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Jindong Yue <jindong.yue@nxp.com>, xuegang.liu@nxp.com, linux-kernel@vger.kernel.org, imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org"
+    },
     {
       "id": "1a0537d3946e32f9",
       "msgId": "<2bd0c842-d0cb-4ad7-b3a3-fed2000dea83@yoavmoshe.com>",
@@ -13958,48 +14000,6 @@
       "listType": "LKML",
       "to": "Thinh Nguyen <Thinh.Nguyen@synopsys.com>",
       "cc": "Greg Kroah-Hartman <gregkh@linuxfoundation.org>, \"linux-usb@vger.kernel.org\" <linux-usb@vger.kernel.org>, \"linux-kernel@vger.kernel.org\" <linux-kernel@vger.kernel.org>, \"troy.mitchell@linux.spacemit.com\" <troy.mitchell@linux.spacemit.com>, \"peixin.xie@linux.spacemit.com\" <peixin.xie@linux.spacemit.com>"
-    },
-    {
-      "id": "1a04cdb626d69576",
-      "msgId": "<20260829093002.GC776954@noisy.programming.kicks-ass.net>",
-      "inReplyTo": "<20260827223755.143247-1-zide.chen@intel.com>",
-      "references": "<20260827223755.143247-1-zide.chen@intel.com>",
-      "title": "Re: [PATCH] KVM: x86/pmu: Add mediated vPMU PerfMon v5 support",
-      "updated": "Sat, 29 Aug 2026 11:30:02 +0200",
-      "authorName": "Peter Zijlstra",
-      "authorEmail": "peterz@infradead.org",
-      "content": "On Thu, Aug 27, 2026 at 03:37:39PM -0700, Zide Chen wrote:\r\n\r\n> Dapeng Mi (6):\r\n>   perf/x86: Plumb counter bitmap from x86_pmu to x86_pmu_cap\r\n>   perf/x86: Remove num_counters_{gp,fixed} from x86_pmu_capability\r\n\r\nAcked-by: Peter Zijlstra (Intel) <peterz@infradead.org>\r\n\r\n",
-      "listType": "LKML",
-      "to": "Zide Chen <zide.chen@intel.com>",
-      "cc": "Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Jim Mattson <jmattson@google.com>, Stephane Eranian <eranian@google.com>, linux-kernel@vger.kernel.org, Mingwei Zhang <mizhang@google.com>, Das Sandipan <Sandipan.Das@amd.com>, Shukla Manali <Manali.Shukla@amd.com>, Dapeng Mi <dapeng1.mi@linux.intel.com>, Xudong Hao <xudong.hao@intel.com>"
-    },
-    {
-      "id": "1a04cd96604cf4c5",
-      "msgId": "<CALs4sv1v7E_pxmdcNzxf8GyR7=-B26J5Z1YZ7fc4Y2Oc7Le8yg@mail.gmail.com>",
-      "inReplyTo": "<20260827230233.94878-1-joe@dama.to>",
-      "references": "<20260827230233.94878-1-joe@dama.to>",
-      "title": "Re: [PATCH net] bnxt_en: Prevent queue stop with deferred completions",
-      "updated": "Sat, 29 Aug 2026 14:57:59 +0530",
-      "authorName": "Pavan Chebbi",
-      "authorEmail": "pavan.chebbi@broadcom.com",
-      "content": ">         if (unlikely(bnxt_tx_avail(bp, txr) < bds_needed)) {\r\n>                 netif_txq_try_stop(txq, bnxt_tx_avail(bp, txr),\r\n>                                    bp->tx_wake_thresh);\r\n> -               return NETDEV_TX_BUSY;\r\n> +               goto tx_busy;\r\n>         }\r\n>\r\n>         /* BD backpressure alone cannot prevent overwriting in-flight\r\n> @@ -77,7 +77,7 @@ netdev_tx_t bnxt_sw_udp_gso_xmit(struct bnxt *bp,\r\n>          */\r\n>         if (!netif_txq_maybe_stop(txq, bnxt_inline_avail(txr),\r\n>                                   num_segs, num_segs))\r\n> -               return NETDEV_TX_BUSY;\r\n> +               goto tx_busy;\r\n>\r\n>         if (unlikely(tso_dma_map_init(&map, &pdev->dev, skb, hdr_len)))\r\n>                 goto drop;\r\n> @@ -235,4 +235,17 @@ netdev_tx_t bnxt_sw_udp_gso_xmit(struct bnxt *bp,\r\n>         dev_kfree_skb_any(skb);\r\n>         dev_core_stats_tx_dropped_inc(bp->dev);\r\n>         return NETDEV_TX_OK;\r\n> +\r\n> +tx_busy:\r\n> +       if (txr->kick_pending) {\r\n> +               u16 kick_prod = txr->kick_prod;\r\n> +               struct tx_bd *txbd0;\r\n> +\r\n> +               txbd0 = &txr->tx_desc_ring[TX_RING(bp, kick_prod)]\r\n> +                                         [TX_IDX(kick_prod)];\r\n> +               txbd0->tx_bd_len_flags_type &=\r\n> +                       cpu_to_le32(~TX_BD_FLAGS_NO_CMPL);\r\n\r\nShould we not do a bnxt_txr_db_kick() also? It maybe a good idea to do\r\nit in success case also instead of bnxt_db_write..\r\n\r\n> +       }\r\n> +\r\n> +       return NETDEV_TX_BUSY;\r\n>  }\r\n>\r\n> base-commit: e2a6641e3bfde58f2284f9859c2b0fdcc6d1c0da\r\n> --\r\n> 2.53.0-Meta\r\n>\r\n",
-      "listType": "LKML",
-      "to": "Joe Damato <joe@dama.to>",
-      "cc": "netdev@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>, Andrew Lunn <andrew+netdev@lunn.ch>, \"David S. Miller\" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, horms@kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org"
-    },
-    {
-      "id": "1a04cd93d1c163a6",
-      "msgId": "<20260829092721.GB776954@noisy.programming.kicks-ass.net>",
-      "inReplyTo": "<cover.1787955777.git.tim.c.chen@linux.intel.com>",
-      "references": "<cover.1787955777.git.tim.c.chen@linux.intel.com>",
-      "title": "Re: [RFC PATCH 0/7] sched/cache: Per-task control of cache aware scheduling via prctl",
-      "updated": "Sat, 29 Aug 2026 11:27:21 +0200",
-      "authorName": "Peter Zijlstra",
-      "authorEmail": "peterz@infradead.org",
-      "content": "On Fri, Aug 28, 2026 at 03:29:07PM -0700, Tim Chen wrote:\r\n \r\n> Feedbacks very welcome, especially on the interface shape (prctl vs. a QoS\r\n> attribute), the kernel-owned-cookie choice, and whether the always/advise/\r\n> never policy composition is the right model.\r\n\r\nWho would be using this -- what workload prompted you do do this etc.\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Tim Chen <tim.c.chen@linux.intel.com>",
-      "cc": "Ingo Molnar <mingo@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, Qais Yousef <qyousef@layalina.io>, K Prateek Nayak <kprateek.nayak@amd.com>, Juri Lelli <juri.lelli@redhat.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Valentin Schneider <vschneid@redhat.com>, Madadi Vineeth Reddy <vineethr@linux.ibm.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, Jianyong Wu <jianyong.wu@outlook.com>, Yangyu Chen <cyy@cyyself.name>, Tingyin Duan <tingyin.duan@gmail.com>, Vern Hao <vernhao@tencent.com>, Vern Hao <haoxing990@gmail.com>, Len Brown <len.brown@intel.com>, Aubrey Li <aubrey.li@intel.com>, Zhao Liu <zhao1.liu@intel.com>, Chen Yu <yu.chen.surf@gmail.com>, Chen Yu <yu.c.chen@intel.com>, Adam Li <adamli@os.amperecomputing.com>, Aaron Lu <ziqianlu@bytedance.com>, Tim Chen <tim.c.chen@intel.com>, Josh Don <joshdon@google.com>, Luo Gengkun <luogengkun2@huawei.com>, Gavin Guo <gavinguo@igalia.com>, Yi Lai <yi1.lai@intel.com>, Ricardo Neri <ricardo.neri@intel.com>, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org"
     }
   ]
 }
