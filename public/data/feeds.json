@@ -1,6 +1,62 @@
 {
-  "timestamp": "2026-09-01T05:31:16.765Z",
+  "timestamp": "2026-09-01T05:44:36.255Z",
   "entries": [
+    {
+      "id": "1a05b7e1b2d0e665",
+      "msgId": "<8a4bc155-9578-4f9d-9258-022ca765a2ea@oss.qualcomm.com>",
+      "inReplyTo": "<20260901035322.654-2-shengchao.guo@oss.qualcomm.com>",
+      "references": "<20260901035322.654-1-shengchao.guo@oss.qualcomm.com> <20260901035322.654-2-shengchao.guo@oss.qualcomm.com>",
+      "title": "Re: [PATCH 1/2] dt-bindings: clock: qcom: nord-negcc: Add the secondary QUSB2 PHY reset",
+      "updated": "Tue, 1 Sep 2026 11:12:41 +0530",
+      "authorName": "Taniya Das",
+      "authorEmail": "taniya.das@oss.qualcomm.com",
+      "content": "\r\n\r\nOn 9/1/2026 9:23 AM, Shawn Guo wrote:\r\n> From: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>\r\n> \r\n> The NE_GCC block has two eUSB2 PHY block resets - PRIM and SEC - but\r\n> right now only the primary is registered. Add the secondary, which is\r\n> required by the usb_1 eUSB2 PHY.\r\n> \r\n> Note that the SoC has three eUSB2 PHYs but only these two QUSB2PHY\r\n> resets: the HS-only USB20 tile has no dedicated QUSB2PHY reset and\r\n> is instead reset as a whole via NE_GCC_USB20_PRIM_BCR.\r\n> \r\n> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>\r\n> Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>\r\n\r\n\r\nReviewed-by: Taniya Das <taniya.das@oss.qualcomm.com>\r\n\r\n-- \r\nThanks,\r\nTaniya Das\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "Shawn Guo <shengchao.guo@oss.qualcomm.com>, Bjorn Andersson <andersson@kernel.org>",
+      "cc": "Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Krishna Kurapati <krishna.kurapati@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>"
+    },
+    {
+      "id": "1a05b7cba0cabc98",
+      "msgId": "<d2ae22e7-c84f-4963-8039-63370411896d@kernel.org>",
+      "inReplyTo": "<20260901053653.1668492-1-luoxueqin@kylinos.cn>",
+      "references": "<20260901053653.1668492-1-luoxueqin@kylinos.cn>",
+      "title": "Re: [PATCH] power: supply: max17042_battery: Fix vmin assigned instead of vmax in DT parsing",
+      "updated": "Tue, 1 Sep 2026 07:41:15 +0200",
+      "authorName": "Krzysztof Kozlowski",
+      "authorEmail": "krzk@kernel.org",
+      "content": "On 01/09/2026 07:36, Xueqin Luo wrote:\r\n> The else branch of the \"maxim,over-volt\" property check assigns the\r\n> parsed value to chip->vmin instead of chip->vmax, so chip->vmin is\r\n> overwritten and chip->vmax never gets the DT value.\r\n> \r\n> Fixes: 6a3b47a5a5fc (\"power: supply: Match DT value types\")\r\n> Signed-off-by: Xueqin Luo <luoxueqin@kylinos.cn>\r\n> ---\r\n>  drivers/power/supply/max17042_battery.c | 2 +-\r\n\r\n\r\nReviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>\r\n\r\nBest regards,\r\nKrzysztof\r\n\r\n",
+      "listType": "LKML",
+      "to": "Xueqin Luo <luoxueqin@kylinos.cn>, hansg@kernel.org, m.szyprowski@samsung.com, sebastian.krzyszkowiak@puri.sm, kernel@puri.sm, sre@kernel.org",
+      "cc": "linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a05b78d845a7571",
+      "msgId": "<20260901053653.1668492-1-luoxueqin@kylinos.cn>",
+      "inReplyTo": "",
+      "references": "",
+      "title": "[PATCH] power: supply: max17042_battery: Fix vmin assigned instead of vmax in DT parsing",
+      "updated": "Tue,  1 Sep 2026 13:36:52 +0800",
+      "authorName": "Xueqin Luo",
+      "authorEmail": "luoxueqin@kylinos.cn",
+      "content": "The else branch of the \"maxim,over-volt\" property check assigns the\r\nparsed value to chip->vmin instead of chip->vmax, so chip->vmin is\r\noverwritten and chip->vmax never gets the DT value.\r\n\r\nFixes: 6a3b47a5a5fc (\"power: supply: Match DT value types\")\r\nSigned-off-by: Xueqin Luo <luoxueqin@kylinos.cn>\r\n---\r\n drivers/power/supply/max17042_battery.c | 2 +-\r\n 1 file changed, 1 insertion(+), 1 deletion(-)\r\n\r\ndiff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c\r\nindex cbf3ac9c3e14..505a68c26463 100644\r\n--- a/drivers/power/supply/max17042_battery.c\r\n+++ b/drivers/power/supply/max17042_battery.c\r\n@@ -1233,7 +1233,7 @@ static int max17042_parse_dt(struct max17042_chip *chip)\r\n \tif (of_property_read_u32(np, \"maxim,over-volt\", &prop))\r\n \t\tchip->vmax = INT_MAX;\r\n \telse\r\n-\t\tchip->vmin = prop;\r\n+\t\tchip->vmax = prop;\r\n \r\n \treturn 0;\r\n }\r\n-- \r\n2.43.0\r\n\r\n\r\n",
+      "listType": "LKML",
+      "to": "hansg@kernel.org, krzk@kernel.org, m.szyprowski@samsung.com, sebastian.krzyszkowiak@puri.sm, kernel@puri.sm, sre@kernel.org",
+      "cc": "linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, Xueqin Luo <luoxueqin@kylinos.cn>"
+    },
+    {
+      "id": "1a05b73da5aaa55b",
+      "msgId": "<20260901053139.24079-1-sj@kernel.org>",
+      "inReplyTo": "<893af75e-690b-48f0-9cc9-afe07c05565c@huawei-partners.com>",
+      "references": "",
+      "title": "Re: [PATCH v4 3/3] Docs/mm/damon/design: Document hugepage_mem_bp target metric",
+      "updated": "Mon, 31 Aug 2026 22:31:39 -0700",
+      "authorName": "SJ Park",
+      "authorEmail": "sj@kernel.org",
+      "content": "On Tue, 1 Sep 2026 08:20:50 +0300 Gutierrez Asier <gutierrez.asier@huawei-partners.com> wrote:\r\n\r\n> On 9/1/2026 3:47 AM, SJ Park wrote:\r\n> > On Mon, 31 Aug 2026 13:00:26 -0700 Randy Dunlap <rdunlap@infradead.org> wrote:\r\n> Hi,\r\n> > \r\n> >>\r\n> >>\r\n> >> On 8/31/26 8:45 AM, Randy Dunlap wrote:\r\n> >>> Hi,\r\n> >>>\r\n> >>> On 8/31/26 7:47 AM, SJ Park wrote:\r\n> >>>> From: Asier Gutierrez <gutierrez.asier@huawei-partners.com>\r\n> >>>>\r\n> >>>> Document hugepage_mem_bp metric exposed by sysfs.\r\n> >>>>\r\n> >>>> Signed-off-by: Asier Gutierrez <gutierrez.asier@huawei-partners.com>\r\n> >>>> Reviewed-by: SJ Park <sj@kernel.org>\r\n> >>>> Signed-off-by: SJ Park <sj@kernel.org>\r\n> >>>> ---\r\n> >>>>  Documentation/mm/damon/design.rst | 2 ++\r\n> >>>>  1 file changed, 2 insertions(+)\r\n> >>>>\r\n> >>>> diff --git a/Documentation/mm/damon/design.rst b/Documentation/mm/damon/design.rst\r\n> >>>> index aed6cb1cf4831..a8c163475ef2b 100644\r\n> >>>> --- a/Documentation/mm/damon/design.rst\r\n> >>>> +++ b/Documentation/mm/damon/design.rst\r\n> >>>> @@ -713,6 +713,8 @@ mechanism tries to make ``current_value`` of ``target_metric`` be same to\r\n> >>>>    bp (1/10,000).\r\n> >>>>  - ``node_eligible_mem_bp``: Scheme target access pattern-eligible memory ratio\r\n> >>>>    of a node in bp (1/10,000).\r\n> >>>> +- ``hugepage_mem_bp``: Total huge page to total used memory ratio in bp\r\n> >>>> +  (1/10,000).\r\n> >>>>  \r\n> >>>>  ``nid`` is optionally required for ``node_mem_used_bp``, ``node_mem_free_bp``,\r\n> >>>>  ``node_memcg_used_bp``, ``node_memcg_free_bp`` and ``node_eligible_mem_bp`` to\r\n> >>>\r\n> >>> I've looked thru the entire design.rst file and cannot find anything telling\r\n> >>> me (or anyone) what \"bp\" means.  Explain??\r\n> >>\r\n> >> OK, I found it on the internet. I still think that it would be a\r\n> >> good idea to say \"basis point\" one time (the first time that it is used).\r\n> > \r\n> > You are right, and I agree.  I will add that clarification before the next\r\n> > merge window.\r\n> > \r\n> >>\r\n> >>\r\n> >> -- \r\n> >> ~Randy\r\n> > \r\n> > \r\n> > Thanks,\r\n> > SJ\r\n> \r\n> SJ, should I submit a new patch to fix design.rst?\r\n\r\nThe lack of the clarification of 'bp' was introduced before this patch.  So I\r\ndon't think you should do that on your own.\r\n\r\nOf course you could do if you want to.  But that should be a separate patch in\r\nmy opinion.  Let me know if you will.  Otherwise I will do.\r\n\r\n\r\nThanks,\r\nSJ\r\n\r\n[...]\r\n\r\n",
+      "listType": "LKML",
+      "to": "Gutierrez Asier <gutierrez.asier@huawei-partners.com>",
+      "cc": "SJ Park <sj@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, \"Liam R. Howlett\" <liam@infradead.org>, David Hildenbrand <david@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Lorenzo Stoakes <ljs@kernel.org>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Suren Baghdasaryan <surenb@google.com>, Vlastimil Babka <vbabka@kernel.org>, damon@lists.linux.dev, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org"
+    },
     {
       "id": "1a05b6f7ee4f727c",
       "msgId": "<20260901052950.3284540-3-yuan1.liu@intel.com>",
@@ -42,6 +98,20 @@
       "listType": "LKML",
       "to": "David Hildenbrand <david@kernel.org>, Oscar Salvador <osalvador@suse.de>, Mike Rapoport <rppt@kernel.org>, Wei Yang <richard.weiyang@gmail.com>",
       "cc": "linux-mm@kvack.org, Nanhai Zou <nanhai.zou@intel.com>, Chen Zhang <zhangchen.kidd@jd.com>, Yuan Liu <yuan1.liu@intel.com>, Jason Zeng <jason.zeng@intel.com>, Chen Yu <yu.c.chen@intel.com>, Pan Deng <pan.deng@intel.com>, Tianyou Li <tianyou.li@intel.com>, linux-kernel@vger.kernel.org"
+    },
+    {
+      "id": "1a05b71d82bd13a8",
+      "msgId": "<CAAsRjRn8AFBN7k3i4TMLpLsyFQc5DSL-a9u+OieFyVtYgD6x4w@mail.gmail.com>",
+      "inReplyTo": "<739079cd-dc83-4b53-a3a9-a7e610379d19@broadcom.com>",
+      "references": "<20260831085217.391-1-strst.gs@gmail.com> <CAOiHx=md28_BmsDOsNDp0XbUpfih=P+-+aDYb6tiWPJTCu1drg@mail.gmail.com> <CAAsRjRktqEx+-CLDO_q6rLUBe1dtRQPH1NkX4xy7ichx79yGPQ@mail.gmail.com> <739079cd-dc83-4b53-a3a9-a7e610379d19@broadcom.com>",
+      "title": "Re: [PATCH net v3 0/2] net: dsa: b53: fix 8021q uppers on standalone ports",
+      "updated": "Tue, 1 Sep 2026 08:29:05 +0300",
+      "authorName": "Semih Baskan",
+      "authorEmail": "strst.gs@gmail.com",
+      "content": "Hi Florian,\r\n\r\nOn Tue, Sep 1, 2026 at 3:24 AM Florian Fainelli\r\n<florian.fainelli@broadcom.com> wrote:\r\n> But you control exact how the DTS gets distributed in OpenWrt, why not\r\n> just fix all of the DTSes there and have the users confirm that using\r\n> port 8 as the IMP works?\r\n>\r\n> Don't get me wrong, I am very appreciative that you spent a decent\r\n> amount of time trying to come up with some sort of solution.\r\n\r\nThank you. Yes, that is what I am planning to do. Port 8 as the IMP\r\nis already confirmed on my board, tagged RX and PPPoE come back with\r\nno driver changes. Next week I will start with my own board in\r\nOpenWrt and hope owners of the other bcm53xx devices can confirm\r\ntheirs.\r\n\r\nBest regards,\r\nSemih\r\n\r\n",
+      "listType": "LKML",
+      "to": "Florian Fainelli <florian.fainelli@broadcom.com>",
+      "cc": "Jonas Gorski <jonas.gorski@gmail.com>, andrew@lunn.ch, olteanv@gmail.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, vladimir.oltean@nxp.com, horms@kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
       "id": "1a05b70c75c6f5ea",
@@ -9956,34 +10026,6 @@
       "cc": "Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak <kprateek.nayak@amd.com>, Mark Rutland <mark.rutland@arm.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, Phil Auld <pauld@redhat.com>, Breno Leitao <leitao@debian.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org"
     },
     {
-      "id": "1a059ae60b5494b7",
-      "msgId": "<20260831-kernel-header-removal-v2-11-b92b580ef5eb@gmail.com>",
-      "inReplyTo": "<20260831-kernel-header-removal-v2-0-b92b580ef5eb@gmail.com>",
-      "references": "<20260831-kernel-header-removal-v2-0-b92b580ef5eb@gmail.com>",
-      "title": "[PATCH v2 11/11] iio: temperature: tsys02d: make headers conform to IWYU",
-      "updated": "Mon, 31 Aug 2026 23:13:41 +0200",
-      "authorName": "Joshua Crofts",
-      "authorEmail": "joshua.crofts1@gmail.com",
-      "content": "Remove the catch-all kernel.h header, add missing headers and remove\r\nunused headers.\r\n\r\nSigned-off-by: Joshua Crofts <joshua.crofts1@gmail.com>\r\n---\r\nHeader changes explained:\r\nAdded:\r\n- <linux/array_size.h>: for ARRAY_SIZE()\r\n- <linux/bits.h>: for GENMASK() and BIT() macros\r\n- <linux/i2c.h>: for i2c_client and i2c_device_id\r\n- <linux/mutex.h>: for struct mutex and mutex_lock/unlock\r\n- <linux/sysfs.h>: for sysfs API\r\n- <linux/types.h>: for fixed-width integer types (u8, u16, etc.)\r\nRemoved:\r\n- <linux/init.h>: not directly used in this driver\r\n- <linux/kernel.h>: catch-all header no longer needed\r\n---\r\n drivers/iio/temperature/tsys02d.c | 9 +++++++--\r\n 1 file changed, 7 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/iio/temperature/tsys02d.c b/drivers/iio/temperature/tsys02d.c\r\nindex 377e27b45fdd..2c67faebd90c 100644\r\n--- a/drivers/iio/temperature/tsys02d.c\r\n+++ b/drivers/iio/temperature/tsys02d.c\r\n@@ -10,11 +10,16 @@\r\n  *  http://www.meas-spec.com/downloads/Digital_Sensor_TSYS02D.pdf\r\n  */\r\n \r\n+#include <linux/array_size.h>\r\n+#include <linux/bits.h>\r\n+#include <linux/dev_printk.h>\r\n #include <linux/device.h>\r\n-#include <linux/init.h>\r\n-#include <linux/kernel.h>\r\n+#include <linux/i2c.h>\r\n #include <linux/module.h>\r\n+#include <linux/mutex.h>\r\n #include <linux/stat.h>\r\n+#include <linux/sysfs.h>\r\n+#include <linux/types.h>\r\n \r\n #include <linux/iio/iio.h>\r\n #include <linux/iio/sysfs.h>\r\n\r\n-- \r\n2.55.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Crt Mori <cmo@melexis.com>, Puranjay Mohan <puranjay@kernel.org>",
-      "cc": "linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Joshua Crofts <joshua.crofts1@gmail.com>"
-    },
-    {
-      "id": "1a059ae3d018bbed",
-      "msgId": "<20260831-kernel-header-removal-v2-10-b92b580ef5eb@gmail.com>",
-      "inReplyTo": "<20260831-kernel-header-removal-v2-0-b92b580ef5eb@gmail.com>",
-      "references": "<20260831-kernel-header-removal-v2-0-b92b580ef5eb@gmail.com>",
-      "title": "[PATCH v2 10/11] iio: temperature: tsys02d: reorder headers",
-      "updated": "Mon, 31 Aug 2026 23:13:40 +0200",
-      "authorName": "Joshua Crofts",
-      "authorEmail": "joshua.crofts1@gmail.com",
-      "content": "Sort the headers alphabetically and group the IIO specific headers\r\nseparately.\r\n\r\nNo functional change.\r\n\r\nSigned-off-by: Joshua Crofts <joshua.crofts1@gmail.com>\r\n---\r\n drivers/iio/temperature/tsys02d.c | 5 +++--\r\n 1 file changed, 3 insertions(+), 2 deletions(-)\r\n\r\ndiff --git a/drivers/iio/temperature/tsys02d.c b/drivers/iio/temperature/tsys02d.c\r\nindex 3ef72347456e..377e27b45fdd 100644\r\n--- a/drivers/iio/temperature/tsys02d.c\r\n+++ b/drivers/iio/temperature/tsys02d.c\r\n@@ -10,11 +10,12 @@\r\n  *  http://www.meas-spec.com/downloads/Digital_Sensor_TSYS02D.pdf\r\n  */\r\n \r\n-#include <linux/init.h>\r\n #include <linux/device.h>\r\n+#include <linux/init.h>\r\n #include <linux/kernel.h>\r\n-#include <linux/stat.h>\r\n #include <linux/module.h>\r\n+#include <linux/stat.h>\r\n+\r\n #include <linux/iio/iio.h>\r\n #include <linux/iio/sysfs.h>\r\n \r\n\r\n-- \r\n2.55.0\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Crt Mori <cmo@melexis.com>, Puranjay Mohan <puranjay@kernel.org>",
-      "cc": "linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Joshua Crofts <joshua.crofts1@gmail.com>"
-    },
-    {
       "id": "1a05a67de08f5a4b",
       "msgId": "<20260831-kernel-header-removal-v2-9-b92b580ef5eb@gmail.com>",
       "inReplyTo": "<20260831-kernel-header-removal-v2-0-b92b580ef5eb@gmail.com>",
@@ -10474,20 +10516,6 @@
       "cc": "arnd@arndb.de, catalin.marinas@arm.com, will@kernel.org, peterz@infradead.org, akpm@linux-foundation.org, mark.rutland@arm.com, harisokn@amazon.com, cl@gentwo.org, ast@kernel.org, rafael@kernel.org, daniel.lezcano@linaro.org, memxor@gmail.com, zhenglifeng1@huawei.com, xueshuai@linux.alibaba.com, rdunlap@infradead.org, david.laight.linux@gmail.com, broonie@kernel.org, joao.m.martins@oracle.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, ashok.bhat@arm.com, Ankur Arora <ankur.a.arora@oracle.com>"
     },
     {
-      "id": "1a059adf44980e87",
-      "msgId": "<178820768630.1699313.2273741570972288112.b4-ty@kernel.org>",
-      "inReplyTo": "<20260527-x1e80100_qos-v2-0-305c6539e6d2@oss.qualcomm.com>",
-      "references": "<20260527-x1e80100_qos-v2-0-305c6539e6d2@oss.qualcomm.com>",
-      "title": "Re: (subset) [PATCH v2 0/3] Enable QoS configuration on X1E80100",
-      "updated": "Mon, 31 Aug 2026 15:21:24 -0500",
-      "authorName": "Bjorn Andersson",
-      "authorEmail": "andersson@kernel.org",
-      "content": "\r\nOn Wed, 27 May 2026 05:37:08 +0000, Raviteja Laggyshetty wrote:\r\n> This series enables QoS configuration for QNOC type device which\r\n> can be found on X1E80100 platform. It enables QoS configuration\r\n> for master ports with predefined priority and urgency forwarding.\r\n> This helps in prioritizing the traffic originating from different\r\n> interconnect masters at NOC (Network On Chip).\r\n> \r\n> The system may function normally without this feature. However,\r\n> enabling QoS helps optimize latency and bandwidth across subsystems\r\n> like CPU, GPU, and multimedia engines, which becomes important in\r\n> high-throughput scenarios. This is a feature aimed at performance\r\n> enhancement to improve system performance under concurrent workloads.\r\n> \r\n> [...]\r\n\r\nApplied, thanks!\r\n\r\n[3/3] arm64: dts: qcom: x1e80100: Add clocks for QoS configuration\r\n      commit: f49d819c89876f882a9f1b9ac6ae020fd7e92152\r\n\r\nBest regards,\r\n-- \r\nBjorn Andersson <andersson@kernel.org>\r\n\r\n",
-      "listType": "LKML",
-      "to": "Georgi Djakov <djakov@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Rajendra Nayak <quic_rjendra@quicinc.com>, Abel Vesa <abelvesa@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, Raviteja Laggyshetty <raviteja.laggyshetty@oss.qualcomm.com>",
-      "cc": "linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>"
-    },
-    {
       "id": "1a05a27fd6504d35",
       "msgId": "<178820768635.1699313.4119708799289566517.b4-ty@kernel.org>",
       "inReplyTo": "<20260403-milos-fp6-bt-wifi-v2-0-393322b27c5f@fairphone.com>",
@@ -10934,20 +10962,6 @@
       "listType": "LKML",
       "to": "David Hildenbrand <david@kernel.org>, \"Matthew Wilcox (Oracle)\" <willy@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>, \"Liam R. Howlett\" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, Kairui Song <kasong@tencent.com>",
       "cc": "linux-mm@kvack.org, linux-kernel@vger.kernel.org, Zi Yan <ziy@nvidia.com>, Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>"
-    },
-    {
-      "id": "1a059aee026ee532",
-      "msgId": "<20260831152505.476826d7@louisarchdesktop>",
-      "inReplyTo": "<20260821020122.1c2cc7dc@jic23-huawei>",
-      "references": "<20260820141224.23730-1-adamianlouis@gmail.com> <20260820141224.23730-6-adamianlouis@gmail.com> <20260821020122.1c2cc7dc@jic23-huawei>",
-      "title": "Re: [PATCH v3 5/5] iio: pressure: ms5637: Add per-variant compensation",
-      "updated": "Mon, 31 Aug 2026 15:25:05 -0400",
-      "authorName": "Louis Adamian",
-      "authorEmail": "adamianlouis@gmail.com",
-      "content": "On Fri, 21 Aug 2026 02:01:22 +0100\r\nJonathan Cameron <jic23@kernel.org> wrote:\r\n> \r\n> For this one Sashiko raises a valid concern.  The ABI is changing for\r\n> those deprecated choices.  To avoid that will require a slightly \r\n> annoying dance with extra copies of the data to keep the old name.\r\n> \r\n> One other question below.\r\n> \r\n\r\nI will add ms_tp_data structs for the deprecated meas,ms5637,\r\nmeas,ms5803 and meas,ms5837 compatible strings, so the name there\r\nmatches.\r\n\r\n> > +/*\r\n> > + * MS5805-02BA01 compensation constants\r\n> > + * Datasheet:\r\n> > https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=MS5805-02BA01&DocType=Data%20Sheet&DocLang=English&DocFormat=pdf&PartCntxt=MS580502BA01-50\r\n> > + * Pages: 8-9\r\n> > + * Sections: Pressure and Temperature Calculation, Second Order\r\n> > Temperature Compensation\r\n> > + */\r\n> > +static const struct ms_tp_comp_consts ms5805_consts = {\r\n> > +\t.press_scale = 1000,\r\n> > +\t.high_t2_multiplier = 0,\r\n> > +\t.high_t2_shift = 0,\r\n> > +\t.high_off2_multiplier = 0,\r\n> > +\t.high_off2_shift = 0,\r\n> > +\t.low_t2_multiplier = 11,\r\n> > +\t.low_t2_shift = 35,\r\n> > +\t.low_off2_multiplier = 31,\r\n> > +\t.low_off2_shift = 3,\r\n> > +\t.low_sens2_multiplier = 63,\r\n> > +\t.low_sens2_shift = 5,\r\n> > +\t.vlow_off2_multiplier = 0,\r\n> > +\t.vlow_sens2_multiplier = 0,\r\n> > +\t.has_vhigh_temp = false,\r\n> > +\t.off_t1_shift = 17,\r\n> > +\t.off_shift = 6,\r\n> > +\t.sens_t1_shift = 16,\r\n> > +\t.sens_shift = 7,\r\n> > +\t.press_sens_shift = 21,\r\n> > +\t.press_shift = 15,\r\n> >  };\r\n> >  \r\n> >  static const struct ms_tp_data ms5805_data = {\r\n> >  \t.name = \"ms5805\",\r\n> >  \t.hw = &ms5637_hw_data,\r\n> > -\t.comp_consts = &ms5637_02_consts,\r\n> > +\t.comp_consts = &ms5805_consts,  \r\n> \r\n> Is this change actually a fix?\r\n\r\nNo, I miswrote that. It's here because the hardware is different,\r\nso there is no implied shared compensation between them. I prefer to\r\nkeep them separate but it can be removed if you prefer.\r\n\r\n",
-      "listType": "LKML",
-      "to": "Jonathan Cameron <jic23@kernel.org>",
-      "cc": "David Lechner <dlechner@baylibre.com>, \"Nuno Sá\" <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org"
     },
     {
       "id": "1a05a3b96496344a",
@@ -11662,20 +11676,6 @@
       "listType": "LKML",
       "to": "Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade <andreas@kemnade.info>, Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, Thomas Huth <thuth@redhat.com>",
       "cc": "linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org"
-    },
-    {
-      "id": "1a059ae4e46063de",
-      "msgId": "<178819987834.2869653.4643547927480344616.b4-ty@b4>",
-      "inReplyTo": "<20260719133730.3551691-1-egbostina@gmail.com>",
-      "references": "<20260719133730.3551691-1-egbostina@gmail.com>",
-      "title": "Re: [PATCH v2 0/2] dt-bindings: input: Convert TI Keypad Controller to DT schema",
-      "updated": "Mon, 31 Aug 2026 11:11:18 -0700",
-      "authorName": "Kevin Hilman",
-      "authorEmail": "khilman@baylibre.com",
-      "content": "\r\nOn Sun, 19 Jul 2026 13:37:28 +0000, Eduard Bostina wrote:\r\n> The first patch converts the TI Keypad Controller binding to DT schema.\r\n> The second patch updates the OMAP4 and OMAP5 device trees, which is\r\n> needed because the schema requires the matrix properties.\r\n> \r\n> Changes in v2:\r\n> - Added 'interrupts', 'keypad,num-rows', 'keypad,num-columns' and\r\n>   'linux,keymap' to the required list.\r\n> - Dropped the '|' from the description.\r\n> - Added the DTS patch, so the OMAP4 and OMAP5 boards still pass\r\n>   dtbs_check with the required properties in place.\r\n> \r\n> [...]\r\n\r\nApplied, thanks!\r\n\r\n[1/2] dt-bindings: input: Convert TI Keypad Controller to DT schema\r\n      commit: 6980da9a69f59b3d061c317ed12d11fe4aa90386\r\n[2/2] ARM: dts: ti: omap: Disable keypad and enable it on the boards that use it\r\n      commit: 8d36324171f982c8e1d7f2df428faa5b05e7b1d4\r\n\r\nBest regards,\r\n-- \r\nKevin Hilman (TI) <khilman@baylibre.com>\r\n\r\n\r\n",
-      "listType": "LKML",
-      "to": "Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade <andreas@kemnade.info>, Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Rob Herring <robh@kernel.org>, Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, Eduard Bostina <egbostina@gmail.com>",
-      "cc": "daniel.baluta@nxp.com, simona.toaca@nxp.com, goledhruva@gmail.com, m-chawdhry@ti.com"
     },
     {
       "id": "1a059cb024f82b8a",
